@@ -62,14 +62,6 @@ export const ContactView: React.FC<ContactViewProps> = ({ onOpenBooking }) => {
         
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto space-y-4">
-          <div className="flex items-center justify-center gap-2 text-xs text-[#423341]/70 font-body tracking-wider">
-            <BotanicalRose color="sage" size={24} />
-            <span>Northfield Studio, Adelaide SA</span>
-            <span className="text-[#A7B596]">•</span>
-            <span>Direct Studio Inquiries</span>
-            <BotanicalRose color="blush" size={24} />
-          </div>
-
           <h1 className="font-display text-4xl sm:text-5xl text-[#423341] font-medium tracking-tight">
             {hero.headline}
           </h1>

@@ -19,13 +19,6 @@ export const CakeSmashView: React.FC<CakeSmashViewProps> = ({ onOpenBooking }) =
         {/* Hero Section */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           <div className="lg:col-span-7 space-y-6">
-            <div className="flex items-center gap-2 text-xs text-[#423341]/70 font-body tracking-wider">
-              <BotanicalRose color="sage" size={24} />
-              <span>Northfield Studio, Adelaide SA</span>
-              <span className="text-[#A7B596]">•</span>
-              <span>1st Birthday Milestone Sessions</span>
-            </div>
-
             <h1 className="font-display text-4xl sm:text-5xl text-[#423341] font-medium leading-tight">
               {hero.headline}
             </h1>
@@ -69,9 +62,12 @@ export const CakeSmashView: React.FC<CakeSmashViewProps> = ({ onOpenBooking }) =
             </div>
           </div>
 
-          <div className="lg:col-span-5">
-            <div className="bg-white p-4 rounded-3xl shadow-[0_12px_40px_rgba(66,51,65,0.08)] border border-[#EFD4CE] transform rotate-1">
-              <div className="aspect-[4/3] rounded-2xl overflow-hidden bg-[#FBF6EF]">
+          <div className="lg:col-span-5 relative pt-4">
+            <div className="relative bg-white p-3.5 pt-4 pb-7 rounded-none shadow-[0_12px_36px_rgba(66,51,65,0.12)] border border-neutral-200 transform rotate-1 hover:rotate-0 transition-transform duration-500">
+              {/* Washi / Masking Tape held on wall */}
+              <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 w-20 h-6 bg-[#E3DCD0]/90 border-t border-b border-white/60 shadow-[0_1px_3px_rgba(0,0,0,0.12)] -rotate-1 z-20 pointer-events-none" />
+
+              <div className="relative aspect-[4/3] rounded-none overflow-hidden bg-[#FBF6EF] border border-neutral-200/60">
                 <img
                   src={hero.image_source}
                   alt={hero.image_alt_text}
@@ -79,7 +75,7 @@ export const CakeSmashView: React.FC<CakeSmashViewProps> = ({ onOpenBooking }) =
                   className="w-full h-full object-cover"
                 />
               </div>
-              <p className="font-display text-center text-lg text-[#423341] font-medium mt-3">
+              <p className="font-display text-center text-base text-[#423341] font-medium mt-3">
                 First Birthday Cake Smash Setup
               </p>
             </div>

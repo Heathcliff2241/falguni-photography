@@ -74,7 +74,7 @@ export const FloatingFilmstripGallery: React.FC<FloatingFilmstripGalleryProps> =
         </div>
 
         {/* Scattered Filmstrip Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 sm:gap-10 pt-4 pb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 sm:gap-10 pt-6 pb-8">
           {filteredImages.map((img, idx) => {
             const rotationClasses = [
               '-rotate-2 hover:rotate-0',
@@ -88,10 +88,13 @@ export const FloatingFilmstripGallery: React.FC<FloatingFilmstripGalleryProps> =
               <div
                 key={img.id}
                 onClick={() => setSelectedImage(img)}
-                className={`group cursor-pointer bg-white p-3.5 sm:p-4 rounded-2xl shadow-[0_12px_36px_rgba(66,51,65,0.08)] border border-[#EFD4CE]/60 transition-all duration-300 transform hover:-translate-y-2 hover:shadow-[0_20px_48px_rgba(66,51,65,0.14)] ${rotationClass}`}
+                className={`group cursor-pointer bg-white p-3.5 pt-4 pb-7 rounded-none shadow-[0_12px_32px_rgba(66,51,65,0.10)] border border-neutral-200/90 transition-all duration-300 transform hover:-translate-y-2 hover:shadow-[0_20px_44px_rgba(66,51,65,0.16)] relative ${rotationClass}`}
               >
-                {/* Photo Frame Container */}
-                <div className={`relative overflow-hidden rounded-xl bg-[#FBF6EF] ${img.aspect}`}>
+                {/* Washi / Masking Tape held on wall */}
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-20 h-6 bg-[#E3DCD0]/90 border-t border-b border-white/60 shadow-[0_1px_3px_rgba(0,0,0,0.12)] -rotate-1 z-20 pointer-events-none" />
+
+                {/* Photo Frame Container - Uniform Aspect Ratio */}
+                <div className="relative aspect-[4/3] w-full rounded-none overflow-hidden bg-[#FBF6EF] border border-neutral-200/60">
                   <img
                     src={img.src}
                     alt={img.alt}
@@ -107,14 +110,14 @@ export const FloatingFilmstripGallery: React.FC<FloatingFilmstripGalleryProps> =
                 {/* Print Title & Caption */}
                 <div className="mt-3.5 px-1 flex items-center justify-between font-body">
                   <div>
-                    <h3 className="font-display text-lg text-[#423341] font-medium leading-snug">
+                    <h3 className="font-display text-base text-[#423341] font-medium leading-snug">
                       {img.title}
                     </h3>
-                    <p className="text-xs text-[#423341]/70 capitalize">
+                    <p className="text-xs text-[#423341]/70 capitalize mt-0.5">
                       {img.category.replace('-', ' ')} Session • Northfield Studio
                     </p>
                   </div>
-                  <span className="text-xs bg-[#EFD4CE]/50 text-[#423341] px-2.5 py-1 rounded-full font-medium">
+                  <span className="text-xs bg-[#EFD4CE]/50 text-[#423341] px-2.5 py-0.5 rounded-none border border-[#EFD4CE] font-medium shrink-0">
                     Sample
                   </span>
                 </div>

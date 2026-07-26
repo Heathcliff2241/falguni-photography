@@ -78,9 +78,12 @@ export default function HomePage() {
             </div>
 
             {/* Right Column: Hero Photo Card */}
-            <div className="lg:col-span-5 relative">
-              <div className="relative bg-white p-4 rounded-3xl shadow-[0_20px_50px_rgba(66,51,65,0.12)] border border-[#EFD4CE] transform rotate-1 hover:rotate-0 transition-transform duration-500">
-                <div className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-[#FBF6EF]">
+            <div className="lg:col-span-5 relative pt-4">
+              <div className="relative bg-white p-3.5 pt-4 pb-7 rounded-none shadow-[0_12px_36px_rgba(66,51,65,0.12)] border border-neutral-200 transform rotate-1 hover:rotate-0 transition-transform duration-500">
+                {/* Washi / Masking Tape held on wall */}
+                <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 w-20 h-6 bg-[#E3DCD0]/90 border-t border-b border-white/60 shadow-[0_1px_3px_rgba(0,0,0,0.12)] -rotate-1 z-20 pointer-events-none" />
+
+                <div className="relative aspect-[4/3] rounded-none overflow-hidden bg-[#FBF6EF] border border-neutral-200/60">
                   <img
                     src={typeof hero.image_source === 'string' ? hero.image_source : hero.image_source?.src || hero.image_source}
                     alt={hero.image_alt_text}
@@ -88,10 +91,10 @@ export default function HomePage() {
                   />
                 </div>
                 <div className="mt-3 text-center font-body">
-                  <p className="font-display text-lg text-[#423341] font-medium">
+                  <p className="font-display text-base text-[#423341] font-medium">
                     Newborn Floral Wreath Session
                   </p>
-                  <p className="text-xs text-[#423341]/70">
+                  <p className="text-xs text-[#423341]/70 mt-0.5">
                     Shot at 26 South Pkwy, Northfield SA studio
                   </p>
                 </div>

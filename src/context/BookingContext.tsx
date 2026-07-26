@@ -4,6 +4,8 @@ import { BookingModal } from '../components/BookingModal';
 interface BookingContextType {
   openBooking: (service?: string) => void;
   closeBooking: () => void;
+  openBookingModal: (service?: string) => void;
+  closeBookingModal: () => void;
   isBookingOpen: boolean;
   selectedService: string;
 }
@@ -24,13 +26,16 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
   };
 
   return (
-    <BookingContext.Provider value={{ openBooking, closeBooking, isBookingOpen: isOpen, selectedService }}>
+    <BookingContext.Provider value={{ 
+      openBooking, 
+      closeBooking, 
+      openBookingModal: openBooking, 
+      closeBookingModal: closeBooking, 
+      isBookingOpen: isOpen, 
+      selectedService 
+    }}>
       {children}
-      <BookingModal
-        isOpen={isOpen}
-        onClose={closeBooking}
-        initialService={selectedService}
-      />
+      <BookingModal />
     </BookingContext.Provider>
   );
 };
@@ -42,6 +47,8 @@ export const useBooking = (): BookingContextType => {
     return {
       openBooking: () => {},
       closeBooking: () => {},
+      openBookingModal: () => {},
+      closeBookingModal: () => {},
       isBookingOpen: false,
       selectedService: 'newborn'
     };
