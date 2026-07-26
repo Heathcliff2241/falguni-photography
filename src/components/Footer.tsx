@@ -30,29 +30,46 @@ export const Footer: React.FC = () => {
             </div>
           </div>
 
-          {/* Quick NAP Contact Info */}
+          {/* Studio Location & Interactive Map */}
           <div className="space-y-4">
-            <h3 className="font-display text-lg font-medium text-[#EFD4CE] tracking-wide">
+            <h3 className="font-display text-lg font-medium text-[#EFD4CE] tracking-wide flex items-center gap-2">
+              <MapPin size={20} className="text-[#EFD4CE]" />
               Studio Location
             </h3>
-            <ul className="space-y-3 text-sm text-[#FBF6EF]/80">
-              <li className="flex items-start gap-2.5">
-                <MapPin size={18} className="text-[#EFD4CE] shrink-0 mt-0.5" />
-                <span>{LOCAL_NAP.address}</span>
+            <ul className="space-y-2 text-sm text-[#FBF6EF]/80">
+              <li>
+                <span className="font-semibold text-[#FBF6EF]">{LOCAL_NAP.address}</span>
               </li>
-              <li className="flex items-center gap-2.5">
-                <PhoneCall size={18} className="text-[#EFD4CE] shrink-0" />
+              <li className="flex items-center gap-2">
+                <PhoneCall size={16} className="text-[#EFD4CE] shrink-0" />
                 <a href={`tel:${LOCAL_NAP.phone_clean}`} className="hover:text-[#EFD4CE] transition-colors">
                   {LOCAL_NAP.phone}
                 </a>
               </li>
-              <li className="flex items-center gap-2.5">
-                <EnvelopeSimple size={18} className="text-[#EFD4CE] shrink-0" />
-                <a href="mailto:cesaresmero2@gmail.com" className="hover:text-[#EFD4CE] transition-colors">
-                  Contact Studio
-                </a>
-              </li>
             </ul>
+
+            {/* Google Map Embed Frame */}
+            <div className="rounded-2xl overflow-hidden border border-[#EFD4CE]/30 bg-[#322631] shadow-inner">
+              <iframe
+                title="Falguni's Photography Studio Location - Northfield SA"
+                src="https://maps.google.com/maps?q=26+South+Pkwy,+Northfield+SA+5085,+Australia&t=&z=14&ie=UTF8&iwloc=&output=embed"
+                width="100%"
+                height="150"
+                style={{ border: 0 }}
+                allowFullScreen={false}
+                loading="lazy"
+                referrerPolicy="no-referrer"
+                className="w-full h-[140px] opacity-90 hover:opacity-100 transition-opacity"
+              ></iframe>
+              <a
+                href="https://maps.app.goo.gl/Yif226m28rnSjBNq9"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block text-center text-xs font-semibold py-2 bg-[#EFD4CE]/10 hover:bg-[#EFD4CE] text-[#EFD4CE] hover:text-[#423341] transition-all border-t border-[#EFD4CE]/20"
+              >
+                Open in Google Maps 📍
+              </a>
+            </div>
           </div>
 
           {/* Photography Services */}
