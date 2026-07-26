@@ -55,11 +55,8 @@ export const ServicesOverviewView: React.FC<ServicesOverviewViewProps> = ({ onOp
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto space-y-4">
-          <div className="flex items-center justify-center gap-2">
+          <div className="flex items-center justify-center gap-3 mb-2">
             <BotanicalRose color="sage" size={32} />
-            <span className="font-body text-xs font-semibold uppercase tracking-widest text-[#A7B596]">
-              Northfield Studio Packages
-            </span>
             <BotanicalRose color="blush" size={32} />
           </div>
 

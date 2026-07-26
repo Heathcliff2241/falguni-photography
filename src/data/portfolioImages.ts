@@ -71,11 +71,11 @@ export const PORTFOLIO_IMAGES: PortfolioImage[] = [
   },
   {
     id: 'std-1',
-    title: 'Falguni & Husband - Studio Owners',
+    title: 'Falguni - Studio Owner & Photographer',
     category: 'newborn',
     src: studioCouple,
-    alt: 'Falguni and her husband, owners of Falguni\'s Photography, Northfield studio',
-    description: 'Meet Falguni and her husband in their Northfield studio surrounded by newborn wraps and props.',
+    alt: 'Falguni, owner and photographer of Falguni\'s Photography, Northfield studio',
+    description: 'Meet Falguni in her Northfield studio surrounded by newborn wraps and props.',
     rotation: 'rotate-1',
     aspect: 'aspect-[4/3]'
   },

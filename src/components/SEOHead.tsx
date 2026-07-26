@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { LOCAL_NAP, SITE_PAGES } from '../data/siteData';
+import { CENTRAL_SEO_CONFIG } from '../data/seoConfig';
 
 interface SEOHeadProps {
   currentPath: string;
@@ -13,12 +14,18 @@ export const SEOHead: React.FC<SEOHeadProps> = ({
   metaDescription
 }) => {
   useEffect(() => {
-    // 1. Update Title
-    const title = metaTitle || "Newborn & Maternity Photographer Northfield | Falguni's Photography";
+    // Lookup centralized route metadata or fallback to default configuration
+    const routeConfig = CENTRAL_SEO_CONFIG.routeMetadata[currentPath];
+    
+    const title = metaTitle || routeConfig?.title || CENTRAL_SEO_CONFIG.defaultTitle;
+    const description = metaDescription || routeConfig?.description || CENTRAL_SEO_CONFIG.defaultDescription;
+    const keywordsList = routeConfig?.keywords || CENTRAL_SEO_CONFIG.globalKeywords;
+
+    // 1. Update Document Title
     document.title = title;
 
-    // 2. Helper to set or update meta tag
-    const updateMeta = (nameAttr: string, attrValue: string, content: string) => {
+    // 2. Helper to set or update head meta tag
+    const updateMeta = (nameAttr: 'name' | 'property', attrValue: string, content: string) => {
       let element = document.querySelector(`meta[${nameAttr}="${attrValue}"]`);
       if (!element) {
         element = document.createElement('meta');
@@ -28,42 +35,62 @@ export const SEOHead: React.FC<SEOHeadProps> = ({
       element.setAttribute('content', content);
     };
 
-    const description = metaDescription || "Gentle, unhurried newborn, maternity, family, and cake smash photography in Northfield, Adelaide SA. 56 five-star Google reviews. Sessions from $250.";
-
+    // Standard Meta Tags
     updateMeta('name', 'description', description);
+    updateMeta('name', 'keywords', keywordsList.join(', '));
+    updateMeta('name', 'robots', 'index, follow');
+
+    // Geo-Tagging Meta Tags for Local Discovery in Northfield & Greater Adelaide
+    updateMeta('name', 'geo.region', CENTRAL_SEO_CONFIG.geo.region);
+    updateMeta('name', 'geo.placename', CENTRAL_SEO_CONFIG.geo.placename);
+    updateMeta('name', 'geo.position', CENTRAL_SEO_CONFIG.geo.position);
+    updateMeta('name', 'ICBM', CENTRAL_SEO_CONFIG.geo.icbm);
+
+    // OpenGraph Protocol Metadata
+    const absoluteUrl = `${CENTRAL_SEO_CONFIG.siteUrl}${currentPath}`;
     updateMeta('property', 'og:title', title);
     updateMeta('property', 'og:description', description);
-    updateMeta('property', 'og:url', window.location.origin + currentPath);
+    updateMeta('property', 'og:url', absoluteUrl);
+    updateMeta('property', 'og:type', 'website');
+    updateMeta('property', 'og:site_name', CENTRAL_SEO_CONFIG.siteName);
+    updateMeta('property', 'og:locale', 'en_AU');
+    updateMeta('property', 'og:region', CENTRAL_SEO_CONFIG.geo.state);
+    updateMeta('property', 'og:country-name', CENTRAL_SEO_CONFIG.geo.country);
+    updateMeta('property', 'og:locality', CENTRAL_SEO_CONFIG.geo.locality);
+    updateMeta('property', 'og:postal-code', CENTRAL_SEO_CONFIG.geo.postalCode);
+
+    // Twitter Card Metadata
+    updateMeta('name', 'twitter:card', 'summary_large_image');
     updateMeta('name', 'twitter:title', title);
     updateMeta('name', 'twitter:description', description);
 
-    // 3. Update Canonical Link
+    // 3. Update Canonical Link tag
     let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement;
     if (!canonical) {
       canonical = document.createElement('link');
       canonical.setAttribute('rel', 'canonical');
       document.head.appendChild(canonical);
     }
-    canonical.setAttribute('href', window.location.origin + currentPath);
+    canonical.setAttribute('href', absoluteUrl);
 
-    // 4. Inject Dynamic Schema.org JSON-LD for AI Discovery and GEO Search
+    // 4. Schema.org JSON-LD Structured Data Injection for Local Business & Geo Discovery
     const localBusinessSchema = {
       "@context": "https://schema.org",
       "@type": ["Photographer", "LocalBusiness"],
-      "@id": `${window.location.origin}/#studio`,
+      "@id": `${CENTRAL_SEO_CONFIG.siteUrl}/#studio`,
       "name": LOCAL_NAP.business_name,
-      "description": "Boutique newborn, maternity, family, and cake smash photography studio in Northfield, Adelaide SA. 56 five-star Google reviews.",
-      "url": window.location.origin,
+      "description": description,
+      "url": CENTRAL_SEO_CONFIG.siteUrl,
       "telephone": LOCAL_NAP.phone,
       "priceRange": "$250 - $800",
       "currenciesAccepted": "AUD",
       "address": {
         "@type": "PostalAddress",
-        "streetAddress": "26 South Pkwy",
-        "addressLocality": "Northfield",
-        "addressRegion": "SA",
-        "postalCode": "5085",
-        "addressCountry": "AU"
+        "streetAddress": CENTRAL_SEO_CONFIG.geo.streetAddress,
+        "addressLocality": CENTRAL_SEO_CONFIG.geo.locality,
+        "addressRegion": CENTRAL_SEO_CONFIG.geo.state,
+        "postalCode": CENTRAL_SEO_CONFIG.geo.postalCode,
+        "addressCountry": CENTRAL_SEO_CONFIG.geo.country
       },
       "geo": {
         "@type": "GeoCoordinates",
@@ -78,33 +105,23 @@ export const SEOHead: React.FC<SEOHeadProps> = ({
           "closes": "17:00"
         }
       ],
-      "areaServed": [
-        "Northfield",
-        "Lightsview",
-        "Klemzig",
-        "Walkerville",
-        "Mawson Lakes",
-        "Prospect",
-        "Oakden",
-        "Golden Grove",
-        "Adelaide Northern Suburbs"
-      ],
+      "areaServed": CENTRAL_SEO_CONFIG.geo.serviceAreas,
       "aggregateRating": {
         "@type": "AggregateRating",
         "ratingValue": LOCAL_NAP.rating,
         "reviewCount": LOCAL_NAP.review_count.toString()
       },
       "knowsAbout": [
-        "Newborn Photography",
-        "Maternity Photography",
-        "Family Portraits",
-        "Cake Smash Photography",
+        "Newborn Photography Northfield",
+        "Maternity Photography Adelaide",
+        "Family Portraits Northfield",
+        "Cake Smash Photography Adelaide",
         "Infant Soothing & Posing",
         "Studio Styling & Props"
       ]
     };
 
-    // FAQ Schema if applicable
+    // Dynamic FAQ Schema Injection
     let faqSchema: any = null;
     const pageKeyMap: Record<string, string> = {
       '/services/newborn-photography': 'newborn',

@@ -24,11 +24,8 @@ export const HomeView: React.FC<HomeViewProps> = ({ onOpenBooking }) => {
             
             {/* Left Column: Keyword-First Title & Positioning */}
             <div className="lg:col-span-7 space-y-6">
-              <div className="flex items-center gap-2">
-                <BotanicalRose color="sage" size={36} />
-                <span className="font-body text-xs font-semibold uppercase tracking-widest text-[#A7B596]">
-                  Northfield, South Australia • 56 Five-Star Reviews
-                </span>
+              <div className="flex items-center gap-3 mb-1">
+                <BotanicalRose color="sage" size={38} />
               </div>
 
               {/* Keyword-first h1 headline */}

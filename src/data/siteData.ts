@@ -32,7 +32,7 @@ export const SITE_PAGES: Record<string, PageData> = {
         section_name: "hero",
         heading_tag: "h1",
         headline: "Newborn & Maternity Photography in Northfield, Adelaide",
-        subheadline: "Run by a husband-and-wife team who've spent 3+ years learning exactly how to keep a newborn calm, a toddler smiling, and a mom-to-be glowing in front of the camera.",
+        subheadline: "Specialist newborn, maternity, and family photographer who's spent 3+ years learning exactly how to keep a newborn calm, a toddler smiling, and a mom-to-be glowing in front of the camera.",
         body_copy: "Falguni's Photography is a newborn, maternity, and family photography studio in Northfield, serving Adelaide families from Lightsview to Klemzig and beyond. Sessions start at $250 and include a full range of wraps, backdrops, and props. Every shoot is unhurried, so your baby sets the pace, not the clock.",
         cta_text: "Book Your Session",
         cta_path: "/contact",
@@ -251,20 +251,20 @@ export const SITE_PAGES: Record<string, PageData> = {
   about: {
     name: "About",
     url: "/about",
-    purpose: "Build trust in Falguni and her husband as the people behind the camera.",
+    purpose: "Build trust in Falguni as the passionate photographer behind the camera.",
     meta_title: "About Falguni's Photography | Northfield, Adelaide",
-    meta_description: "Meet the husband-and-wife team behind Falguni's Photography in Northfield, Adelaide. 3+ years, 56 five-star reviews, newborn and maternity specialists.",
+    meta_description: "Meet Falguni, the patient photographer behind Falguni's Photography in Northfield, Adelaide. 3+ years, 56 five-star reviews, newborn and maternity specialist.",
     sections: [
       {
         section_name: "hero",
         heading_tag: "h1",
         headline: "About Falguni's Photography, Northfield SA",
-        subheadline: "A husband-and-wife team who've turned holding fussy babies into an actual skill.",
-        body_copy: "Falguni's Photography is run by Falguni and her husband from their Northfield studio, serving Adelaide families for 3+ years. What started as a passion for capturing newborns has grown into 56 five-star reviews from parents who came back for maternity, first birthdays, and everything in between.",
-        cta_text: "Meet Us In Person",
+        subheadline: "A dedicated photographer who's turned holding fussy babies into an actual art form.",
+        body_copy: "Falguni's Photography is led by Falguni from her boutique Northfield studio, serving Adelaide families for 3+ years. What started as a passion for capturing newborns has grown into 56 five-star reviews from parents who come back for maternity, first birthdays, and everything in between.",
+        cta_text: "Book Your Session",
         cta_path: "/contact",
         image_source: studioCouple,
-        image_alt_text: "Falguni and her husband, owners of Falguni's Photography, Northfield studio",
+        image_alt_text: "Falguni in her Northfield studio, owner of Falguni's Photography",
         seo_notes: ""
       }
     ],

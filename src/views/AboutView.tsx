@@ -19,11 +19,8 @@ export const AboutView: React.FC<AboutViewProps> = ({ onOpenBooking }) => {
         {/* Hero Section */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           <div className="lg:col-span-7 space-y-6">
-            <div className="flex items-center gap-2">
-              <BotanicalRose color="sage" size={32} />
-              <span className="font-body text-xs font-semibold uppercase tracking-widest text-[#A7B596]">
-                Husband-and-Wife Team • 3+ Years in Northfield
-              </span>
+            <div className="flex items-center gap-3 mb-2">
+              <BotanicalRose color="sage" size={36} />
             </div>
 
             <h1 className="font-display text-4xl sm:text-5xl text-[#423341] font-medium leading-tight">
@@ -48,7 +45,7 @@ export const AboutView: React.FC<AboutViewProps> = ({ onOpenBooking }) => {
                 </span>
               </div>
               <p className="text-xs text-[#423341]/80 leading-relaxed">
-                Rather than rotating staff or rushing through back-to-back studio slots, Falguni personally shoots every session alongside her husband. They take pride in giving new parents a peaceful, warm environment where feeding breaks are welcomed and no baby is ever pressured to pose.
+                Rather than rotating staff or rushing through back-to-back studio slots, Falguni personally shoots and styles every session. She takes pride in giving new parents a peaceful, warm environment where feeding breaks are welcomed and no baby is ever pressured to pose.
               </p>
             </div>
 
@@ -81,7 +78,7 @@ export const AboutView: React.FC<AboutViewProps> = ({ onOpenBooking }) => {
                 />
               </div>
               <p className="font-display text-center text-lg text-[#423341] font-medium mt-3">
-                Falguni & Her Husband at Northfield Studio
+                Falguni at Northfield Studio
               </p>
             </div>
           </div>

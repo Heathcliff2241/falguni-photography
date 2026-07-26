@@ -19,11 +19,8 @@ export const CakeSmashView: React.FC<CakeSmashViewProps> = ({ onOpenBooking }) =
         {/* Hero Section */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           <div className="lg:col-span-7 space-y-6">
-            <div className="flex items-center gap-2">
-              <BotanicalRose color="sage" size={32} />
-              <span className="font-body text-xs font-semibold uppercase tracking-widest text-[#A7B596]">
-                First Birthday Milestone • Northfield Studio
-              </span>
+            <div className="flex items-center gap-3 mb-1">
+              <BotanicalRose color="sage" size={38} />
             </div>
 
             <h1 className="font-display text-4xl sm:text-5xl text-[#423341] font-medium leading-tight">

@@ -18,7 +18,7 @@ export const Footer: React.FC = () => {
               </span>
             </div>
             <p className="text-sm text-[#FBF6EF]/80 leading-relaxed">
-              Husband-and-wife newborn, maternity, and family photography studio in Northfield, Adelaide.
+              Boutique newborn, maternity, and family photography studio in Northfield, Adelaide.
               Gentle, unhurried sessions paced around your baby's needs.
             </p>
             <div className="bg-[#EFD4CE]/10 p-3 rounded-2xl border border-[#EFD4CE]/20 inline-block">

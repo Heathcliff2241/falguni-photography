@@ -16,24 +16,6 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, onOpenBooking }) =>
 
   return (
     <header className="sticky top-0 z-40 bg-[#FBF6EF]/90 backdrop-blur-md border-b border-[#EFD4CE]/40 transition-all">
-      {/* Top micro bar with location and phone */}
-      <div className="bg-[#423341] text-[#FBF6EF] text-xs py-1.5 px-4 text-center sm:text-left flex flex-col sm:flex-row items-center justify-between max-w-7xl mx-auto font-body">
-        <div className="flex items-center gap-2">
-          <span>📍 {LOCAL_NAP.address}</span>
-          <span className="hidden sm:inline text-[#EFD4CE]">•</span>
-          <span className="hidden sm:inline">56 Five-Star Google Reviews</span>
-        </div>
-        <div className="flex items-center gap-4 mt-1 sm:mt-0">
-          <a
-            href={`tel:${LOCAL_NAP.phone_clean}`}
-            className="hover:text-[#EFD4CE] transition-colors flex items-center gap-1"
-          >
-            <PhoneCall size={14} weight="regular" />
-            <span>{LOCAL_NAP.phone}</span>
-          </a>
-        </div>
-      </div>
-
       {/* Main navigation header */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
         {/* Brand Logo */}
