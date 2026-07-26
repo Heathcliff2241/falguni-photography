@@ -1,49 +1,50 @@
-'use client';
-
 import React, { createContext, useContext, useState } from 'react';
+import { BookingModal } from '../components/BookingModal';
 
 interface BookingContextType {
+  openBooking: (service?: string) => void;
+  closeBooking: () => void;
   isBookingOpen: boolean;
   selectedService: string;
-  openBookingModal: (service?: string) => void;
-  closeBookingModal: () => void;
 }
 
 const BookingContext = createContext<BookingContextType | undefined>(undefined);
 
 export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [isBookingOpen, setIsBookingOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
   const [selectedService, setSelectedService] = useState('newborn');
 
-  const openBookingModal = (service?: string) => {
-    if (service) {
-      setSelectedService(service);
-    }
-    setIsBookingOpen(true);
+  const openBooking = (service = 'newborn') => {
+    setSelectedService(service);
+    setIsOpen(true);
   };
 
-  const closeBookingModal = () => {
-    setIsBookingOpen(false);
+  const closeBooking = () => {
+    setIsOpen(false);
   };
 
   return (
-    <BookingContext.Provider
-      value={{
-        isBookingOpen,
-        selectedService,
-        openBookingModal,
-        closeBookingModal,
-      }}
-    >
+    <BookingContext.Provider value={{ openBooking, closeBooking, isBookingOpen: isOpen, selectedService }}>
       {children}
+      <BookingModal
+        isOpen={isOpen}
+        onClose={closeBooking}
+        initialService={selectedService}
+      />
     </BookingContext.Provider>
   );
 };
 
-export const useBooking = () => {
+export const useBooking = (): BookingContextType => {
   const context = useContext(BookingContext);
   if (!context) {
-    throw new Error('useBooking must be used within a BookingProvider');
+    // Graceful fallback so it never crashes even if called outside provider
+    return {
+      openBooking: () => {},
+      closeBooking: () => {},
+      isBookingOpen: false,
+      selectedService: 'newborn'
+    };
   }
   return context;
 };

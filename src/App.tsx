@@ -11,9 +11,11 @@ import { GalleryView } from './views/GalleryView';
 import { AboutView } from './views/AboutView';
 import { ContactView } from './views/ContactView';
 import { AdminLeadsView } from './views/AdminLeadsView';
+import { BookingProvider, useBooking } from './context/BookingContext';
 
-export function App() {
+function AppContent() {
   const [currentPath, setCurrentPath] = useState<string>('/');
+  const { openBooking } = useBooking();
 
   useEffect(() => {
     // Initial path load
@@ -50,53 +52,53 @@ export function App() {
   }, []);
 
   // Determine current page data and view
-  let view = <HomeView onOpenBooking={() => {}} />;
+  let view = <HomeView onOpenBooking={openBooking} />;
   let metaTitle = SITE_PAGES.home.meta_title;
   let metaDescription = SITE_PAGES.home.meta_description;
 
   switch (currentPath) {
     case '/':
-      view = <HomeView onOpenBooking={() => {}} />;
+      view = <HomeView onOpenBooking={openBooking} />;
       metaTitle = SITE_PAGES.home.meta_title;
       metaDescription = SITE_PAGES.home.meta_description;
       break;
     case '/services':
-      view = <ServicesOverviewView onOpenBooking={() => {}} />;
+      view = <ServicesOverviewView onOpenBooking={openBooking} />;
       metaTitle = SITE_PAGES.services.meta_title;
       metaDescription = SITE_PAGES.services.meta_description;
       break;
     case '/services/newborn-photography':
-      view = <NewbornView onOpenBooking={() => {}} />;
+      view = <NewbornView onOpenBooking={openBooking} />;
       metaTitle = SITE_PAGES.newborn.meta_title;
       metaDescription = SITE_PAGES.newborn.meta_description;
       break;
     case '/services/maternity-photography':
-      view = <MaternityView onOpenBooking={() => {}} />;
+      view = <MaternityView onOpenBooking={openBooking} />;
       metaTitle = SITE_PAGES.maternity.meta_title;
       metaDescription = SITE_PAGES.maternity.meta_description;
       break;
     case '/services/family-photography':
-      view = <FamilyView onOpenBooking={() => {}} />;
+      view = <FamilyView onOpenBooking={openBooking} />;
       metaTitle = SITE_PAGES.family.meta_title;
       metaDescription = SITE_PAGES.family.meta_description;
       break;
     case '/services/cake-smash-photography':
-      view = <CakeSmashView onOpenBooking={() => {}} />;
+      view = <CakeSmashView onOpenBooking={openBooking} />;
       metaTitle = SITE_PAGES.cake_smash.meta_title;
       metaDescription = SITE_PAGES.cake_smash.meta_description;
       break;
     case '/gallery':
-      view = <GalleryView onOpenBooking={() => {}} />;
+      view = <GalleryView onOpenBooking={openBooking} />;
       metaTitle = SITE_PAGES.gallery.meta_title;
       metaDescription = SITE_PAGES.gallery.meta_description;
       break;
     case '/about':
-      view = <AboutView onOpenBooking={() => {}} />;
+      view = <AboutView onOpenBooking={openBooking} />;
       metaTitle = SITE_PAGES.about.meta_title;
       metaDescription = SITE_PAGES.about.meta_description;
       break;
     case '/contact':
-      view = <ContactView onOpenBooking={() => {}} />;
+      view = <ContactView onOpenBooking={openBooking} />;
       metaTitle = SITE_PAGES.contact.meta_title;
       metaDescription = SITE_PAGES.contact.meta_description;
       break;
@@ -106,7 +108,7 @@ export function App() {
       metaDescription = "Lead capture log and Poppy conversation transcripts.";
       break;
     default:
-      view = <HomeView onOpenBooking={() => {}} />;
+      view = <HomeView onOpenBooking={openBooking} />;
       break;
   }
 
@@ -118,6 +120,14 @@ export function App() {
     >
       {view}
     </PageLayout>
+  );
+}
+
+export function App() {
+  return (
+    <BookingProvider>
+      <AppContent />
+    </BookingProvider>
   );
 }
 
