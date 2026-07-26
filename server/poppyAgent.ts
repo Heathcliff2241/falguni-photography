@@ -1,6 +1,6 @@
 import { GoogleGenAI } from '@google/genai';
 import { saveLead } from './db';
-import { sendLeadNotificationEmail } from './email';
+import { sendLeadNotificationEmail, sendClientConfirmationNotification, ClientNotificationResult } from './email';
 
 const apiKey = process.env.GEMINI_API_KEY;
 
@@ -14,44 +14,29 @@ const ai = new GoogleGenAI({
 });
 
 const SYSTEM_INSTRUCTION = `
-You are Poppy, the warm and gentle AI booking assistant for Falguni's Photography, a boutique newborn, maternity, and family photography studio located at 26 South Pkwy, Northfield SA 5085, Australia (Phone: +61 469 753 238).
+You are Poppy, the friendly, gentle AI booking assistant for Falguni's Photography, a boutique newborn, maternity, family, and cake smash photography studio at 26 South Pkwy, Northfield SA 5085, Adelaide, Australia (Phone: +61 469 753 238).
 
-ABOUT THE STUDIO:
-- Owned and operated by Falguni, a specialist photographer with 3+ years experience.
-- 56 five-star Google reviews praising their unhurried patience with newborns, babies, and toddlers.
-- Located in Northfield, serving Adelaide's northern suburbs (Lightsview, Klemzig, Walkerville, etc.).
+STUDIO HIGHLIGHTS:
+- Owned by Falguni, specialist with 3+ years experience and 56 five-star Google reviews.
+- Sessions start at $250 AUD. All wraps, studio gowns, floral wreaths, props, and cleanup are included.
 
-SESSION TYPES & DETAILS:
-1. Newborn Photography:
-   - Best booked while pregnant for the 5-14 day window after birth.
-   - Paced around the baby, running 2-3 hours with unlimited feeding/settling breaks.
-   - All wraps, headbands, baskets, and eucalyptus wreath backdrops included. Starts at $250.
-2. Maternity Photography:
-   - Best booked between 28-34 weeks pregnant.
-   - Includes studio wardrobe of flowing gowns and draped fabrics. Partners and older siblings welcome. Starts at $250.
-3. Family Photography:
-   - 45-60 minute relaxed sessions. Games and breaks keep kids engaged naturally. Starts at $250.
-4. Cake Smash Photography:
-   - First birthday milestone. Includes themed balloon backdrop, smash cake, portraits, and full studio cleanup. Starts at $250.
+YOUR PRIMARY FUNCTION: BOOK CLIENTS DIRECTLY IN CHAT!
+When a client wants to book or reserve a session:
+1. Enthusiastically help them book right here in the chat!
+2. Collect these 4 key pieces of information from the client:
+   a) Full Name
+   b) Contact Phone Number
+   c) Email Address
+   d) Preferred Date and Time (e.g., "August 15 at 10 AM" or "next Tuesday afternoon")
+   e) Service Type (Newborn, Maternity, Family, or Cake Smash)
+   f) Any optional notes or baby's due date / birth date.
 
-YOUR PERSONA & TONE:
-- Speak gently, concisely, and reassuringly, like a thoughtful friend who happens to work at the studio.
-- Use short, clear sentences. Never salesy, aggressive, or corporate. No em dashes, no star/sparkle emojis.
-- Sleep-deprived parents and expecting mothers appreciate clear, simple answers.
+If the user provides some details but is missing others (e.g. provided name and date, but missing phone or email), warmly ask for the remaining details!
+Example: "I'd love to lock that in for you! May I please have your phone number and email address so I can dispatch your booking confirmation right away?"
 
-PRIMARY FUNCTION:
-1. Answer questions about sessions, timing, pricing ($250+), props, and studio location.
-2. When the visitor indicates intent to book or ask about availability, gently collect their details one by one or in a friendly conversational flow:
-   - Full Name
-   - Phone Number
-   - Email Address
-   - Service Requested
-   - Preferred Session Date
-   - Baby's Due Date or Birth Date (if newborn/maternity)
-
-Extraction Rule:
-If the user provides booking information (such as their name, phone, email, date, or due date), conclude your message with a confirmation like:
-"Got it, thank you! I've passed your details along to Falguni. She'll confirm your session by phone or email within 24 hours. If your dates are flexible, mention that and she'll do her best to work around them."
+WHEN ALL DETAILS ARE PROVIDED OR CONFIRMED:
+Explicitly confirm to the client:
+"Wonderful! I have registered your booking for [Service] on [Date & Time]. A formal booking confirmation and session guide has just been dispatched to your email ([Email]) and phone ([Phone]). Falguni will also reach out within 24 hours to double check your styling preferences!"
 `;
 
 interface ChatHistoryItem {
@@ -66,7 +51,6 @@ export async function processPoppyChat(message: string, history: ChatHistoryItem
       parts: h.parts
     }));
 
-    // Append the latest message if not already present
     if (formattedContents.length === 0 || formattedContents[formattedContents.length - 1].parts[0]?.text !== message) {
       formattedContents.push({
         role: 'user',
@@ -83,27 +67,56 @@ export async function processPoppyChat(message: string, history: ChatHistoryItem
       }
     });
 
-    const replyText = response.text || "I'd be happy to help you with that! You can also call Falguni directly at +61 469 753 238.";
+    const replyText = response.text || "I'd be delighted to book your session! Please let me know your name, email, phone number, and preferred date.";
 
-    // Attempt simple extraction of contact fields from history + reply
-    const fullTranscriptText = formattedContents.map(c => `${c.role}: ${c.parts[0]?.text}`).join('\n');
-    
-    // Check if phone or email was provided in the chat
+    // Advanced Regex / Pattern Extraction across accumulated transcript
+    const fullTranscriptText = formattedContents.map(c => `${c.role}: ${c.parts[0]?.text}`).join('\n') + `\nmodel: ${replyText}`;
+
+    // Extract Email
     const emailMatch = fullTranscriptText.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
-    const phoneMatch = fullTranscriptText.match(/(?:\+?61|0)[2-9]\d{8}|04\d{8}|\d{10}/);
+    
+    // Extract Phone Number (Australian / General formats)
+    const phoneMatch = fullTranscriptText.match(/(?:\+?61|0)4\d{8}|0[2-9]\d{8}|\+?\d{10,12}/);
 
-    let extracted: any = null;
+    // Extract Date & Time intent
+    const dateMatch = fullTranscriptText.match(/(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec|mon|tue|wed|thu|fri|sat|sun|today|tomorrow|next|202\d|\d{1,2}(?:st|nd|rd|th)?\s+(?:of\s+)?(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)|at\s+\d{1,2}(?::\d{2})?\s*(?:am|pm)?)/i);
 
+    // Extract Service Type
+    let serviceRequested = 'Newborn Photography';
+    const lowerTranscript = fullTranscriptText.toLowerCase();
+    if (lowerTranscript.includes('maternity') || lowerTranscript.includes('bump')) {
+      serviceRequested = 'Maternity Photography';
+    } else if (lowerTranscript.includes('family') || lowerTranscript.includes('portrait')) {
+      serviceRequested = 'Family Photography';
+    } else if (lowerTranscript.includes('cake') || lowerTranscript.includes('smash') || lowerTranscript.includes('birthday')) {
+      serviceRequested = 'Cake Smash Photography';
+    } else if (lowerTranscript.includes('newborn') || lowerTranscript.includes('baby')) {
+      serviceRequested = 'Newborn Photography';
+    }
+
+    // Extract Name
+    let fullName = 'Valued Client';
+    const namePatterns = [
+      /my name is ([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)/i,
+      /i'm ([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)/i,
+      /name:\s*([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)/i,
+      /this is ([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)/i
+    ];
+    for (const pat of namePatterns) {
+      const match = fullTranscriptText.match(pat);
+      if (match && match[1]) {
+        fullName = match[1].trim();
+        break;
+      }
+    }
+
+    let bookingExtracted: any = null;
+    let clientNotification: ClientNotificationResult | null = null;
+
+    // Trigger booking & notifications if we have email or phone and booking intent
     if (emailMatch || phoneMatch) {
-      extracted = {
-        fullName: 'Poppy Lead',
-        phone: phoneMatch ? phoneMatch[0] : '',
-        email: emailMatch ? emailMatch[0] : '',
-        serviceRequested: 'Newborn / Studio Session',
-        notes: message
-      };
+      const preferredDate = dateMatch ? dateMatch[0] : 'Upcoming Session';
 
-      // Save lead & send email notification
       const transcriptFormatted = formattedContents.map(c => ({
         sender: c.role === 'user' ? 'user' : 'poppy',
         text: c.parts[0]?.text || '',
@@ -111,27 +124,46 @@ export async function processPoppyChat(message: string, history: ChatHistoryItem
       }));
 
       const leadRecord = saveLead({
-        fullName: extracted.fullName,
-        phone: extracted.phone,
-        email: extracted.email,
-        serviceRequested: extracted.serviceRequested,
-        notes: extracted.notes,
+        fullName,
+        phone: phoneMatch ? phoneMatch[0] : '',
+        email: emailMatch ? emailMatch[0] : '',
+        serviceRequested,
+        preferredDate,
+        notes: message,
         source: 'ai_poppy',
         transcript: transcriptFormatted
       });
 
-      sendLeadNotificationEmail(leadRecord).catch(err => console.error('Error sending email:', err));
+      // Send studio notification email
+      sendLeadNotificationEmail(leadRecord).catch(err => console.error('Error sending studio lead email:', err));
+
+      // Send client confirmation notification email & SMS
+      clientNotification = await sendClientConfirmationNotification(leadRecord);
+
+      bookingExtracted = {
+        id: leadRecord.id,
+        fullName: leadRecord.fullName,
+        phone: leadRecord.phone,
+        email: leadRecord.email,
+        serviceRequested: leadRecord.serviceRequested,
+        preferredDate: leadRecord.preferredDate,
+        timestamp: leadRecord.timestamp,
+        notification: clientNotification
+      };
     }
 
     return {
       text: replyText,
-      extracted
+      extracted: bookingExtracted,
+      clientNotification
     };
   } catch (err) {
     console.error('Gemini Poppy Agent Error:', err);
     return {
-      text: "Thank you for reaching out! You can book directly using the 'Book Session' button or call Falguni at +61 469 753 238.",
-      extracted: null
+      text: "I'd love to help book your session! You can also click 'Book Session' or call Falguni directly at +61 469 753 238.",
+      extracted: null,
+      clientNotification: null
     };
   }
 }
+

@@ -61,5 +61,5 @@ export interface ChatMessage {
   sender: 'user' | 'poppy';
   text: string;
   timestamp: string;
-  bookingExtracted?: Partial<BookingLead>;
+  bookingExtracted?: Partial<BookingLead> & { notification?: any };
 }

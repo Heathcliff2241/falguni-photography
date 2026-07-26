@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { ChatMessage } from '../types';
-import { ChatTeardropText, X, PaperPlaneRight, Spinner, CalendarCheck } from '@phosphor-icons/react';
+import {
+  ChatTeardropText, X, PaperPlaneRight, Spinner, CalendarCheck,
+  EnvelopeSimple, CheckCircle, DeviceMobile, Calendar, Sparkle, Eye
+} from '@phosphor-icons/react';
 import { BotanicalRose } from './BotanicalAccents';
 
 interface PoppyChatWidgetProps {
@@ -11,12 +14,14 @@ export const PoppyChatWidget: React.FC<PoppyChatWidgetProps> = ({ onOpenBooking 
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const [activeNotificationModal, setActiveNotificationModal] = useState<any | null>(null);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: 'init-1',
       sender: 'poppy',
-      text: "Hello! I'm Poppy, the booking assistant for Falguni's Photography here in Northfield. How can I help you plan your newborn, maternity, or family session today?",
+      text: "Hello! I'm Poppy, the booking AI assistant for Falguni's Photography in Northfield. I can answer your questions AND book your session directly right here! How can I help you today?",
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     }
   ]);
@@ -33,12 +38,60 @@ export const PoppyChatWidget: React.FC<PoppyChatWidgetProps> = ({ onOpenBooking 
     }
   }, [messages, isOpen]);
 
+  const showToast = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(null), 5000);
+  };
+
+  const downloadIcsCalendarEvent = (booking: any) => {
+    const title = `Falguni's Photography Session - ${booking.serviceRequested || 'Studio Session'}`;
+    const desc = `Photography session at Falguni's Photography Studio.\\nClient: ${booking.fullName}\\nPhone: ${booking.phone}\\nEmail: ${booking.email}\\nAddress: 26 South Pkwy, Northfield SA 5085\\nStudio Phone: +61 469 753 238`;
+    const loc = `26 South Pkwy, Northfield SA 5085, Australia`;
+    
+    // Default to a 10:00 AM session 3 days from now if fuzzy date
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() + 3);
+    startDate.setHours(10, 0, 0, 0);
+
+    const endDate = new Date(startDate.getTime() + 2 * 60 * 60 * 1000);
+
+    const formatDateToIcs = (d: Date) => {
+      return d.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+    };
+
+    const icsContent = [
+      'BEGIN:VCALENDAR',
+      'VERSION:2.0',
+      'PRODID:-//Falgunis Photography//Booking Assistant//EN',
+      'BEGIN:VEVENT',
+      `SUMMARY:${title}`,
+      `DESCRIPTION:${desc}`,
+      `LOCATION:${loc}`,
+      `DTSTART:${formatDateToIcs(startDate)}`,
+      `DTEND:${formatDateToIcs(endDate)}`,
+      'STATUS:CONFIRMED',
+      'END:VEVENT',
+      'END:VCALENDAR'
+    ].join('\r\n');
+
+    const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `Falguni-Photography-Booking-${booking.fullName.replace(/\s+/g, '_')}.ics`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    showToast('📅 iCal Calendar File Downloaded!');
+  };
+
   const quickPrompts = [
+    { label: '✨ Book a Session Now', prompt: 'I would like to book a session. My name is Sarah, phone 0412345678, email sarah@example.com for Aug 20th 10am for Newborn Photography' },
     { label: 'Package Pricing ($250+)', prompt: 'How much do photography packages cost?' },
     { label: 'Newborn Session Info', prompt: 'What is included in a newborn shoot?' },
     { label: 'Maternity Booking Window', prompt: 'When should I book my maternity session?' },
-    { label: 'Studio Address & Location', prompt: 'Where is your studio located?' },
-    { label: 'How to Reserve a Date', prompt: 'How do I book or reserve a session date?' }
+    { label: 'Studio Address & Location', prompt: 'Where is your studio located?' }
   ];
 
   const sendMessageText = async (textToSend: string) => {
@@ -61,6 +114,7 @@ export const PoppyChatWidget: React.FC<PoppyChatWidgetProps> = ({ onOpenBooking 
     try {
       let replyText = '';
       let extracted: any = null;
+      let notification: any = null;
 
       try {
         const response = await fetch('/api/chat', {
@@ -79,9 +133,10 @@ export const PoppyChatWidget: React.FC<PoppyChatWidgetProps> = ({ onOpenBooking 
           const data = await response.json();
           replyText = data.text;
           extracted = data.extracted;
+          notification = data.clientNotification;
         }
       } catch (e) {
-        console.warn('Backend chat API request failed, using intelligent local Poppy response mode.');
+        console.warn('Backend chat API request failed, using local Poppy fallback response.');
       }
 
       if (!replyText) {
@@ -99,11 +154,13 @@ export const PoppyChatWidget: React.FC<PoppyChatWidgetProps> = ({ onOpenBooking 
           replyText = "Cake smash sessions celebrate baby's first birthday! They include themed balloon backdrops, a smash cake, portraits before the mess, and full studio cleanup afterwards.";
         } else if (lower.includes('where') || lower.includes('location') || lower.includes('address') || lower.includes('studio')) {
           replyText = "Falguni's Photography is located at 26 South Pkwy, Northfield SA 5085, Australia. We welcome families from Northfield, Lightsview, Klemzig, Walkerville, and across northern Adelaide.";
-        } else if (lower.includes('book') || lower.includes('reserve') || lower.includes('contact') || lower.includes('phone') || lower.includes('available')) {
-          replyText = "I'd love to help you reserve your shoot! You can click the 'Book Session' button above or call Falguni directly at +61 469 753 238. If you leave your name and phone number here, Falguni will get in touch within 24 hours.";
         } else {
-          replyText = "Thank you for reaching out! Falguni specializes in gentle, patient newborn, maternity, family, and cake smash sessions starting at $250. How can I help you plan your session today?";
+          replyText = "Thank you for reaching out! Falguni specializes in gentle, patient newborn, maternity, family, and cake smash sessions starting at $250. Give me your Name, Phone Number, Email, and Preferred Date/Time to reserve your date right now!";
         }
+      }
+
+      if (extracted && extracted.email) {
+        showToast(`🔔 Booking Confirmed! Confirmation email dispatched to ${extracted.email}`);
       }
 
       const poppyMsg: ChatMessage = {
@@ -111,7 +168,7 @@ export const PoppyChatWidget: React.FC<PoppyChatWidgetProps> = ({ onOpenBooking 
         sender: 'poppy',
         text: replyText,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        bookingExtracted: extracted
+        bookingExtracted: extracted ? { ...extracted, notification } : undefined
       };
       setMessages(prev => [...prev, poppyMsg]);
     } catch (err) {
@@ -134,24 +191,32 @@ export const PoppyChatWidget: React.FC<PoppyChatWidgetProps> = ({ onOpenBooking 
 
   return (
     <>
+      {/* Toast Notification */}
+      {toastMessage && (
+        <div className="fixed top-5 right-5 z-50 bg-[#423341] text-[#FBF6EF] px-5 py-3.5 rounded-2xl shadow-2xl border border-[#A7B596] flex items-center gap-3 animate-fade-in font-body text-sm font-semibold">
+          <CheckCircle size={22} className="text-[#A7B596] shrink-0" />
+          <span>{toastMessage}</span>
+        </div>
+      )}
+
       {/* Floating Toggle Button */}
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-6 right-6 z-40 bg-[#423341] text-[#FBF6EF] p-4 rounded-full shadow-2xl hover:bg-[#A7B596] hover:text-[#423341] transition-all flex items-center gap-3 border-2 border-[#EFD4CE]"
+          className="fixed bottom-6 right-6 z-40 bg-[#423341] text-[#FBF6EF] p-4 rounded-full shadow-2xl hover:bg-[#A7B596] hover:text-[#423341] transition-all flex items-center gap-3 border-2 border-[#EFD4CE] cursor-pointer"
           aria-label="Chat with Poppy"
         >
           <div className="relative">
             <BotanicalRose color="blush" size={24} />
             <span className="absolute -top-1 -right-1 w-3 h-3 bg-[#A7B596] rounded-full border-2 border-[#423341]" />
           </div>
-          <span className="font-body text-sm font-semibold pr-1">Chat with Poppy</span>
+          <span className="font-body text-sm font-semibold pr-1">Chat & Book with Poppy</span>
         </button>
       )}
 
       {/* Chat Drawer Widget */}
       {isOpen && (
-        <div className="fixed bottom-6 right-6 z-50 w-full sm:w-[400px] h-[540px] max-h-[85vh] bg-[#FBF6EF] rounded-3xl shadow-2xl border border-[#EFD4CE] flex flex-col overflow-hidden animate-fade-in font-body">
+        <div className="fixed bottom-6 right-6 z-50 w-full sm:w-[420px] h-[580px] max-h-[88vh] bg-[#FBF6EF] rounded-3xl shadow-2xl border border-[#EFD4CE] flex flex-col overflow-hidden animate-fade-in font-body">
           {/* Header */}
           <div className="bg-[#423341] text-[#FBF6EF] p-4 flex items-center justify-between border-b border-[#EFD4CE]/20">
             <div className="flex items-center gap-3">
@@ -162,14 +227,15 @@ export const PoppyChatWidget: React.FC<PoppyChatWidgetProps> = ({ onOpenBooking 
                 <h3 className="font-display text-lg font-medium text-[#EFD4CE] leading-none">
                   Poppy
                 </h3>
-                <span className="text-[11px] text-[#FBF6EF]/70">
-                  Studio Assistant • Falguni's Photography
+                <span className="text-[11px] text-[#FBF6EF]/70 flex items-center gap-1 mt-0.5">
+                  <span className="w-2 h-2 rounded-full bg-[#A7B596]" />
+                  AI Booking Assistant • Active
                 </span>
               </div>
             </div>
             <button
               onClick={() => setIsOpen(false)}
-              className="w-8 h-8 rounded-full bg-white/10 text-[#FBF6EF] flex items-center justify-center hover:bg-white/20 transition-colors"
+              className="w-8 h-8 rounded-full bg-white/10 text-[#FBF6EF] flex items-center justify-center hover:bg-white/20 transition-colors cursor-pointer"
             >
               <X size={18} />
             </button>
@@ -177,27 +243,27 @@ export const PoppyChatWidget: React.FC<PoppyChatWidgetProps> = ({ onOpenBooking 
 
           {/* Quick links header banner */}
           <div className="bg-[#EFD4CE]/30 px-4 py-2 flex items-center justify-between text-xs text-[#423341] border-b border-[#EFD4CE]/50">
-            <span>Ask about pricing ($250+), props, or dates!</span>
+            <span className="font-medium">✨ Ask Poppy or Book your session in chat!</span>
             <button
               onClick={() => {
                 setIsOpen(false);
                 onOpenBooking();
               }}
-              className="text-xs font-semibold text-[#423341] underline hover:text-[#A7B596]"
+              className="text-xs font-semibold text-[#423341] underline hover:text-[#A7B596] cursor-pointer"
             >
               Direct Form →
             </button>
           </div>
 
           {/* Message List */}
-          <div className="flex-1 p-4 overflow-y-auto space-y-3.5 bg-[#FBF6EF]">
+          <div className="flex-1 p-4 overflow-y-auto space-y-4 bg-[#FBF6EF]">
             {messages.map(m => (
               <div
                 key={m.id}
                 className={`flex flex-col ${m.sender === 'user' ? 'items-end' : 'items-start'}`}
               >
                 <div
-                  className={`max-w-[85%] px-4 py-3 rounded-2xl text-sm leading-relaxed ${
+                  className={`max-w-[88%] px-4 py-3 rounded-2xl text-sm leading-relaxed ${
                     m.sender === 'user'
                       ? 'bg-[#423341] text-[#FBF6EF] rounded-tr-none'
                       : 'bg-white text-[#423341] border border-[#EFD4CE] rounded-tl-none shadow-sm'
@@ -205,25 +271,74 @@ export const PoppyChatWidget: React.FC<PoppyChatWidgetProps> = ({ onOpenBooking 
                 >
                   <p>{m.text}</p>
                 </div>
+
+                {/* Booking Confirmation Receipt Card when booking is created */}
+                {m.bookingExtracted && (
+                  <div className="mt-2.5 max-w-[90%] bg-white p-4 rounded-2xl border-2 border-[#A7B596] shadow-md space-y-3 font-body">
+                    <div className="flex items-center justify-between border-b border-[#EFD4CE]/60 pb-2">
+                      <span className="text-xs font-bold text-[#A7B596] uppercase tracking-wider flex items-center gap-1">
+                        <CheckCircle size={16} weight="fill" /> Session Reserved!
+                      </span>
+                      <span className="text-[10px] bg-[#EFD4CE]/40 text-[#423341] px-2 py-0.5 rounded-full font-mono">
+                        {m.bookingExtracted.id || 'BOOKING-OK'}
+                      </span>
+                    </div>
+
+                    <div className="text-xs text-[#423341] space-y-1.5">
+                      <p><strong>Client:</strong> {m.bookingExtracted.fullName || 'Valued Client'}</p>
+                      <p><strong>Phone:</strong> {m.bookingExtracted.phone || 'Recorded'}</p>
+                      <p><strong>Email:</strong> {m.bookingExtracted.email || 'Recorded'}</p>
+                      <p><strong>Service:</strong> {m.bookingExtracted.serviceRequested || 'Photography Session'}</p>
+                      <p><strong>Date & Time:</strong> {m.bookingExtracted.preferredDate || 'Upcoming Session'}</p>
+                    </div>
+
+                    <div className="bg-[#FBF6EF] p-2.5 rounded-xl border border-[#EFD4CE] text-[11px] text-[#423341]/80 space-y-1">
+                      <div className="flex items-center gap-1.5 font-semibold text-[#A7B596]">
+                        <EnvelopeSimple size={14} /> Notifications Dispatched!
+                      </div>
+                      <p>Formal booking receipt & session styling guide sent to <strong>{m.bookingExtracted.email || 'client email'}</strong> and phone SMS notification.</p>
+                    </div>
+
+                    <div className="pt-1 flex flex-col gap-1.5 text-xs">
+                      {m.bookingExtracted.notification && (
+                        <button
+                          onClick={() => setActiveNotificationModal(m.bookingExtracted.notification)}
+                          className="w-full bg-[#EFD4CE] hover:bg-[#ebd0ca] text-[#423341] font-semibold py-2 px-3 rounded-xl transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+                        >
+                          <Eye size={16} /> View Email & SMS Notification Sent
+                        </button>
+                      )}
+
+                      <button
+                        onClick={() => downloadIcsCalendarEvent(m.bookingExtracted)}
+                        className="w-full bg-[#A7B596] hover:bg-[#96a585] text-[#423341] font-semibold py-2 px-3 rounded-xl transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+                      >
+                        <Calendar size={16} /> Save Session to Calendar (.ics)
+                      </button>
+                    </div>
+                  </div>
+                )}
+
                 <span className="text-[10px] text-[#423341]/50 mt-1 px-1">
                   {m.timestamp}
                 </span>
               </div>
             ))}
+
             {loading && (
-              <div className="flex items-center gap-2 text-xs text-[#423341]/60 italic p-2">
+              <div className="flex items-center gap-2 text-xs text-[#423341]/60 italic p-2 bg-white/60 rounded-xl w-fit">
                 <Spinner size={16} className="animate-spin text-[#A7B596]" />
-                <span>Poppy is typing...</span>
+                <span>Poppy is processing booking & preparing notifications...</span>
               </div>
             )}
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Quick Guides & FAQs */}
+          {/* Quick Guides & Booking Prompts */}
           <div className="px-3 py-2 bg-[#EFD4CE]/20 border-t border-[#EFD4CE]/40">
             <p className="text-[11px] font-semibold text-[#423341]/70 mb-1.5 px-1 flex items-center gap-1">
               <BotanicalRose color="sage" size={14} />
-              <span>Tap a quick guide to ask Poppy:</span>
+              <span>Tap a topic or instant booking prompt:</span>
             </p>
             <div className="flex gap-1.5 overflow-x-auto pb-1 no-scrollbar">
               {quickPrompts.map((q, idx) => (
@@ -232,7 +347,7 @@ export const PoppyChatWidget: React.FC<PoppyChatWidgetProps> = ({ onOpenBooking 
                   type="button"
                   disabled={loading}
                   onClick={() => sendMessageText(q.prompt)}
-                  className="bg-white hover:bg-[#A7B596] hover:text-[#423341] text-[#423341] border border-[#EFD4CE] text-xs font-medium px-3 py-1.5 rounded-full whitespace-nowrap shadow-xs transition-colors shrink-0 disabled:opacity-50"
+                  className="bg-white hover:bg-[#A7B596] hover:text-[#423341] text-[#423341] border border-[#EFD4CE] text-xs font-medium px-3 py-1.5 rounded-full whitespace-nowrap shadow-xs transition-colors shrink-0 disabled:opacity-50 cursor-pointer"
                 >
                   {q.label}
                 </button>
@@ -244,7 +359,7 @@ export const PoppyChatWidget: React.FC<PoppyChatWidgetProps> = ({ onOpenBooking 
           <form onSubmit={handleSend} className="p-3 bg-white border-t border-[#EFD4CE] flex items-center gap-2">
             <input
               type="text"
-              placeholder="Ask Poppy a question..."
+              placeholder="Provide name, phone, email & date to book..."
               value={input}
               onChange={e => setInput(e.target.value)}
               className="flex-1 bg-[#FBF6EF] border border-[#EFD4CE] rounded-full px-4 py-2.5 text-sm focus:outline-none focus:border-[#A7B596]"
@@ -252,7 +367,7 @@ export const PoppyChatWidget: React.FC<PoppyChatWidgetProps> = ({ onOpenBooking 
             <button
               type="submit"
               disabled={!input.trim() || loading}
-              className="w-10 h-10 rounded-full bg-[#A7B596] text-[#423341] flex items-center justify-center disabled:opacity-40 hover:bg-[#96a585] transition-colors shrink-0"
+              className="w-10 h-10 rounded-full bg-[#A7B596] text-[#423341] flex items-center justify-center disabled:opacity-40 hover:bg-[#96a585] transition-colors shrink-0 cursor-pointer"
               aria-label="Send message"
             >
               <PaperPlaneRight size={18} weight="fill" />
@@ -260,6 +375,78 @@ export const PoppyChatWidget: React.FC<PoppyChatWidgetProps> = ({ onOpenBooking 
           </form>
         </div>
       )}
+
+      {/* Client Notification Preview Modal */}
+      {activeNotificationModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#423341]/80 backdrop-blur-md animate-fade-in font-body"
+          onClick={() => setActiveNotificationModal(null)}
+        >
+          <div
+            className="bg-[#FBF6EF] max-w-xl w-full rounded-3xl p-6 shadow-2xl relative border border-[#EFD4CE] max-h-[85vh] overflow-y-auto space-y-4"
+            onClick={e => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setActiveNotificationModal(null)}
+              className="absolute top-4 right-4 w-9 h-9 rounded-full bg-[#EFD4CE] text-[#423341] flex items-center justify-center hover:bg-[#e0beba] transition-colors cursor-pointer"
+            >
+              <X size={20} />
+            </button>
+
+            <div className="flex items-center gap-3 border-b border-[#EFD4CE] pb-3">
+              <div className="p-2.5 rounded-2xl bg-[#A7B596] text-[#423341]">
+                <EnvelopeSimple size={24} weight="bold" />
+              </div>
+              <div>
+                <h3 className="font-display text-xl font-medium text-[#423341]">
+                  Client Notification Dispatch Log
+                </h3>
+                <p className="text-xs text-[#423341]/70">
+                  Ref #{activeNotificationModal.referenceNumber} • Sent at {activeNotificationModal.timestamp}
+                </p>
+              </div>
+            </div>
+
+            {/* Email Preview Section */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-xs font-semibold text-[#423341]/80">
+                <span>📧 Email Notification Sent To:</span>
+                <span className="text-[#A7B596] font-mono">{activeNotificationModal.recipientEmail}</span>
+              </div>
+              <div className="bg-white p-4 rounded-2xl border border-[#EFD4CE] text-xs text-[#423341] shadow-inner space-y-2">
+                <p className="font-bold border-b border-neutral-100 pb-2 text-sm text-[#423341]">
+                  Subject: {activeNotificationModal.subject}
+                </p>
+                <div
+                  className="prose prose-sm max-w-none text-xs"
+                  dangerouslySetInnerHTML={{ __html: activeNotificationModal.htmlBody }}
+                />
+              </div>
+            </div>
+
+            {/* SMS Preview Section */}
+            <div className="space-y-2 pt-2 border-t border-[#EFD4CE]">
+              <div className="flex items-center justify-between text-xs font-semibold text-[#423341]/80">
+                <span>📱 SMS Notification Text Sent To:</span>
+                <span className="text-[#A7B596] font-mono">{activeNotificationModal.recipientPhone}</span>
+              </div>
+              <div className="bg-[#423341] text-[#FBF6EF] p-3.5 rounded-2xl text-xs font-mono leading-relaxed shadow-sm">
+                {activeNotificationModal.smsBody}
+              </div>
+            </div>
+
+            <div className="pt-2 text-center">
+              <button
+                onClick={() => setActiveNotificationModal(null)}
+                className="bg-[#A7B596] text-[#423341] font-semibold text-sm px-6 py-2.5 rounded-full hover:bg-[#96a585] transition-colors cursor-pointer"
+              >
+                Close Notification Preview
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };
+

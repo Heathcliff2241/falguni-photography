@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { PORTFOLIO_IMAGES } from '../data/portfolioImages';
 import { PortfolioImage } from '../types';
 import { BotanicalRose } from './BotanicalAccents';
+import { MaskingTape } from './MaskingTape';
 import { X, CalendarCheck, MagnifyingGlassPlus } from '@phosphor-icons/react';
 import { useBooking } from '../context/BookingContext';
 
@@ -84,6 +85,9 @@ export const FloatingFilmstripGallery: React.FC<FloatingFilmstripGalleryProps> =
             ];
             const rotationClass = rotationClasses[idx % rotationClasses.length];
 
+            const tapeVariants: ('cream' | 'sage' | 'blush' | 'kraft')[] = ['cream', 'sage', 'blush', 'kraft'];
+            const tapeVariant = tapeVariants[idx % tapeVariants.length];
+
             return (
               <div
                 key={img.id}
@@ -91,7 +95,7 @@ export const FloatingFilmstripGallery: React.FC<FloatingFilmstripGalleryProps> =
                 className={`group cursor-pointer bg-white p-3.5 pt-4 pb-7 rounded-none shadow-[0_12px_32px_rgba(66,51,65,0.10)] border border-neutral-200/90 transition-all duration-300 transform hover:-translate-y-2 hover:shadow-[0_20px_44px_rgba(66,51,65,0.16)] relative ${rotationClass}`}
               >
                 {/* Washi / Masking Tape held on wall */}
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-20 h-6 bg-[#E3DCD0]/90 border-t border-b border-white/60 shadow-[0_1px_3px_rgba(0,0,0,0.12)] -rotate-1 z-20 pointer-events-none" />
+                <MaskingTape variant={tapeVariant} rotation={idx % 2 === 0 ? '-rotate-1' : 'rotate-2'} />
 
                 {/* Photo Frame Container - Uniform Aspect Ratio */}
                 <div className="relative aspect-[4/3] w-full rounded-none overflow-hidden bg-[#FBF6EF] border border-neutral-200/60">

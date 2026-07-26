@@ -2,6 +2,7 @@ import React from 'react';
 import { SITE_PAGES, LOCAL_NAP } from '../data/siteData';
 import { BotanicalRose, BotanicalVineDivider } from '../components/BotanicalAccents';
 import { FaqAccordion } from '../components/FaqAccordion';
+import { MaskingTape } from '../components/MaskingTape';
 import { CalendarCheck, PhoneCall, CheckCircle } from '@phosphor-icons/react';
 
 interface NewbornViewProps {
@@ -65,8 +66,8 @@ export const NewbornView: React.FC<NewbornViewProps> = ({ onOpenBooking }) => {
 
           <div className="lg:col-span-5 relative pt-4">
             <div className="relative bg-white p-3.5 pt-4 pb-7 rounded-none shadow-[0_12px_36px_rgba(66,51,65,0.12)] border border-neutral-200 transform -rotate-1 hover:rotate-0 transition-transform duration-500">
-              {/* Washi / Masking Tape held on wall */}
-              <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 w-20 h-6 bg-[#E3DCD0]/90 border-t border-b border-white/60 shadow-[0_1px_3px_rgba(0,0,0,0.12)] -rotate-1 z-20 pointer-events-none" />
+              {/* Textured Washi / Masking Tape held on wall */}
+              <MaskingTape variant="blush" rotation="-rotate-1" width="w-24" />
 
               <div className="relative aspect-[4/3] rounded-none overflow-hidden bg-[#FBF6EF] border border-neutral-200/60">
                 <img
