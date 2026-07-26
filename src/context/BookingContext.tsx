@@ -1,0 +1,49 @@
+'use client';
+
+import React, { createContext, useContext, useState } from 'react';
+
+interface BookingContextType {
+  isBookingOpen: boolean;
+  selectedService: string;
+  openBookingModal: (service?: string) => void;
+  closeBookingModal: () => void;
+}
+
+const BookingContext = createContext<BookingContextType | undefined>(undefined);
+
+export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [isBookingOpen, setIsBookingOpen] = useState(false);
+  const [selectedService, setSelectedService] = useState('newborn');
+
+  const openBookingModal = (service?: string) => {
+    if (service) {
+      setSelectedService(service);
+    }
+    setIsBookingOpen(true);
+  };
+
+  const closeBookingModal = () => {
+    setIsBookingOpen(false);
+  };
+
+  return (
+    <BookingContext.Provider
+      value={{
+        isBookingOpen,
+        selectedService,
+        openBookingModal,
+        closeBookingModal,
+      }}
+    >
+      {children}
+    </BookingContext.Provider>
+  );
+};
+
+export const useBooking = () => {
+  const context = useContext(BookingContext);
+  if (!context) {
+    throw new Error('useBooking must be used within a BookingProvider');
+  }
+  return context;
+};

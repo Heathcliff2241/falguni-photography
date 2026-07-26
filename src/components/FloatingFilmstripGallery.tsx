@@ -1,20 +1,32 @@
+'use client';
+
 import React, { useState } from 'react';
 import { PORTFOLIO_IMAGES } from '../data/portfolioImages';
 import { PortfolioImage } from '../types';
 import { BotanicalRose } from './BotanicalAccents';
 import { X, CalendarCheck, MagnifyingGlassPlus } from '@phosphor-icons/react';
+import { useBooking } from '../context/BookingContext';
 
 interface FloatingFilmstripGalleryProps {
   initialCategory?: string;
-  onOpenBooking: (service?: string) => void;
+  onOpenBooking?: (service?: string) => void;
 }
 
 export const FloatingFilmstripGallery: React.FC<FloatingFilmstripGalleryProps> = ({
   initialCategory = 'all',
   onOpenBooking
 }) => {
+  const { openBookingModal } = useBooking();
   const [activeTab, setActiveTab] = useState<string>(initialCategory);
   const [selectedImage, setSelectedImage] = useState<PortfolioImage | null>(null);
+
+  const handleBooking = (service?: string) => {
+    if (onOpenBooking) {
+      onOpenBooking(service);
+    } else {
+      openBookingModal(service);
+    }
+  };
 
   const filteredImages = PORTFOLIO_IMAGES.filter(img => {
     if (activeTab === 'all') return true;
@@ -49,7 +61,7 @@ export const FloatingFilmstripGallery: React.FC<FloatingFilmstripGalleryProps> =
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`px-4 py-2 rounded-full transition-all duration-300 ${
+                className={`px-4 py-2 rounded-full transition-all duration-300 cursor-pointer ${
                   activeTab === tab.id
                     ? 'bg-[#A7B596] text-[#423341] shadow-sm'
                     : 'bg-[#EFD4CE]/40 text-[#423341]/80 hover:bg-[#EFD4CE]/80'
@@ -64,7 +76,6 @@ export const FloatingFilmstripGallery: React.FC<FloatingFilmstripGalleryProps> =
         {/* Scattered Filmstrip Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 sm:gap-10 pt-4 pb-8">
           {filteredImages.map((img, idx) => {
-            // Apply slight rotation staggering to feel like scattered print photos on a desk
             const rotationClasses = [
               '-rotate-2 hover:rotate-0',
               'rotate-2 hover:rotate-0',
@@ -84,7 +95,6 @@ export const FloatingFilmstripGallery: React.FC<FloatingFilmstripGalleryProps> =
                   <img
                     src={img.src}
                     alt={img.alt}
-                    referrerPolicy="no-referrer"
                     className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-[#423341]/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
@@ -126,7 +136,7 @@ export const FloatingFilmstripGallery: React.FC<FloatingFilmstripGalleryProps> =
           >
             <button
               onClick={() => setSelectedImage(null)}
-              className="absolute top-4 right-4 w-9 h-9 rounded-full bg-[#EFD4CE]/60 text-[#423341] flex items-center justify-center hover:bg-[#EFD4CE] transition-colors"
+              className="absolute top-4 right-4 w-9 h-9 rounded-full bg-[#EFD4CE]/60 text-[#423341] flex items-center justify-center hover:bg-[#EFD4CE] transition-colors cursor-pointer"
             >
               <X size={20} />
             </button>
@@ -136,7 +146,6 @@ export const FloatingFilmstripGallery: React.FC<FloatingFilmstripGalleryProps> =
                 <img
                   src={selectedImage.src}
                   alt={selectedImage.alt}
-                  referrerPolicy="no-referrer"
                   className="w-full h-auto max-h-[400px] object-cover rounded-xl"
                 />
               </div>
@@ -162,16 +171,16 @@ export const FloatingFilmstripGallery: React.FC<FloatingFilmstripGalleryProps> =
                     onClick={() => {
                       const cat = selectedImage.category;
                       setSelectedImage(null);
-                      onOpenBooking(cat);
+                      handleBooking(cat);
                     }}
-                    className="w-full sm:w-auto flex-1 bg-[#A7B596] text-[#423341] font-semibold text-sm px-5 py-3 rounded-full hover:bg-[#96a585] transition-colors flex items-center justify-center gap-2"
+                    className="w-full sm:w-auto flex-1 bg-[#A7B596] text-[#423341] font-semibold text-sm px-5 py-3 rounded-full hover:bg-[#96a585] transition-colors flex items-center justify-center gap-2 cursor-pointer"
                   >
                     <CalendarCheck size={18} />
                     Book This Style ($250+)
                   </button>
                   <button
                     onClick={() => setSelectedImage(null)}
-                    className="w-full sm:w-auto px-4 py-3 rounded-full border border-[#423341]/20 text-[#423341] text-sm hover:bg-[#EFD4CE]/30 transition-colors"
+                    className="w-full sm:w-auto px-4 py-3 rounded-full border border-[#423341]/20 text-[#423341] text-sm hover:bg-[#EFD4CE]/30 transition-colors cursor-pointer"
                   >
                     Close
                   </button>

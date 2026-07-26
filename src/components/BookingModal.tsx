@@ -1,19 +1,14 @@
+'use client';
+
 import React, { useState } from 'react';
 import { X, CalendarCheck, CheckCircle, Spinner } from '@phosphor-icons/react';
 import { BotanicalRose } from './BotanicalAccents';
+import { useBooking } from '../context/BookingContext';
 
-interface BookingModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  initialService?: string;
-}
+export const BookingModal: React.FC = () => {
+  const { isBookingOpen, closeBookingModal, selectedService } = useBooking();
 
-export const BookingModal: React.FC<BookingModalProps> = ({
-  isOpen,
-  onClose,
-  initialService = 'newborn'
-}) => {
-  const [service, setService] = useState(initialService);
+  const [service, setService] = useState(selectedService || 'newborn');
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
@@ -25,7 +20,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({
   const [submitted, setSubmitted] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
-  if (!isOpen) return null;
+  if (!isBookingOpen) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -69,21 +64,21 @@ export const BookingModal: React.FC<BookingModalProps> = ({
   const handleReset = () => {
     setSubmitted(false);
     setErrorMsg('');
-    onClose();
+    closeBookingModal();
   };
 
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#423341]/80 backdrop-blur-md animate-fade-in overflow-y-auto"
-      onClick={onClose}
+      onClick={closeBookingModal}
     >
       <div
         className="bg-[#FBF6EF] max-w-lg w-full rounded-3xl p-6 sm:p-8 shadow-2xl relative border border-[#EFD4CE] my-8"
         onClick={e => e.stopPropagation()}
       >
         <button
-          onClick={onClose}
-          className="absolute top-4 right-4 w-9 h-9 rounded-full bg-[#EFD4CE]/60 text-[#423341] flex items-center justify-center hover:bg-[#EFD4CE] transition-colors"
+          onClick={closeBookingModal}
+          className="absolute top-4 right-4 w-9 h-9 rounded-full bg-[#EFD4CE]/60 text-[#423341] flex items-center justify-center hover:bg-[#EFD4CE] transition-colors cursor-pointer"
         >
           <X size={20} />
         </button>
@@ -210,7 +205,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-[#A7B596] hover:bg-[#96a585] text-[#423341] font-semibold text-base py-3.5 rounded-full shadow-sm transition-colors flex items-center justify-center gap-2 mt-2"
+                className="w-full bg-[#A7B596] hover:bg-[#96a585] text-[#423341] font-semibold text-base py-3.5 rounded-full shadow-sm transition-colors flex items-center justify-center gap-2 mt-2 cursor-pointer"
               >
                 {loading ? (
                   <Spinner size={20} className="animate-spin" />
@@ -234,7 +229,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({
             </p>
             <button
               onClick={handleReset}
-              className="bg-[#A7B596] text-[#423341] font-semibold text-sm px-6 py-2.5 rounded-full"
+              className="bg-[#A7B596] text-[#423341] font-semibold text-sm px-6 py-2.5 rounded-full cursor-pointer"
             >
               Done
             </button>

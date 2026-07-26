@@ -1,4 +1,7 @@
+'use client';
+
 import React from 'react';
+import Link from 'next/link';
 import { LOCAL_NAP } from '../data/siteData';
 import { BotanicalRose } from './BotanicalAccents';
 import { PhoneCall, MapPin, EnvelopeSimple, InstagramLogo, FacebookLogo, Heart } from '@phosphor-icons/react';
@@ -61,29 +64,29 @@ export const Footer: React.FC = () => {
             </h3>
             <ul className="space-y-2.5 text-sm text-[#FBF6EF]/80">
               <li>
-                <a href="/services/newborn-photography" className="hover:text-[#EFD4CE] transition-colors">
+                <Link href="/services/newborn-photography" className="hover:text-[#EFD4CE] transition-colors">
                   Newborn Photography (5-14 days)
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="/services/maternity-photography" className="hover:text-[#EFD4CE] transition-colors">
+                <Link href="/services/maternity-photography" className="hover:text-[#EFD4CE] transition-colors">
                   Maternity Photography (28-34 weeks)
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="/services/family-photography" className="hover:text-[#EFD4CE] transition-colors">
+                <Link href="/services/family-photography" className="hover:text-[#EFD4CE] transition-colors">
                   Family Photography
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="/services/cake-smash-photography" className="hover:text-[#EFD4CE] transition-colors">
+                <Link href="/services/cake-smash-photography" className="hover:text-[#EFD4CE] transition-colors">
                   Cake Smash & First Birthday
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="/services" className="hover:text-[#EFD4CE] transition-colors text-xs uppercase tracking-wider text-[#A7B596]">
+                <Link href="/services" className="hover:text-[#EFD4CE] transition-colors text-xs uppercase tracking-wider text-[#A7B596]">
                   View All Packages →
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
@@ -94,10 +97,10 @@ export const Footer: React.FC = () => {
               Explore & Connect
             </h3>
             <ul className="space-y-2 text-sm text-[#FBF6EF]/80">
-              <li><a href="/gallery" className="hover:text-[#EFD4CE] transition-colors">Portfolio Gallery</a></li>
-              <li><a href="/about" className="hover:text-[#EFD4CE] transition-colors">About Falguni & Team</a></li>
-              <li><a href="/contact" className="hover:text-[#EFD4CE] transition-colors">Contact & Directions</a></li>
-              <li><a href="/admin/leads" className="hover:text-[#EFD4CE] transition-colors text-xs text-[#EFD4CE]/70">Admin Lead Log</a></li>
+              <li><Link href="/gallery" className="hover:text-[#EFD4CE] transition-colors">Portfolio Gallery</Link></li>
+              <li><Link href="/about" className="hover:text-[#EFD4CE] transition-colors">About Falguni & Team</Link></li>
+              <li><Link href="/contact" className="hover:text-[#EFD4CE] transition-colors">Contact & Directions</Link></li>
+              <li><Link href="/admin/leads" className="hover:text-[#EFD4CE] transition-colors text-xs text-[#EFD4CE]/70">Admin Lead Log</Link></li>
             </ul>
 
             <div className="pt-2 flex items-center gap-3">

@@ -1,13 +1,13 @@
+'use client';
+
 import React, { useState, useEffect, useRef } from 'react';
 import { ChatMessage } from '../types';
-import { ChatTeardropText, X, PaperPlaneRight, Spinner, CalendarCheck } from '@phosphor-icons/react';
+import { X, PaperPlaneRight, Spinner } from '@phosphor-icons/react';
 import { BotanicalRose } from './BotanicalAccents';
+import { useBooking } from '../context/BookingContext';
 
-interface PoppyChatWidgetProps {
-  onOpenBooking: (service?: string) => void;
-}
-
-export const PoppyChatWidget: React.FC<PoppyChatWidgetProps> = ({ onOpenBooking }) => {
+export const PoppyChatWidget: React.FC = () => {
+  const { openBookingModal } = useBooking();
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -97,7 +97,7 @@ export const PoppyChatWidget: React.FC<PoppyChatWidgetProps> = ({ onOpenBooking 
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-6 right-6 z-40 bg-[#423341] text-[#FBF6EF] p-4 rounded-full shadow-2xl hover:bg-[#A7B596] hover:text-[#423341] transition-all flex items-center gap-3 border-2 border-[#EFD4CE]"
+          className="fixed bottom-6 right-6 z-40 bg-[#423341] text-[#FBF6EF] p-4 rounded-full shadow-2xl hover:bg-[#A7B596] hover:text-[#423341] transition-all flex items-center gap-3 border-2 border-[#EFD4CE] cursor-pointer"
           aria-label="Chat with Poppy"
         >
           <div className="relative">
@@ -128,7 +128,7 @@ export const PoppyChatWidget: React.FC<PoppyChatWidgetProps> = ({ onOpenBooking 
             </div>
             <button
               onClick={() => setIsOpen(false)}
-              className="w-8 h-8 rounded-full bg-white/10 text-[#FBF6EF] flex items-center justify-center hover:bg-white/20 transition-colors"
+              className="w-8 h-8 rounded-full bg-white/10 text-[#FBF6EF] flex items-center justify-center hover:bg-white/20 transition-colors cursor-pointer"
             >
               <X size={18} />
             </button>
@@ -140,9 +140,9 @@ export const PoppyChatWidget: React.FC<PoppyChatWidgetProps> = ({ onOpenBooking 
             <button
               onClick={() => {
                 setIsOpen(false);
-                onOpenBooking();
+                openBookingModal();
               }}
-              className="text-xs font-semibold text-[#423341] underline hover:text-[#A7B596]"
+              className="text-xs font-semibold text-[#423341] underline hover:text-[#A7B596] cursor-pointer"
             >
               Direct Form →
             </button>
@@ -190,7 +190,7 @@ export const PoppyChatWidget: React.FC<PoppyChatWidgetProps> = ({ onOpenBooking 
             <button
               type="submit"
               disabled={!input.trim() || loading}
-              className="w-10 h-10 rounded-full bg-[#A7B596] text-[#423341] flex items-center justify-center disabled:opacity-40 hover:bg-[#96a585] transition-colors shrink-0"
+              className="w-10 h-10 rounded-full bg-[#A7B596] text-[#423341] flex items-center justify-center disabled:opacity-40 hover:bg-[#96a585] transition-colors shrink-0 cursor-pointer"
               aria-label="Send message"
             >
               <PaperPlaneRight size={18} weight="fill" />

@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState } from 'react';
 import { FaqItem } from '../types';
 import { CaretDown, CaretUp } from '@phosphor-icons/react';
@@ -47,7 +49,7 @@ export const FaqAccordion: React.FC<FaqAccordionProps> = ({
               >
                 <button
                   onClick={() => setOpenIndex(isOpen ? null : idx)}
-                  className="w-full text-left p-5 sm:p-6 flex items-center justify-between gap-4 font-display font-medium text-lg text-[#423341] hover:bg-[#EFD4CE]/20 transition-colors"
+                  className="w-full text-left p-5 sm:p-6 flex items-center justify-between gap-4 font-display font-medium text-lg text-[#423341] hover:bg-[#EFD4CE]/20 transition-colors cursor-pointer"
                   aria-expanded={isOpen}
                 >
                   <span>{item.question}</span>

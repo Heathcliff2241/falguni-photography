@@ -1,13 +1,15 @@
+'use client';
+
 import React, { useState } from 'react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { CaretDown, List, X, CalendarCheck, PhoneCall } from '@phosphor-icons/react';
 import { LOCAL_NAP } from '../data/siteData';
+import { useBooking } from '../context/BookingContext';
 
-interface HeaderProps {
-  currentPath: string;
-  onOpenBooking: (service?: string) => void;
-}
-
-export const Header: React.FC<HeaderProps> = ({ currentPath, onOpenBooking }) => {
+export const Header: React.FC = () => {
+  const currentPath = usePathname() || '/';
+  const { openBookingModal } = useBooking();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [servicesDropdownOpen, setServicesDropdownOpen] = useState(false);
 
@@ -36,7 +38,7 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, onOpenBooking }) =>
       {/* Main navigation header */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
         {/* Brand Logo */}
-        <a href="/" className="group flex items-center gap-2.5">
+        <Link href="/" className="group flex items-center gap-2.5">
           <div className="w-9 h-9 rounded-full bg-[#EFD4CE]/60 flex items-center justify-center text-[#423341] group-hover:bg-[#A7B596]/30 transition-colors">
             <svg width="22" height="22" viewBox="0 0 64 64" fill="none" stroke="#423341" strokeWidth="2">
               <path d="M32 16C28 12 22 14 20 18C18 22 20 28 24 30C22 34 26 40 32 40C38 40 42 34 40 30C44 28 46 22 44 18C42 14 36 12 32 16Z" />
@@ -51,18 +53,18 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, onOpenBooking }) =>
               Northfield Studio • Adelaide
             </span>
           </div>
-        </a>
+        </Link>
 
         {/* Desktop Navigation */}
         <nav className="hidden lg:flex items-center gap-8 font-body text-sm font-medium text-[#423341]">
-          <a
+          <Link
             href="/"
             className={`transition-colors hover:text-[#A7B596] ${
               currentPath === '/' ? 'text-[#423341] font-semibold border-b-2 border-[#A7B596] pb-1' : 'text-[#423341]/80'
             }`}
           >
             Home
-          </a>
+          </Link>
 
           {/* Services Dropdown */}
           <div
@@ -70,7 +72,7 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, onOpenBooking }) =>
             onMouseEnter={() => setServicesDropdownOpen(true)}
             onMouseLeave={() => setServicesDropdownOpen(false)}
           >
-            <a
+            <Link
               href="/services"
               className={`flex items-center gap-1 transition-colors hover:text-[#A7B596] py-2 ${
                 isServicesActive ? 'text-[#423341] font-semibold border-b-2 border-[#A7B596] pb-1' : 'text-[#423341]/80'
@@ -78,80 +80,80 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, onOpenBooking }) =>
             >
               Services
               <CaretDown size={14} weight="regular" className="mt-0.5" />
-            </a>
+            </Link>
 
             {servicesDropdownOpen && (
               <div className="absolute left-0 top-full pt-1 w-64 z-50">
                 <div className="bg-[#FBF6EF] border border-[#EFD4CE] rounded-2xl shadow-lg p-2 space-y-1">
-                  <a
+                  <Link
                     href="/services"
                     className="block px-3 py-2 rounded-xl text-xs uppercase tracking-wider font-semibold text-[#423341]/60 hover:bg-[#EFD4CE]/30 transition-colors"
                   >
                     All Services Overview
-                  </a>
+                  </Link>
                   <hr className="border-[#EFD4CE]/50 my-1" />
-                  <a
+                  <Link
                     href="/services/newborn-photography"
                     className="block px-3 py-2 rounded-xl text-sm text-[#423341] hover:bg-[#EFD4CE]/40 transition-colors"
                   >
                     Newborn Photography
-                  </a>
-                  <a
+                  </Link>
+                  <Link
                     href="/services/maternity-photography"
                     className="block px-3 py-2 rounded-xl text-sm text-[#423341] hover:bg-[#EFD4CE]/40 transition-colors"
                   >
                     Maternity Photography
-                  </a>
-                  <a
+                  </Link>
+                  <Link
                     href="/services/family-photography"
                     className="block px-3 py-2 rounded-xl text-sm text-[#423341] hover:bg-[#EFD4CE]/40 transition-colors"
                   >
                     Family Photography
-                  </a>
-                  <a
+                  </Link>
+                  <Link
                     href="/services/cake-smash-photography"
                     className="block px-3 py-2 rounded-xl text-sm text-[#423341] hover:bg-[#EFD4CE]/40 transition-colors"
                   >
                     Cake Smash Photography
-                  </a>
+                  </Link>
                 </div>
               </div>
             )}
           </div>
 
-          <a
+          <Link
             href="/gallery"
             className={`transition-colors hover:text-[#A7B596] ${
               currentPath === '/gallery' ? 'text-[#423341] font-semibold border-b-2 border-[#A7B596] pb-1' : 'text-[#423341]/80'
             }`}
           >
             Gallery
-          </a>
+          </Link>
 
-          <a
+          <Link
             href="/about"
             className={`transition-colors hover:text-[#A7B596] ${
               currentPath === '/about' ? 'text-[#423341] font-semibold border-b-2 border-[#A7B596] pb-1' : 'text-[#423341]/80'
             }`}
           >
             About
-          </a>
+          </Link>
 
-          <a
+          <Link
             href="/contact"
             className={`transition-colors hover:text-[#A7B596] ${
               currentPath === '/contact' ? 'text-[#423341] font-semibold border-b-2 border-[#A7B596] pb-1' : 'text-[#423341]/80'
             }`}
           >
             Contact
-          </a>
+          </Link>
         </nav>
 
         {/* CTA Button */}
         <div className="hidden lg:flex items-center gap-3">
           <button
-            onClick={() => onOpenBooking()}
-            className="bg-[#A7B596] hover:bg-[#95a384] text-[#423341] font-body font-semibold text-sm px-5 py-2.5 rounded-full shadow-sm hover:shadow-md transition-all flex items-center gap-2"
+            onClick={() => openBookingModal()}
+            className="bg-[#A7B596] hover:bg-[#95a384] text-[#423341] font-body font-semibold text-sm px-5 py-2.5 rounded-full shadow-sm hover:shadow-md transition-all flex items-center gap-2 cursor-pointer"
           >
             <CalendarCheck size={18} weight="regular" />
             Book Session
@@ -161,14 +163,14 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, onOpenBooking }) =>
         {/* Mobile menu button */}
         <div className="lg:hidden flex items-center gap-2">
           <button
-            onClick={() => onOpenBooking()}
-            className="bg-[#A7B596] text-[#423341] font-body text-xs font-semibold px-3.5 py-2 rounded-full"
+            onClick={() => openBookingModal()}
+            className="bg-[#A7B596] text-[#423341] font-body text-xs font-semibold px-3.5 py-2 rounded-full cursor-pointer"
           >
             Book
           </button>
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="p-2 text-[#423341] focus:outline-none"
+            className="p-2 text-[#423341] focus:outline-none cursor-pointer"
             aria-label="Toggle navigation menu"
           >
             {mobileMenuOpen ? <X size={26} /> : <List size={26} />}
@@ -179,79 +181,79 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, onOpenBooking }) =>
       {/* Mobile Drawer */}
       {mobileMenuOpen && (
         <div className="lg:hidden bg-[#FBF6EF] border-b border-[#EFD4CE] px-6 py-6 space-y-4 font-body animate-fade-in">
-          <a
+          <Link
             href="/"
             className="block text-base font-medium text-[#423341] py-1 border-b border-[#EFD4CE]/40"
             onClick={() => setMobileMenuOpen(false)}
           >
             Home
-          </a>
+          </Link>
           <div className="space-y-2 pl-2">
-            <a
+            <Link
               href="/services"
               className="block text-sm font-semibold text-[#423341]/70 uppercase tracking-wider py-1"
               onClick={() => setMobileMenuOpen(false)}
             >
               Services Overview
-            </a>
-            <a
+            </Link>
+            <Link
               href="/services/newborn-photography"
               className="block text-sm text-[#423341] py-1 pl-3"
               onClick={() => setMobileMenuOpen(false)}
             >
               • Newborn Photography
-            </a>
-            <a
+            </Link>
+            <Link
               href="/services/maternity-photography"
               className="block text-sm text-[#423341] py-1 pl-3"
               onClick={() => setMobileMenuOpen(false)}
             >
               • Maternity Photography
-            </a>
-            <a
+            </Link>
+            <Link
               href="/services/family-photography"
               className="block text-sm text-[#423341] py-1 pl-3"
               onClick={() => setMobileMenuOpen(false)}
             >
               • Family Photography
-            </a>
-            <a
+            </Link>
+            <Link
               href="/services/cake-smash-photography"
               className="block text-sm text-[#423341] py-1 pl-3"
               onClick={() => setMobileMenuOpen(false)}
             >
               • Cake Smash Photography
-            </a>
+            </Link>
           </div>
-          <a
+          <Link
             href="/gallery"
             className="block text-base font-medium text-[#423341] py-1 border-b border-[#EFD4CE]/40"
             onClick={() => setMobileMenuOpen(false)}
           >
             Gallery
-          </a>
-          <a
+          </Link>
+          <Link
             href="/about"
             className="block text-base font-medium text-[#423341] py-1 border-b border-[#EFD4CE]/40"
             onClick={() => setMobileMenuOpen(false)}
           >
             About
-          </a>
-          <a
+          </Link>
+          <Link
             href="/contact"
             className="block text-base font-medium text-[#423341] py-1 border-b border-[#EFD4CE]/40"
             onClick={() => setMobileMenuOpen(false)}
           >
             Contact
-          </a>
+          </Link>
 
           <div className="pt-2">
             <button
               onClick={() => {
                 setMobileMenuOpen(false);
-                onOpenBooking();
+                openBookingModal();
               }}
-              className="w-full bg-[#A7B596] text-[#423341] font-semibold py-3 rounded-full text-center"
+              className="w-full bg-[#A7B596] text-[#423341] font-semibold py-3 rounded-full text-center cursor-pointer"
             >
               Book Your Session Online
             </button>
