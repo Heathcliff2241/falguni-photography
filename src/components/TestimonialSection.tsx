@@ -26,11 +26,11 @@ export const TestimonialSection: React.FC = () => {
       name: 'Prabhjot Gill',
       badge: '2 reviews',
       time: '3 months ago',
-      text: 'I am happy with experience of getting my 5weeks baby photoshoot done by Falguni. She is excellent amazing and wonderful. Falguni was professional, patient and captured every moment perfectly. Highly recommended….👍😊',
+      text: 'I am happy with experience of getting my 5weeks baby photoshoot done by Falguni. She is excellent amazing and wonderful. Falguni was professional, patient and captured every moment perfectly. Highly recommended.',
       rating: 5,
       category: 'newborn',
       likes: 1,
-      ownerReply: 'Thank you prabh for choosing falguni_photography and wonderful Review. Your baby is super cute,God bless her 😇🥰',
+      ownerReply: 'Thank you prabh for choosing falguni_photography and wonderful Review. Your baby is super cute, God bless her',
       ownerReplyTime: '3 months ago'
     },
     {
@@ -42,7 +42,7 @@ export const TestimonialSection: React.FC = () => {
       rating: 5,
       category: 'newborn',
       likes: 1,
-      ownerReply: 'Thank you for your detailed feedback. We truly appreciate the time you took to share your thoughts and the insights you’ve provided. 🙏🏻😊',
+      ownerReply: 'Thank you for your detailed feedback. We truly appreciate the time you took to share your thoughts and the insights you’ve provided.',
       ownerReplyTime: 'a year ago'
     },
     {
@@ -54,7 +54,7 @@ export const TestimonialSection: React.FC = () => {
       rating: 5,
       category: 'attentive',
       likes: 3,
-      ownerReply: 'Thank you for the fantastic 5 star Review. We’re so glad to hear that you were satisfied with our service and had a great experience with us. Your feedback is the great encouragement to us. We look forward to meeting you again. 😇🙏🏻',
+      ownerReply: 'Thank you for the fantastic 5 star Review. We’re so glad to hear that you were satisfied with our service and had a great experience with us. Your feedback is the great encouragement to us. We look forward to meeting you again.',
       ownerReplyTime: 'a year ago'
     },
     {
@@ -62,11 +62,11 @@ export const TestimonialSection: React.FC = () => {
       name: 'Veerpal Kaur Sidhu',
       badge: '5 reviews',
       time: '2 years ago',
-      text: 'Thanks Falguni for beautiful 🤩 pictures.. It was wonderful experience..you are so nice and sweet. You did really good job… I really enjoyed my maternity shoot 🥰🥰 I highly recommend your photography to everyone. Thanks again for lovely pictures 🥰🥰',
+      text: 'Thanks Falguni for beautiful pictures. It was wonderful experience..you are so nice and sweet. You did really good job… I really enjoyed my maternity shoot. I highly recommend your photography to everyone. Thanks again for lovely pictures',
       rating: 5,
       category: 'maternity',
       likes: 2,
-      ownerReply: 'We are incredibly grateful that you took the time out to leave us a 5 star review and sharing your experience with us and community. 😇🥰',
+      ownerReply: 'We are incredibly grateful that you took the time out to leave us a 5 star review and sharing your experience with us and community.',
       ownerReplyTime: '2 years ago'
     },
     {
@@ -78,7 +78,7 @@ export const TestimonialSection: React.FC = () => {
       rating: 5,
       category: 'cake_family',
       likes: 1,
-      ownerReply: "Seeing that you had a 5-Star experience is the best thing we could hope for! Thank you for acknowledging all of the time and effort I put into working on Photoshoot! I'm happy to hear this positive feedback as it means a lot to me. 😇🙏🏻",
+      ownerReply: "Seeing that you had a 5-Star experience is the best thing we could hope for! Thank you for acknowledging all of the time and effort I put into working on Photoshoot! I'm happy to hear this positive feedback as it means a lot to me.",
       ownerReplyTime: 'a year ago'
     },
     {
@@ -90,7 +90,7 @@ export const TestimonialSection: React.FC = () => {
       rating: 5,
       category: 'newborn',
       likes: 1,
-      ownerReply: "Thank you again for your 5-star rating and for being an amazing part of our journey. Your continued support means everything to us, and we can't wait to exceed your expectations every time you choose us. 😇",
+      ownerReply: "Thank you again for your 5-star rating and for being an amazing part of our journey. Your continued support means everything to us, and we can't wait to exceed your expectations every time you choose us.",
       ownerReplyTime: 'a year ago'
     },
     {
@@ -98,11 +98,11 @@ export const TestimonialSection: React.FC = () => {
       name: 'Nisha Modh',
       badge: '9 reviews · 1 photo',
       time: '8 months ago',
-      text: 'This photography studio is run by Falguni and she is extremely passionate about her work. Very good person and very serious about what she does. I would absolutely recommend this place 😊😊',
+      text: 'This photography studio is run by Falguni and she is extremely passionate about her work. Very good person and very serious about what she does. I would absolutely recommend this place',
       rating: 5,
       category: 'gentle',
       likes: 3,
-      ownerReply: 'Thank you so much for your 5-star review! We truly appreciate your support and are glad you had a great experience with us 😇😊',
+      ownerReply: 'Thank you so much for your 5-star review! We truly appreciate your support and are glad you had a great experience with us',
       ownerReplyTime: '8 months ago'
     },
     {
@@ -126,7 +126,7 @@ export const TestimonialSection: React.FC = () => {
       rating: 5,
       category: 'cake_family',
       likes: 1,
-      ownerReply: 'Thank you for your lovely feedback 🙏🏻😊',
+      ownerReply: 'Thank you for your lovely feedback',
       ownerReplyTime: '2 years ago'
     },
     {
@@ -138,7 +138,7 @@ export const TestimonialSection: React.FC = () => {
       rating: 5,
       category: 'attentive',
       likes: 2,
-      ownerReply: 'Thank you so much Gurpreet Singh for your lovely words and positive feedback 😊',
+      ownerReply: 'Thank you so much Gurpreet Singh for your lovely words and positive feedback',
       ownerReplyTime: '3 years ago'
     },
     {
@@ -146,11 +146,11 @@ export const TestimonialSection: React.FC = () => {
       name: 'Sabreen Kaur',
       badge: '4 reviews',
       time: 'a year ago',
-      text: 'Best experience for photography I Have had. Too friendly and experienced lady with magic in her fingers and camera👍',
+      text: 'Best experience for photography I Have had. Too friendly and experienced lady with magic in her fingers and camera',
       rating: 5,
       category: 'gentle',
       likes: 1,
-      ownerReply: 'Thanks for your glowing review! We\'re so happy you enjoyed your time with us and hope to see you again soon. 🥰😇',
+      ownerReply: 'Thanks for your glowing review! We\'re so happy you enjoyed your time with us and hope to see you again soon.',
       ownerReplyTime: 'a year ago'
     },
     {
@@ -162,7 +162,7 @@ export const TestimonialSection: React.FC = () => {
       rating: 5,
       category: 'gentle',
       likes: 1,
-      ownerReply: 'Thank you for taking the time to share your positive experience. Your feedback inspires our team to keep delivering excellent service.😇😊',
+      ownerReply: 'Thank you for taking the time to share your positive experience. Your feedback inspires our team to keep delivering excellent service.',
       ownerReplyTime: '10 months ago'
     }
   ];

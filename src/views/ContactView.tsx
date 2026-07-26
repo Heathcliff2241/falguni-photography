@@ -129,7 +129,7 @@ export const ContactView: React.FC<ContactViewProps> = ({ onOpenBooking }) => {
               </ul>
 
               <div className="bg-[#EFD4CE]/30 p-4 rounded-2xl border border-[#EFD4CE] space-y-1">
-                <span className="font-semibold text-xs text-[#423341]">💬 Instant Booking with Poppy</span>
+                <span className="font-semibold text-xs text-[#423341]">Instant Booking with Poppy</span>
                 <p className="text-xs text-[#423341]/80 leading-relaxed">
                   Click the floating "Chat with Poppy" button at the bottom right to check availability and book interactively 24/7!
                 </p>

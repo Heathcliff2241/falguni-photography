@@ -23,7 +23,7 @@ export const Footer: React.FC = () => {
             </p>
             <div className="bg-[#EFD4CE]/10 p-3 rounded-2xl border border-[#EFD4CE]/20 inline-block">
               <div className="flex items-center gap-1.5 text-xs text-[#EFD4CE] font-semibold">
-                <span>★★★★★ 5.0 Rating</span>
+                <span>5.0 Rating</span>
                 <span className="text-[#FBF6EF]/60">•</span>
                 <span className="text-[#FBF6EF]">56 Google Reviews</span>
               </div>
@@ -52,7 +52,7 @@ export const Footer: React.FC = () => {
             <div className="rounded-2xl overflow-hidden border border-[#EFD4CE]/30 bg-[#322631] shadow-inner">
               <iframe
                 title="Falguni's Photography Studio Location - Northfield SA"
-                src="https://maps.google.com/maps?q=26+South+Pkwy,+Northfield+SA+5085,+Australia&t=&z=14&ie=UTF8&iwloc=&output=embed"
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3274.288210344234!2d138.62272507647248!3d-34.85692697286469!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x6ab0c92fb3874d15%3A0x6b6cddb32267b2d5!2s26%20South%20Pkwy%2C%20Northfield%20SA%205085!5e0!3m2!1sen!2sau!4v1700000000000!5m2!1sen!2sau"
                 width="100%"
                 height="150"
                 style={{ border: 0 }}
@@ -67,7 +67,7 @@ export const Footer: React.FC = () => {
                 rel="noopener noreferrer"
                 className="block text-center text-xs font-semibold py-2 bg-[#EFD4CE]/10 hover:bg-[#EFD4CE] text-[#EFD4CE] hover:text-[#423341] transition-all border-t border-[#EFD4CE]/20"
               >
-                Open in Google Maps 📍
+                Open in Google Maps
               </a>
             </div>
           </div>

@@ -18,67 +18,67 @@ export const HomeView: React.FC<HomeViewProps> = ({ onOpenBooking }) => {
   return (
     <div className="space-y-12">
       {/* Hero Section */}
-      <section className="pt-8 pb-16 bg-[#FBF6EF] relative overflow-hidden">
+      <section className="pt-2 sm:pt-4 pb-6 sm:pb-8 bg-[#FBF6EF] relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center">
             
             {/* Left Column: Keyword-First Title & Positioning */}
-            <div className="lg:col-span-7 space-y-6">
-              <div className="flex items-center gap-3 mb-1">
-                <BotanicalRose color="sage" size={38} />
+            <div className="lg:col-span-7 space-y-4">
+              <div className="flex items-center gap-2">
+                <BotanicalRose color="sage" size={32} />
               </div>
 
               {/* Keyword-first h1 headline */}
-              <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl text-[#423341] font-medium leading-[1.15] tracking-tight">
+              <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl text-[#423341] font-medium leading-[1.15] tracking-tight">
                 {hero.headline}
               </h1>
 
-              <p className="font-display text-xl sm:text-2xl text-[#423341]/90 italic font-normal">
+              <p className="font-display text-lg sm:text-xl text-[#423341]/90 italic font-normal">
                 {hero.subheadline}
               </p>
 
-              <p className="font-body text-base text-[#423341]/80 leading-relaxed max-w-2xl">
+              <p className="font-body text-sm sm:text-base text-[#423341]/80 leading-relaxed max-w-2xl">
                 {hero.body_copy}
               </p>
 
-              {/* Value Badges */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 font-body text-xs text-[#423341] font-medium">
-                <div className="bg-[#EFD4CE]/30 p-3 rounded-2xl border border-[#EFD4CE] flex items-center gap-2">
-                  <CheckCircle size={18} className="text-[#A7B596] shrink-0" />
-                  <span>5-14 Day Newborn Window</span>
-                </div>
-                <div className="bg-[#EFD4CE]/30 p-3 rounded-2xl border border-[#EFD4CE] flex items-center gap-2">
-                  <CheckCircle size={18} className="text-[#A7B596] shrink-0" />
-                  <span>Wardrobe & Props Included</span>
-                </div>
-                <div className="bg-[#EFD4CE]/30 p-3 rounded-2xl border border-[#EFD4CE] flex items-center gap-2">
-                  <CheckCircle size={18} className="text-[#A7B596] shrink-0" />
-                  <span>Unrushed 2-3 Hr Pacing</span>
-                </div>
-              </div>
-
-              {/* Hero CTAs */}
-              <div className="pt-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-4 font-body">
+              {/* Hero CTAs - Placed high up to be immediately visible above the fold */}
+              <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 font-body">
                 <button
                   onClick={() => onOpenBooking()}
-                  className="bg-[#A7B596] hover:bg-[#95a384] text-[#423341] font-semibold text-base px-8 py-4 rounded-full shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2"
+                  className="bg-[#A7B596] hover:bg-[#95a384] text-[#423341] font-semibold text-base px-7 py-3.5 rounded-full shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2"
                 >
                   <CalendarCheck size={20} />
                   Book Your Session ($250+)
                 </button>
                 <a
                   href={`tel:${LOCAL_NAP.phone_clean}`}
-                  className="bg-white border border-[#EFD4CE] text-[#423341] font-medium text-base px-6 py-4 rounded-full hover:bg-[#EFD4CE]/30 transition-colors flex items-center justify-center gap-2"
+                  className="bg-white border border-[#EFD4CE] text-[#423341] font-medium text-base px-6 py-3.5 rounded-full hover:bg-[#EFD4CE]/30 transition-colors flex items-center justify-center gap-2"
                 >
                   <PhoneCall size={20} />
                   Call Falguni Directly
                 </a>
               </div>
+
+              {/* Value Badges */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1 font-body text-xs text-[#423341] font-medium">
+                <div className="bg-[#EFD4CE]/30 px-3 py-2.5 rounded-xl border border-[#EFD4CE] flex items-center gap-2">
+                  <CheckCircle size={16} className="text-[#A7B596] shrink-0" />
+                  <span>5-14 Day Newborn Window</span>
+                </div>
+                <div className="bg-[#EFD4CE]/30 px-3 py-2.5 rounded-xl border border-[#EFD4CE] flex items-center gap-2">
+                  <CheckCircle size={16} className="text-[#A7B596] shrink-0" />
+                  <span>Wardrobe & Props Included</span>
+                </div>
+                <div className="bg-[#EFD4CE]/30 px-3 py-2.5 rounded-xl border border-[#EFD4CE] flex items-center gap-2">
+                  <CheckCircle size={16} className="text-[#A7B596] shrink-0" />
+                  <span>Unrushed 2-3 Hr Pacing</span>
+                </div>
+              </div>
             </div>
 
             {/* Right Column: Hero Photo Card (Floating Filmstrip Style) */}
             <div className="lg:col-span-5 relative">
-              <div className="relative bg-white p-4 rounded-3xl shadow-[0_20px_50px_rgba(66,51,65,0.12)] border border-[#EFD4CE] transform rotate-1 hover:rotate-0 transition-transform duration-500">
+              <div className="relative bg-white p-3.5 rounded-3xl shadow-[0_15px_40px_rgba(66,51,65,0.10)] border border-[#EFD4CE] transform rotate-1 hover:rotate-0 transition-transform duration-500">
                 <div className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-[#FBF6EF]">
                   <img
                     src={hero.image_source}
@@ -87,8 +87,8 @@ export const HomeView: React.FC<HomeViewProps> = ({ onOpenBooking }) => {
                     className="w-full h-full object-cover"
                   />
                 </div>
-                <div className="mt-3 text-center font-body">
-                  <p className="font-display text-lg text-[#423341] font-medium">
+                <div className="mt-2.5 text-center font-body">
+                  <p className="font-display text-base text-[#423341] font-medium">
                     Newborn Floral Wreath Session
                   </p>
                   <p className="text-xs text-[#423341]/70">
@@ -98,8 +98,10 @@ export const HomeView: React.FC<HomeViewProps> = ({ onOpenBooking }) => {
               </div>
 
               {/* Floating review badge */}
-              <div className="absolute -bottom-6 -left-6 bg-[#423341] text-[#FBF6EF] p-4 rounded-2xl shadow-xl border border-[#EFD4CE] font-body text-xs max-w-xs hidden sm:block">
-                <p className="font-semibold text-[#EFD4CE] mb-1">★★★★★ 5.0 Google Rating</p>
+              <div className="absolute -bottom-4 -left-4 bg-[#423341] text-[#FBF6EF] p-3.5 rounded-2xl shadow-xl border border-[#EFD4CE] font-body text-xs max-w-xs hidden sm:block">
+                <div className="flex items-center gap-1 text-[#EFD4CE] mb-1 font-semibold">
+                  <span className="text-[#EFD4CE]">5.0 Google Rating</span>
+                </div>
                 <p className="text-[#FBF6EF]/90 italic">"The most patient photographer in Adelaide. Falguni never rushed our fussy baby!"</p>
               </div>
             </div>
