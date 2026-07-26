@@ -179,40 +179,40 @@ export const TestimonialSection: React.FC = () => {
   };
 
   return (
-    <section className="py-16 bg-[#EFD4CE]/20 relative">
+    <section className="py-16 bg-[#EFD4CE]/30 relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center max-w-2xl mx-auto mb-10">
           <div className="flex items-center justify-center gap-2 mb-2">
             <BotanicalRose color="sage" size={32} />
-            <h2 className="font-display text-3xl sm:text-4xl text-[#423341] tracking-tight">
+            <h2 className="font-display text-3xl sm:text-4xl text-[#1C121B] font-bold tracking-tight">
               Real Google Reviews
             </h2>
             <BotanicalRose color="blush" size={32} />
           </div>
-          <p className="text-sm text-[#423341]/80 font-body">
+          <p className="text-base text-[#2D1D2C] font-body font-semibold">
             Read authentic feedback from parents who trusted Falguni's Photography with their most cherished milestones.
           </p>
         </div>
 
         {/* Google Summary Rating Banner */}
-        <div className="bg-white rounded-3xl p-6 sm:p-8 border border-[#EFD4CE] shadow-sm mb-10 max-w-4xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
+        <div className="bg-white rounded-3xl p-6 sm:p-8 border-2 border-[#D8C2B8] shadow-md mb-10 max-w-4xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-4 text-center md:text-left">
-            <div className="w-16 h-16 rounded-2xl bg-[#423341] text-[#FBF6EF] flex flex-col items-center justify-center shadow-md">
+            <div className="w-16 h-16 rounded-2xl bg-[#2D1D2C] text-[#FBF6EF] flex flex-col items-center justify-center shadow-md">
               <span className="font-display text-2xl font-bold leading-none">5.0</span>
-              <span className="text-[10px] uppercase tracking-wider text-[#EFD4CE] font-semibold mt-1">Google</span>
+              <span className="text-[10px] uppercase tracking-wider text-[#EFD4CE] font-bold mt-1">Google</span>
             </div>
             <div>
-              <div className="flex items-center justify-center md:justify-start text-[#A7B596] mb-1">
+              <div className="flex items-center justify-center md:justify-start text-[#D97706] mb-1">
                 {[...Array(5)].map((_, i) => (
                   <Star key={i} size={20} weight="fill" />
                 ))}
               </div>
-              <h3 className="font-display font-semibold text-lg text-[#423341]">
+              <h3 className="font-display font-bold text-lg text-[#1C121B]">
                 falguni’s photography
               </h3>
-              <p className="text-xs text-[#423341]/70 flex items-center justify-center md:justify-start gap-1">
-                <CheckCircle size={14} className="text-[#A7B596]" weight="fill" />
+              <p className="text-xs text-[#2D1D2C] font-semibold flex items-center justify-center md:justify-start gap-1 mt-0.5">
+                <CheckCircle size={15} className="text-[#2E4323]" weight="fill" />
                 Verified Google Business Profile • 56 Reviews
               </p>
             </div>
@@ -220,56 +220,25 @@ export const TestimonialSection: React.FC = () => {
 
           {/* Filter Pills */}
           <div className="flex flex-wrap gap-2 justify-center md:justify-end">
-            <button
-              onClick={() => setSelectedTag('all')}
-              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all ${
-                selectedTag === 'all'
-                  ? 'bg-[#423341] text-[#FBF6EF]'
-                  : 'bg-[#FBF6EF] text-[#423341] hover:bg-[#EFD4CE]/50 border border-[#EFD4CE]'
-              }`}
-            >
-              All ({realReviews.length})
-            </button>
-            <button
-              onClick={() => setSelectedTag('newborn')}
-              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all ${
-                selectedTag === 'newborn'
-                  ? 'bg-[#423341] text-[#FBF6EF]'
-                  : 'bg-[#FBF6EF] text-[#423341] hover:bg-[#EFD4CE]/50 border border-[#EFD4CE]'
-              }`}
-            >
-              Newborn Photoshoot
-            </button>
-            <button
-              onClick={() => setSelectedTag('maternity')}
-              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all ${
-                selectedTag === 'maternity'
-                  ? 'bg-[#423341] text-[#FBF6EF]'
-                  : 'bg-[#FBF6EF] text-[#423341] hover:bg-[#EFD4CE]/50 border border-[#EFD4CE]'
-              }`}
-            >
-              Maternity
-            </button>
-            <button
-              onClick={() => setSelectedTag('attentive')}
-              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all ${
-                selectedTag === 'attentive'
-                  ? 'bg-[#423341] text-[#FBF6EF]'
-                  : 'bg-[#FBF6EF] text-[#423341] hover:bg-[#EFD4CE]/50 border border-[#EFD4CE]'
-              }`}
-            >
-              Attentive with Babies
-            </button>
-            <button
-              onClick={() => setSelectedTag('gentle')}
-              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all ${
-                selectedTag === 'gentle'
-                  ? 'bg-[#423341] text-[#FBF6EF]'
-                  : 'bg-[#FBF6EF] text-[#423341] hover:bg-[#EFD4CE]/50 border border-[#EFD4CE]'
-              }`}
-            >
-              Gentle Photographers
-            </button>
+            {[
+              { id: 'all', label: `All (${realReviews.length})` },
+              { id: 'newborn', label: 'Newborn Photoshoot' },
+              { id: 'maternity', label: 'Maternity' },
+              { id: 'attentive', label: 'Attentive with Babies' },
+              { id: 'gentle', label: 'Gentle Photographers' },
+            ].map(pill => (
+              <button
+                key={pill.id}
+                onClick={() => setSelectedTag(pill.id)}
+                className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all ${
+                  selectedTag === pill.id
+                    ? 'bg-[#2D1D2C] text-[#FBF6EF] shadow-sm'
+                    : 'bg-white text-[#1C121B] hover:bg-[#EFD4CE]/60 border border-[#D8C2B8]'
+                }`}
+              >
+                {pill.label}
+              </button>
+            ))}
           </div>
         </div>
 
@@ -278,41 +247,41 @@ export const TestimonialSection: React.FC = () => {
           {displayedReviews.map(r => (
             <div
               key={r.id}
-              className="bg-[#FBF6EF] p-6 rounded-3xl border border-[#EFD4CE] shadow-[0_4px_20px_rgba(66,51,65,0.04)] flex flex-col justify-between hover:shadow-md transition-shadow font-body"
+              className="bg-white p-6 rounded-3xl border-2 border-[#D8C2B8] shadow-md flex flex-col justify-between hover:shadow-lg transition-shadow font-body"
             >
               <div>
                 {/* Reviewer Header */}
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-[#A7B596] text-[#FBF6EF] font-display font-semibold flex items-center justify-center text-sm shadow-inner">
+                    <div className="w-10 h-10 rounded-full bg-[#2D1D2C] text-[#FBF6EF] font-display font-bold flex items-center justify-center text-sm shadow-sm">
                       {r.name.charAt(0)}
                     </div>
                     <div>
-                      <h4 className="font-display font-semibold text-sm text-[#423341] leading-snug">
+                      <h4 className="font-display font-bold text-base text-[#1C121B] leading-snug">
                         {r.name}
                       </h4>
                       {r.badge && (
-                        <p className="text-[11px] text-[#423341]/60">
+                        <p className="text-xs text-[#3B2B3A] font-semibold">
                           {r.badge}
                         </p>
                       )}
                     </div>
                   </div>
-                  <span className="text-[11px] text-[#423341]/50 font-mono">
+                  <span className="text-xs text-[#3B2B3A] font-semibold font-mono">
                     {r.time}
                   </span>
                 </div>
 
                 {/* Rating Stars */}
-                <div className="flex items-center gap-1 text-[#A7B596] mb-3">
+                <div className="flex items-center gap-1 text-[#D97706] mb-3">
                   {[...Array(r.rating)].map((_, i) => (
-                    <Star key={i} size={14} weight="fill" />
+                    <Star key={i} size={15} weight="fill" />
                   ))}
-                  <CheckCircle size={14} className="text-[#A7B596] ml-1" weight="fill" />
+                  <CheckCircle size={15} className="text-[#2E4323] ml-1" weight="fill" />
                 </div>
 
                 {/* Review Body */}
-                <p className="text-xs sm:text-sm text-[#423341]/90 leading-relaxed mb-4">
+                <p className="text-sm text-[#1C121B] font-medium leading-relaxed mb-4">
                   "{r.text}"
                 </p>
               </div>
@@ -320,24 +289,24 @@ export const TestimonialSection: React.FC = () => {
               <div>
                 {/* Like Pill */}
                 {r.likes && (
-                  <div className="flex items-center gap-1 text-[11px] text-[#423341]/60 mb-3 bg-[#EFD4CE]/30 w-fit px-2.5 py-1 rounded-full">
-                    <ThumbsUp size={12} className="text-[#423341]" />
+                  <div className="flex items-center gap-1 text-xs text-[#1C121B] font-semibold mb-3 bg-[#EFD4CE] w-fit px-3 py-1 rounded-full border border-[#D8C2B8]">
+                    <ThumbsUp size={13} className="text-[#1C121B]" weight="bold" />
                     <span>{r.likes} parent liked this review</span>
                   </div>
                 )}
 
                 {/* Studio Response Accordion */}
                 {r.ownerReply && (
-                  <div className="border-t border-[#EFD4CE]/60 pt-3">
+                  <div className="border-t border-[#D8C2B8] pt-3">
                     <button
                       onClick={() => toggleReply(r.id)}
-                      className="text-[11px] font-semibold text-[#423341] hover:text-[#A7B596] flex items-center gap-1.5 transition-colors w-full text-left"
+                      className="text-xs font-bold text-[#1C121B] hover:text-[#2E4323] flex items-center gap-1.5 transition-colors w-full text-left"
                     >
                       <span>falguni’s photography (Owner)</span>
-                      {expandedReplies[r.id] ? <CaretUp size={12} /> : <CaretDown size={12} />}
+                      {expandedReplies[r.id] ? <CaretUp size={14} weight="bold" /> : <CaretDown size={14} weight="bold" />}
                     </button>
                     {expandedReplies[r.id] && (
-                      <div className="mt-2 bg-white/80 p-3 rounded-2xl border border-[#EFD4CE]/60 text-xs text-[#423341]/80 italic">
+                      <div className="mt-2 bg-[#FBF6EF] p-3 rounded-2xl border border-[#D8C2B8] text-xs text-[#1C121B] font-medium italic">
                         "{r.ownerReply}"
                       </div>
                     )}
@@ -353,15 +322,15 @@ export const TestimonialSection: React.FC = () => {
           <div className="text-center mt-10">
             <button
               onClick={() => setShowAll(!showAll)}
-              className="bg-[#423341] text-[#FBF6EF] hover:bg-[#A7B596] hover:text-[#423341] px-6 py-3 rounded-full font-body text-xs font-semibold tracking-wider uppercase transition-all shadow-md inline-flex items-center gap-2 border border-[#EFD4CE]"
+              className="bg-[#2D1D2C] text-[#FBF6EF] hover:bg-[#1E121D] px-7 py-3.5 rounded-full font-body text-xs font-bold tracking-wider uppercase transition-all shadow-md inline-flex items-center gap-2 border border-[#D8C2B8]"
             >
               {showAll ? 'Show Fewer Reviews' : `View All ${filteredReviews.length} Google Reviews`}
-              {showAll ? <CaretUp size={16} /> : <CaretDown size={16} />}
+              {showAll ? <CaretUp size={16} weight="bold" /> : <CaretDown size={16} weight="bold" />}
             </button>
           </div>
         )}
 
-        <p className="text-center text-xs text-[#423341]/60 font-body mt-8">
+        <p className="text-center text-xs text-[#2D1D2C] font-semibold font-body mt-8">
           Reviews verified from Falguni's Photography Google Business Profile (26 South Pkwy, Northfield SA 5085).
         </p>
       </div>
