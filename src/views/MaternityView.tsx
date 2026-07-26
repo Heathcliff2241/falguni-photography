@@ -19,8 +19,11 @@ export const MaternityView: React.FC<MaternityViewProps> = ({ onOpenBooking }) =
         {/* Hero Section */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           <div className="lg:col-span-7 space-y-6">
-            <div className="flex items-center gap-3 mb-1">
-              <BotanicalRose color="sage" size={38} />
+            <div className="flex items-center gap-2 text-xs text-[#423341]/70 font-body tracking-wider">
+              <BotanicalRose color="sage" size={24} />
+              <span>Northfield Studio, Adelaide SA</span>
+              <span className="text-[#A7B596]">•</span>
+              <span>Maternity Photography Specialist</span>
             </div>
 
             <h1 className="font-display text-4xl sm:text-5xl text-[#423341] font-medium leading-tight">

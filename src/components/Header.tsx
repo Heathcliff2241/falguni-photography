@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { CaretDown, List, X, CalendarCheck, PhoneCall } from '@phosphor-icons/react';
 import { LOCAL_NAP } from '../data/siteData';
+import { BotanicalRose } from './BotanicalAccents';
 
 interface HeaderProps {
   currentPath: string;
@@ -19,20 +20,22 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, onOpenBooking }) =>
       {/* Main navigation header */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
         {/* Brand Logo */}
-        <a href="/" className="group flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-full bg-[#EFD4CE]/60 flex items-center justify-center text-[#423341] group-hover:bg-[#A7B596]/30 transition-colors">
-            <svg width="22" height="22" viewBox="0 0 64 64" fill="none" stroke="#423341" strokeWidth="2">
-              <path d="M32 16C28 12 22 14 20 18C18 22 20 28 24 30C22 34 26 40 32 40C38 40 42 34 40 30C44 28 46 22 44 18C42 14 36 12 32 16Z" />
-              <path d="M32 40V56" />
-            </svg>
+        <a href="/" className="group flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full bg-[#EFD4CE]/60 flex items-center justify-center text-[#423341] group-hover:bg-[#A7B596]/30 transition-colors shadow-sm">
+            <BotanicalRose color="blush" size={26} />
           </div>
           <div>
-            <span className="font-display text-2xl sm:text-3xl font-medium tracking-tight text-[#423341] block leading-none">
-              Falguni's Photography
-            </span>
-            <span className="font-body text-[11px] text-[#423341]/70 tracking-widest uppercase block mt-0.5">
-              Northfield Studio • Adelaide
-            </span>
+            <div className="flex items-center gap-2">
+              <span className="font-display text-2xl sm:text-3xl font-medium tracking-tight text-[#423341] block leading-none">
+                Falguni's Photography
+              </span>
+              <BotanicalRose color="sage" size={20} className="hidden sm:inline-block text-[#A7B596] opacity-90" />
+            </div>
+            <div className="flex items-center gap-1.5 text-[11px] text-[#423341]/70 font-body tracking-wider mt-1">
+              <span>Northfield Studio</span>
+              <span className="text-[#A7B596]">•</span>
+              <span>Adelaide SA</span>
+            </div>
           </div>
         </a>
 

@@ -33,11 +33,18 @@ export const PoppyChatWidget: React.FC<PoppyChatWidgetProps> = ({ onOpenBooking 
     }
   }, [messages, isOpen]);
 
-  const handleSend = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!input.trim() || loading) return;
+  const quickPrompts = [
+    { label: 'Package Pricing ($250+)', prompt: 'How much do photography packages cost?' },
+    { label: 'Newborn Session Info', prompt: 'What is included in a newborn shoot?' },
+    { label: 'Maternity Booking Window', prompt: 'When should I book my maternity session?' },
+    { label: 'Studio Address & Location', prompt: 'Where is your studio located?' },
+    { label: 'How to Reserve a Date', prompt: 'How do I book or reserve a session date?' }
+  ];
 
-    const userText = input.trim();
+  const sendMessageText = async (textToSend: string) => {
+    if (!textToSend.trim() || loading) return;
+
+    const userText = textToSend.trim();
     setInput('');
 
     const userMsg: ChatMessage = {
@@ -118,6 +125,11 @@ export const PoppyChatWidget: React.FC<PoppyChatWidgetProps> = ({ onOpenBooking 
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSend = async (e: React.FormEvent) => {
+    e.preventDefault();
+    sendMessageText(input);
   };
 
   return (
@@ -205,6 +217,27 @@ export const PoppyChatWidget: React.FC<PoppyChatWidgetProps> = ({ onOpenBooking 
               </div>
             )}
             <div ref={messagesEndRef} />
+          </div>
+
+          {/* Quick Guides & FAQs */}
+          <div className="px-3 py-2 bg-[#EFD4CE]/20 border-t border-[#EFD4CE]/40">
+            <p className="text-[11px] font-semibold text-[#423341]/70 mb-1.5 px-1 flex items-center gap-1">
+              <BotanicalRose color="sage" size={14} />
+              <span>Tap a quick guide to ask Poppy:</span>
+            </p>
+            <div className="flex gap-1.5 overflow-x-auto pb-1 no-scrollbar">
+              {quickPrompts.map((q, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  disabled={loading}
+                  onClick={() => sendMessageText(q.prompt)}
+                  className="bg-white hover:bg-[#A7B596] hover:text-[#423341] text-[#423341] border border-[#EFD4CE] text-xs font-medium px-3 py-1.5 rounded-full whitespace-nowrap shadow-xs transition-colors shrink-0 disabled:opacity-50"
+                >
+                  {q.label}
+                </button>
+              ))}
+            </div>
           </div>
 
           {/* Input Form */}
