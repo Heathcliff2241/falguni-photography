@@ -90,6 +90,62 @@ async function startServer() {
     res.json({ leads });
   });
 
+  // SEO Robots.txt Endpoint
+  app.get('/robots.txt', (req, res) => {
+    res.type('text/plain');
+    res.send(`User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+
+# Specialized AI Crawler Access
+User-agent: GPTBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+Sitemap: ${req.protocol}://${req.get('host')}/sitemap.xml
+`);
+  });
+
+  // SEO Sitemap.xml Endpoint
+  app.get('/sitemap.xml', (req, res) => {
+    const baseUrl = `${req.protocol}://${req.get('host')}`;
+    const dateStr = new Date().toISOString().split('T')[0];
+
+    const urls = [
+      { loc: '/', priority: '1.0', changefreq: 'weekly' },
+      { loc: '/services', priority: '0.9', changefreq: 'monthly' },
+      { loc: '/services/newborn-photography', priority: '0.9', changefreq: 'monthly' },
+      { loc: '/services/maternity-photography', priority: '0.9', changefreq: 'monthly' },
+      { loc: '/services/family-photography', priority: '0.8', changefreq: 'monthly' },
+      { loc: '/services/cake-smash-photography', priority: '0.8', changefreq: 'monthly' },
+      { loc: '/gallery', priority: '0.8', changefreq: 'weekly' },
+      { loc: '/about', priority: '0.7', changefreq: 'monthly' },
+      { loc: '/contact', priority: '0.9', changefreq: 'monthly' }
+    ];
+
+    const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${urls.map(u => `  <url>
+    <loc>${baseUrl}${u.loc}</loc>
+    <lastmod>${dateStr}</lastmod>
+    <changefreq>${u.changefreq}</changefreq>
+    <priority>${u.priority}</priority>
+  </url>`).join('\n')}
+</urlset>`;
+
+    res.type('application/xml');
+    res.send(xml);
+  });
+
   // Page SSR / HTML Template Renderer
   const pageMeta: Record<string, { title: string; desc: string }> = {
     '/': {
@@ -134,13 +190,18 @@ async function startServer() {
     }
   };
 
-  const getStructuredData = (url: string) => {
+  const getStructuredData = (url: string, baseUrl: string) => {
     const localBusinessSchema = {
       "@context": "https://schema.org",
-      "@type": "Photographer",
+      "@type": ["Photographer", "LocalBusiness"],
+      "@id": `${baseUrl}/#studio`,
       "name": "Falguni's Photography",
-      "image": "https://ais-dev-b2ahwu3glazo5z6wfbq7pi-992818427399.asia-southeast1.run.app/src/assets/images/newborn_floral_wreath_1785043810190.jpg",
+      "legalName": "Falguni's Photography Studio",
+      "url": baseUrl,
       "telephone": "+61 469 753 238",
+      "priceRange": "$250 - $800",
+      "currenciesAccepted": "AUD",
+      "paymentAccepted": "Cash, Credit Card, Bank Transfer, Afterpay",
       "address": {
         "@type": "PostalAddress",
         "streetAddress": "26 South Pkwy",
@@ -149,13 +210,88 @@ async function startServer() {
         "postalCode": "5085",
         "addressCountry": "AU"
       },
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": -34.8569,
+        "longitude": 138.6253
+      },
+      "openingHoursSpecification": [
+        {
+          "@type": "OpeningHoursSpecification",
+          "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+          "opens": "09:00",
+          "closes": "17:00"
+        }
+      ],
       "aggregateRating": {
         "@type": "AggregateRating",
         "ratingValue": "5.0",
         "reviewCount": "56"
       },
-      "areaServed": "Northfield, Lightsview, Klemzig, and greater Adelaide northern suburbs",
-      "priceRange": "$250+"
+      "areaServed": [
+        { "@type": "City", "name": "Northfield" },
+        { "@type": "City", "name": "Lightsview" },
+        { "@type": "City", "name": "Klemzig" },
+        { "@type": "City", "name": "Walkerville" },
+        { "@type": "City", "name": "Mawson Lakes" },
+        { "@type": "City", "name": "Prospect" },
+        { "@type": "City", "name": "Oakden" },
+        { "@type": "City", "name": "Adelaide" }
+      ],
+      "knowsAbout": [
+        "Newborn Photography",
+        "Maternity Photography",
+        "Family Portraits",
+        "Cake Smash Photography",
+        "Baby Props & Wardrobe",
+        "Infant Soothing"
+      ],
+      "hasOfferCatalog": {
+        "@type": "OfferCatalog",
+        "name": "Studio Photography Sessions",
+        "itemListElement": [
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "Newborn Photography Session",
+              "description": "2-3 hour gentle newborn shoot with full props, wraps, and parent poses."
+            },
+            "price": "250.00",
+            "priceCurrency": "AUD"
+          },
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "Maternity Photography Session",
+              "description": "Studio maternity session with gown wardrobe and partner inclusion."
+            },
+            "price": "250.00",
+            "priceCurrency": "AUD"
+          },
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "Family Photography Session",
+              "description": "45-60 minute relaxed family portrait session in studio."
+            },
+            "price": "250.00",
+            "priceCurrency": "AUD"
+          },
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "Cake Smash First Birthday Session",
+              "description": "First birthday portrait, cake smash, and full cleanup included."
+            },
+            "price": "250.00",
+            "priceCurrency": "AUD"
+          }
+        ]
+      }
     };
 
     const breadcrumbSchema = {
@@ -166,27 +302,29 @@ async function startServer() {
           "@type": "ListItem",
           "position": 1,
           "name": "Home",
-          "item": "/"
+          "item": `${baseUrl}/`
         },
         {
           "@type": "ListItem",
           "position": 2,
           "name": "Services",
-          "item": "/services"
+          "item": `${baseUrl}/services`
         },
         {
           "@type": "ListItem",
           "position": 3,
-          "name": url.replace('/services/', '').replace('-', ' '),
-          "item": url
+          "name": url.replace('/services/', '').replace(/-/g, ' '),
+          "item": `${baseUrl}${url}`
         }
       ]
     };
 
+    const schemas: any[] = [localBusinessSchema];
     if (url.startsWith('/services/')) {
-      return [localBusinessSchema, breadcrumbSchema];
+      schemas.push(breadcrumbSchema);
     }
-    return [localBusinessSchema];
+
+    return schemas;
   };
 
   // Vite Development Middleware
@@ -204,8 +342,9 @@ async function startServer() {
 
       try {
         const url = req.url.split('?')[0];
+        const baseUrl = `${req.protocol}://${req.get('host')}`;
         const meta = pageMeta[url] || pageMeta['/'];
-        const schemas = getStructuredData(url);
+        const schemas = getStructuredData(url, baseUrl);
 
         let template = fs.readFileSync(path.resolve(process.cwd(), 'index.html'), 'utf-8');
         template = await vite.transformIndexHtml(req.originalUrl, template);
@@ -215,13 +354,14 @@ async function startServer() {
           <title>${meta.title}</title>
           <meta name="description" content="${meta.desc}" />
           <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-          <link rel="preconnect" href="https://fonts.googleapis.com">
-          <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-          <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Nunito+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+          <link rel="canonical" href="${baseUrl}${url}" />
+          <meta property="og:title" content="${meta.title}" />
+          <meta property="og:description" content="${meta.desc}" />
+          <meta property="og:url" content="${baseUrl}${url}" />
           ${schemas.map(s => `<script type="application/ld+json">${JSON.stringify(s)}</script>`).join('\n')}
         `;
 
-        template = template.replace('<title>My Google AI Studio App</title>', headHtml);
+        template = template.replace(/<title>.*?<\/title>/i, headHtml);
 
         res.status(200).set({ 'Content-Type': 'text/html' }).end(template);
       } catch (e) {
@@ -236,20 +376,22 @@ async function startServer() {
 
     app.get('*', (req, res) => {
       const url = req.url.split('?')[0];
+      const baseUrl = `${req.protocol}://${req.get('host')}`;
       const meta = pageMeta[url] || pageMeta['/'];
-      const schemas = getStructuredData(url);
+      const schemas = getStructuredData(url, baseUrl);
 
       let html = fs.readFileSync(path.join(distPath, 'index.html'), 'utf-8');
       const headHtml = `
         <title>${meta.title}</title>
         <meta name="description" content="${meta.desc}" />
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Nunito+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+        <link rel="canonical" href="${baseUrl}${url}" />
+        <meta property="og:title" content="${meta.title}" />
+        <meta property="og:description" content="${meta.desc}" />
+        <meta property="og:url" content="${baseUrl}${url}" />
         ${schemas.map(s => `<script type="application/ld+json">${JSON.stringify(s)}</script>`).join('\n')}
       `;
 
-      html = html.replace('<title>My Google AI Studio App</title>', headHtml);
+      html = html.replace(/<title>.*?<\/title>/i, headHtml);
       res.status(200).send(html);
     });
   }

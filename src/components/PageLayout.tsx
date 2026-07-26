@@ -4,6 +4,7 @@ import { Footer } from './Footer';
 import { LoadingScreen } from './LoadingScreen';
 import { PoppyChatWidget } from './PoppyChatWidget';
 import { BookingModal } from './BookingModal';
+import { SEOHead } from './SEOHead';
 
 interface PageLayoutProps {
   currentPath: string;
@@ -32,6 +33,12 @@ export const PageLayout: React.FC<PageLayoutProps> = ({
 
   return (
     <div className="min-h-screen flex flex-col bg-[#FBF6EF] text-[#423341] font-body selection:bg-[#EFD4CE] selection:text-[#423341]">
+      <SEOHead
+        currentPath={currentPath}
+        metaTitle={metaTitle}
+        metaDescription={metaDescription}
+      />
+
       <LoadingScreen />
 
       {/* SEO Title & Meta tags injection for client hydration */}
