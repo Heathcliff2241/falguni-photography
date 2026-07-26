@@ -55,15 +55,15 @@ export const ServicesOverviewView: React.FC<ServicesOverviewViewProps> = ({ onOp
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto space-y-4">
-          <h1 className="font-display text-4xl sm:text-5xl text-[#1C121B] font-bold tracking-tight">
+          <h1 className="font-display text-4xl sm:text-5xl text-[#423341] font-medium tracking-tight">
             {hero.headline}
           </h1>
 
-          <p className="font-display text-xl text-[#2D1D2C] font-semibold italic">
+          <p className="font-display text-xl text-[#423341]/90 italic">
             {hero.subheadline}
           </p>
 
-          <p className="font-body text-base sm:text-lg text-[#1C121B] font-medium leading-relaxed">
+          <p className="font-body text-base text-[#423341]/80 leading-relaxed">
             {hero.body_copy}
           </p>
         </div>
@@ -72,37 +72,37 @@ export const ServicesOverviewView: React.FC<ServicesOverviewViewProps> = ({ onOp
 
         {/* Silo Services Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4">
-          {servicesList.map((s) => (
+          {servicesList.map((s, idx) => (
             <div
               key={s.id}
-              className="bg-white p-6 sm:p-8 rounded-3xl border-2 border-[#D8C2B8] shadow-md hover:shadow-xl transition-all flex flex-col justify-between"
+              className="bg-white p-6 sm:p-8 rounded-3xl border border-[#EFD4CE] shadow-[0_10px_35px_rgba(66,51,65,0.06)] hover:shadow-lg transition-all flex flex-col justify-between"
             >
               <div className="space-y-3 font-body">
-                <span className="text-xs font-bold text-[#2E4323] bg-[#E1E7D8] px-3 py-1 rounded-md inline-block uppercase tracking-wider">
+                <span className="text-xs font-semibold text-[#A7B596] uppercase tracking-wider block">
                   {s.sub}
                 </span>
-                <h2 className="font-display text-2xl font-bold text-[#1C121B]">
+                <h2 className="font-display text-2xl font-medium text-[#423341]">
                   {s.title}
                 </h2>
-                <p className="text-sm sm:text-base text-[#231522] font-medium leading-relaxed">
+                <p className="text-sm text-[#423341]/80 leading-relaxed">
                   {s.desc}
                 </p>
               </div>
 
-              <div className="pt-6 mt-6 border-t border-[#D8C2B8] flex items-center justify-between font-body">
-                <span className="font-bold text-lg text-[#1C121B]">{s.price}</span>
+              <div className="pt-6 mt-6 border-t border-[#EFD4CE]/60 flex items-center justify-between font-body">
+                <span className="font-semibold text-base text-[#423341]">{s.price}</span>
                 <div className="flex items-center gap-3">
                   <button
                     onClick={() => onOpenBooking(s.id)}
-                    className="bg-[#2D1D2C] text-[#FBF6EF] text-xs font-bold px-4 py-2.5 rounded-full hover:bg-[#1E121D] transition-colors flex items-center gap-1.5 cursor-pointer shadow-sm"
+                    className="bg-[#A7B596] text-[#423341] text-xs font-semibold px-4 py-2 rounded-full hover:bg-[#96a585] transition-colors flex items-center gap-1.5"
                   >
-                    <CalendarCheck size={16} weight="bold" /> Book
+                    <CalendarCheck size={16} /> Book
                   </button>
                   <a
                     href={s.url}
-                    className="text-xs font-bold text-[#1C121B] underline hover:text-[#2E4323] transition-colors flex items-center gap-1"
+                    className="text-xs font-semibold text-[#423341] hover:text-[#A7B596] transition-colors flex items-center gap-1"
                   >
-                    Details <ArrowRight size={14} weight="bold" />
+                    Details <ArrowRight size={14} />
                   </a>
                 </div>
               </div>

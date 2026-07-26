@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { SITE_PAGES, LOCAL_NAP } from '../data/siteData';
 import { BotanicalRose, BotanicalVineDivider } from '../components/BotanicalAccents';
-import { TapeStrip } from '../components/TapeStrip';
 import { PhoneCall, MapPin, EnvelopeSimple, CalendarCheck, CheckCircle, Spinner } from '@phosphor-icons/react';
 
 interface ContactViewProps {
@@ -63,15 +62,15 @@ export const ContactView: React.FC<ContactViewProps> = ({ onOpenBooking }) => {
         
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto space-y-4">
-          <h1 className="font-display text-4xl sm:text-5xl text-[#1C121B] font-bold tracking-tight">
+          <h1 className="font-display text-4xl sm:text-5xl text-[#423341] font-medium tracking-tight">
             {hero.headline}
           </h1>
 
-          <p className="font-display text-xl text-[#2D1D2C] font-semibold italic">
+          <p className="font-display text-xl text-[#423341]/90 italic">
             {hero.subheadline}
           </p>
 
-          <p className="font-body text-base sm:text-lg text-[#1C121B] font-medium leading-relaxed">
+          <p className="font-body text-base text-[#423341]/80 leading-relaxed">
             {hero.body_copy}
           </p>
         </div>
@@ -82,68 +81,65 @@ export const ContactView: React.FC<ContactViewProps> = ({ onOpenBooking }) => {
           
           {/* Left Column: NAP Block & Map Info */}
           <div className="lg:col-span-5 space-y-6 font-body">
-            <div className="bg-white p-6 sm:p-8 rounded-3xl border-2 border-[#D8C2B8] shadow-md space-y-6">
-              <h2 className="font-display text-2xl text-[#1C121B] font-bold border-b-2 border-[#D8C2B8] pb-3">
+            <div className="bg-white p-6 sm:p-8 rounded-3xl border border-[#EFD4CE] shadow-[0_8px_30px_rgba(66,51,65,0.06)] space-y-6">
+              <h2 className="font-display text-2xl text-[#423341] font-medium border-b border-[#EFD4CE]/60 pb-3">
                 Studio Contact Details
               </h2>
 
-              <ul className="space-y-5 text-sm text-[#1C121B]">
-                <li className="flex items-start gap-3.5">
-                  <div className="w-10 h-10 rounded-full bg-[#E1E7D8] flex items-center justify-center text-[#2E4323] shrink-0 mt-0.5 border border-[#A7B596]">
-                    <MapPin size={20} weight="bold" />
+              <ul className="space-y-4 text-sm text-[#423341]">
+                <li className="flex items-start gap-3">
+                  <div className="w-10 h-10 rounded-full bg-[#EFD4CE]/50 flex items-center justify-center text-[#423341] shrink-0 mt-0.5">
+                    <MapPin size={20} />
                   </div>
                   <div>
-                    <span className="font-bold text-xs uppercase tracking-wider text-[#2E4323] block">Studio Address</span>
-                    <span className="font-bold text-base text-[#1C121B]">{LOCAL_NAP.address}</span>
-                    <p className="text-xs font-semibold text-[#231522]/80 mt-0.5">Serving Northfield, Lightsview, Klemzig & Northern Adelaide</p>
+                    <span className="font-semibold text-xs uppercase tracking-wider text-[#A7B596] block">Studio Address</span>
+                    <span className="font-medium text-base">{LOCAL_NAP.address}</span>
+                    <p className="text-xs text-[#423341]/70 mt-0.5">Serving Northfield, Lightsview, Klemzig & Northern Adelaide</p>
                   </div>
                 </li>
 
-                <li className="flex items-start gap-3.5">
-                  <div className="w-10 h-10 rounded-full bg-[#E1E7D8] flex items-center justify-center text-[#2E4323] shrink-0 mt-0.5 border border-[#A7B596]">
-                    <PhoneCall size={20} weight="bold" />
+                <li className="flex items-start gap-3">
+                  <div className="w-10 h-10 rounded-full bg-[#EFD4CE]/50 flex items-center justify-center text-[#423341] shrink-0 mt-0.5">
+                    <PhoneCall size={20} />
                   </div>
                   <div>
-                    <span className="font-bold text-xs uppercase tracking-wider text-[#2E4323] block">Direct Phone</span>
-                    <a href={`tel:${LOCAL_NAP.phone_clean}`} className="font-bold text-base text-[#1C121B] underline hover:text-[#2E4323] transition-colors">
+                    <span className="font-semibold text-xs uppercase tracking-wider text-[#A7B596] block">Direct Phone</span>
+                    <a href={`tel:${LOCAL_NAP.phone_clean}`} className="font-medium text-base hover:text-[#A7B596] transition-colors">
                       {LOCAL_NAP.phone}
                     </a>
                   </div>
                 </li>
 
-                <li className="flex items-start gap-3.5">
-                  <div className="w-10 h-10 rounded-full bg-[#E1E7D8] flex items-center justify-center text-[#2E4323] shrink-0 mt-0.5 border border-[#A7B596]">
-                    <EnvelopeSimple size={20} weight="bold" />
+                <li className="flex items-start gap-3">
+                  <div className="w-10 h-10 rounded-full bg-[#EFD4CE]/50 flex items-center justify-center text-[#423341] shrink-0 mt-0.5">
+                    <EnvelopeSimple size={20} />
                   </div>
                   <div>
-                    <span className="font-bold text-xs uppercase tracking-wider text-[#2E4323] block">Email Inquiries</span>
-                    <a href="mailto:cesaresmero2@gmail.com" className="font-bold text-base text-[#1C121B] underline hover:text-[#2E4323] transition-colors">
+                    <span className="font-semibold text-xs uppercase tracking-wider text-[#A7B596] block">Email Inquiries</span>
+                    <a href="mailto:cesaresmero2@gmail.com" className="font-medium text-base hover:text-[#A7B596] transition-colors">
                       cesaresmero2@gmail.com
                     </a>
                   </div>
                 </li>
               </ul>
 
-              <div className="bg-[#E1E7D8]/60 p-4 rounded-2xl border-2 border-[#A7B596] space-y-1">
-                <span className="font-bold text-sm text-[#1C121B]">Instant Booking with Poppy</span>
-                <p className="text-xs sm:text-sm text-[#1C121B] font-medium leading-relaxed">
+              <div className="bg-[#EFD4CE]/30 p-4 rounded-2xl border border-[#EFD4CE] space-y-1">
+                <span className="font-semibold text-xs text-[#423341]">Instant Booking with Poppy</span>
+                <p className="text-xs text-[#423341]/80 leading-relaxed">
                   Click the floating "Chat with Poppy" button at the bottom right to check availability and book interactively 24/7!
                 </p>
               </div>
             </div>
 
             {/* Studio Photo */}
-            <div className="relative bg-white p-3.5 pt-4 pb-6 rounded-none shadow-md border border-neutral-300">
-              <TapeStrip variant="classic" />
-              <div className="relative aspect-[4/3] rounded-none overflow-hidden bg-[#FBF6EF] border border-neutral-300">
-                <img
-                  src={hero.image_source}
-                  alt={hero.image_alt_text}
-                  referrerPolicy="no-referrer"
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <p className="text-center font-display text-sm text-[#1C121B] mt-3 font-bold">
+            <div className="bg-white p-3 rounded-3xl border border-[#EFD4CE] shadow-sm">
+              <img
+                src={hero.image_source}
+                alt={hero.image_alt_text}
+                referrerPolicy="no-referrer"
+                className="w-full h-48 object-cover rounded-2xl"
+              />
+              <p className="text-center font-display text-sm text-[#423341] mt-2 font-medium">
                 Northfield Studio Interior • Organic Props & Wraps
               </p>
             </div>
@@ -151,26 +147,26 @@ export const ContactView: React.FC<ContactViewProps> = ({ onOpenBooking }) => {
 
           {/* Right Column: Direct Contact & Booking Form */}
           <div className="lg:col-span-7">
-            <div className="bg-white p-6 sm:p-8 rounded-3xl border-2 border-[#D8C2B8] shadow-lg font-body">
+            <div className="bg-white p-6 sm:p-8 rounded-3xl border border-[#EFD4CE] shadow-[0_12px_40px_rgba(66,51,65,0.08)] font-body">
               {!submitted ? (
                 <div>
-                  <h2 className="font-display text-2xl text-[#1C121B] font-bold mb-1">
+                  <h2 className="font-display text-2xl text-[#423341] font-medium mb-1">
                     Send Falguni a Message
                   </h2>
-                  <p className="text-xs sm:text-sm text-[#231522] font-semibold mb-6">
+                  <p className="text-xs text-[#423341]/70 mb-6">
                     Fill out the form below or chat with Poppy. Falguni confirms all inquiries within 24 hours.
                   </p>
 
                   {errorMsg && (
-                    <div className="mb-4 p-3 bg-red-100 border border-red-300 text-red-900 font-bold text-xs rounded-xl">
+                    <div className="mb-4 p-3 bg-red-100 border border-red-200 text-red-800 text-xs rounded-xl">
                       {errorMsg}
                     </div>
                   )}
 
-                  <form onSubmit={handleSubmit} className="space-y-4 text-sm text-[#1C121B]">
+                  <form onSubmit={handleSubmit} className="space-y-4 text-sm text-[#423341]">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-xs font-bold uppercase tracking-wider text-[#1C121B] mb-1">
+                        <label className="block text-xs font-semibold uppercase tracking-wider text-[#423341]/70 mb-1">
                           Full Name *
                         </label>
                         <input
@@ -179,11 +175,11 @@ export const ContactView: React.FC<ContactViewProps> = ({ onOpenBooking }) => {
                           placeholder="e.g. Jessica Miller"
                           value={fullName}
                           onChange={e => setFullName(e.target.value)}
-                          className="w-full bg-[#FBF6EF] border-2 border-[#D8C2B8] text-[#1C121B] font-semibold rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-[#2D1D2C]"
+                          className="w-full bg-[#FBF6EF] border border-[#EFD4CE] rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-[#A7B596]"
                         />
                       </div>
                       <div>
-                        <label className="block text-xs font-bold uppercase tracking-wider text-[#1C121B] mb-1">
+                        <label className="block text-xs font-semibold uppercase tracking-wider text-[#423341]/70 mb-1">
                           Phone Number *
                         </label>
                         <input
@@ -192,13 +188,13 @@ export const ContactView: React.FC<ContactViewProps> = ({ onOpenBooking }) => {
                           placeholder="e.g. 0412 345 678"
                           value={phone}
                           onChange={e => setPhone(e.target.value)}
-                          className="w-full bg-[#FBF6EF] border-2 border-[#D8C2B8] text-[#1C121B] font-semibold rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-[#2D1D2C]"
+                          className="w-full bg-[#FBF6EF] border border-[#EFD4CE] rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-[#A7B596]"
                         />
                       </div>
                     </div>
 
                     <div>
-                      <label className="block text-xs font-bold uppercase tracking-wider text-[#1C121B] mb-1">
+                      <label className="block text-xs font-semibold uppercase tracking-wider text-[#423341]/70 mb-1">
                         Email Address *
                       </label>
                       <input
@@ -207,18 +203,18 @@ export const ContactView: React.FC<ContactViewProps> = ({ onOpenBooking }) => {
                         placeholder="e.g. jessica@example.com.au"
                         value={email}
                         onChange={e => setEmail(e.target.value)}
-                        className="w-full bg-[#FBF6EF] border-2 border-[#D8C2B8] text-[#1C121B] font-semibold rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-[#2D1D2C]"
+                        className="w-full bg-[#FBF6EF] border border-[#EFD4CE] rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-[#A7B596]"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-xs font-bold uppercase tracking-wider text-[#1C121B] mb-1">
+                      <label className="block text-xs font-semibold uppercase tracking-wider text-[#423341]/70 mb-1">
                         Service Requested
                       </label>
                       <select
                         value={service}
                         onChange={e => setService(e.target.value)}
-                        className="w-full bg-[#FBF6EF] border-2 border-[#D8C2B8] text-[#1C121B] font-semibold rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-[#2D1D2C]"
+                        className="w-full bg-[#FBF6EF] border border-[#EFD4CE] rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-[#A7B596]"
                       >
                         <option value="newborn">Newborn Photography (5-14 days)</option>
                         <option value="maternity">Maternity Photography (28-34 weeks)</option>
@@ -228,7 +224,7 @@ export const ContactView: React.FC<ContactViewProps> = ({ onOpenBooking }) => {
                     </div>
 
                     <div>
-                      <label className="block text-xs font-bold uppercase tracking-wider text-[#1C121B] mb-1">
+                      <label className="block text-xs font-semibold uppercase tracking-wider text-[#423341]/70 mb-1">
                         Your Message / Preferred Dates / Due Date
                       </label>
                       <textarea
@@ -236,20 +232,20 @@ export const ContactView: React.FC<ContactViewProps> = ({ onOpenBooking }) => {
                         placeholder="Tell us about your baby's due date, preferred session time, or any questions..."
                         value={message}
                         onChange={e => setMessage(e.target.value)}
-                        className="w-full bg-[#FBF6EF] border-2 border-[#D8C2B8] text-[#1C121B] font-semibold rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-[#2D1D2C]"
+                        className="w-full bg-[#FBF6EF] border border-[#EFD4CE] rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-[#A7B596]"
                       />
                     </div>
 
                     <button
                       type="submit"
                       disabled={loading}
-                      className="w-full bg-[#2D1D2C] hover:bg-[#1E121D] text-[#FBF6EF] font-bold text-base py-3.5 rounded-full shadow-md transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                      className="w-full bg-[#A7B596] hover:bg-[#96a585] text-[#423341] font-semibold text-base py-3.5 rounded-full shadow-sm transition-colors flex items-center justify-center gap-2"
                     >
                       {loading ? (
                         <Spinner size={20} className="animate-spin" />
                       ) : (
                         <>
-                          <CalendarCheck size={20} weight="bold" /> Send Inquiry
+                          <CalendarCheck size={20} /> Send Inquiry
                         </>
                       )}
                     </button>
@@ -257,16 +253,16 @@ export const ContactView: React.FC<ContactViewProps> = ({ onOpenBooking }) => {
                 </div>
               ) : (
                 <div className="text-center py-8">
-                  <CheckCircle size={56} weight="fill" className="text-[#2E4323] mx-auto mb-3" />
-                  <h3 className="font-display text-2xl font-bold text-[#1C121B] mb-2">
+                  <CheckCircle size={56} weight="fill" className="text-[#A7B596] mx-auto mb-3" />
+                  <h3 className="font-display text-2xl font-medium text-[#423341] mb-2">
                     Message Received!
                   </h3>
-                  <p className="text-sm text-[#1C121B] font-medium leading-relaxed max-w-md mx-auto mb-6 bg-[#E1E7D8]/60 p-4 rounded-2xl border-2 border-[#A7B596]">
+                  <p className="text-sm text-[#423341]/90 leading-relaxed max-w-md mx-auto mb-6 bg-[#EFD4CE]/30 p-4 rounded-2xl border border-[#EFD4CE]">
                     Got it, thank you! I've passed your details along to Falguni. She'll confirm your session by phone or email within 24 hours. If your dates are flexible, mention that and she'll do her best to work around them.
                   </p>
                   <button
                     onClick={() => setSubmitted(false)}
-                    className="bg-[#2D1D2C] hover:bg-[#1E121D] text-[#FBF6EF] font-bold text-sm px-6 py-2.5 rounded-full cursor-pointer shadow-md"
+                    className="bg-[#A7B596] text-[#423341] font-semibold text-sm px-6 py-2 rounded-full"
                   >
                     Send Another Message
                   </button>

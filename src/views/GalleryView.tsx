@@ -17,15 +17,15 @@ export const GalleryView: React.FC<GalleryViewProps> = ({ onOpenBooking }) => {
         
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto space-y-4">
-          <h1 className="font-display text-4xl sm:text-5xl text-[#1C121B] font-bold tracking-tight">
+          <h1 className="font-display text-4xl sm:text-5xl text-[#423341] font-medium tracking-tight">
             {hero.headline}
           </h1>
 
-          <p className="font-display text-xl text-[#2D1D2C] font-semibold italic">
+          <p className="font-display text-xl text-[#423341]/90 italic">
             {hero.subheadline}
           </p>
 
-          <p className="font-body text-base sm:text-lg text-[#1C121B] font-medium leading-relaxed">
+          <p className="font-body text-base text-[#423341]/80 leading-relaxed">
             {hero.body_copy}
           </p>
         </div>
