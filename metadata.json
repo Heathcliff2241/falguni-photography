@@ -1,0 +1,6 @@
+{
+  "name": "Falguni's Photography",
+  "description": "Gentle, unhurried newborn, maternity, and family photography in Northfield, Adelaide.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
