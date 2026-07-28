@@ -201,18 +201,18 @@ export const PoppyChatWidget: React.FC<PoppyChatWidgetProps> = ({ onOpenBooking 
     const updatedMessages = [...messages, userMsg];
     setMessages(updatedMessages);
     setLoading(true);
-    setThinkingStage('Poppy is thinking...');
+    setThinkingStage('Poppy is carefully analyzing your request...');
 
     const startTime = Date.now();
 
-    // Multi-stage unhurried thinking updates for a calm, serene feel
+    // Multi-stage receptionist thinking updates for a thoughtful, reliable feel
     const stageTimer1 = setTimeout(() => {
-      setThinkingStage('Poppy is reflecting gently...');
-    }, 700);
+      setThinkingStage('Poppy is checking Falguni\'s studio calendar and context...');
+    }, 900);
 
     const stageTimer2 = setTimeout(() => {
-      setThinkingStage('Poppy is typing a response...');
-    }, 1500);
+      setThinkingStage('Poppy is preparing a thoughtful response...');
+    }, 1900);
 
     try {
       let replyText = '';
