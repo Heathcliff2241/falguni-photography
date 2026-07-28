@@ -14,6 +14,7 @@ export const PoppyChatWidget: React.FC<PoppyChatWidgetProps> = ({ onOpenBooking 
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const [thinkingStage, setThinkingStage] = useState<string>('Poppy is typing...');
   const [activeNotificationModal, setActiveNotificationModal] = useState<any | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
@@ -21,7 +22,7 @@ export const PoppyChatWidget: React.FC<PoppyChatWidgetProps> = ({ onOpenBooking 
     {
       id: 'init-1',
       sender: 'poppy',
-      text: "Hello! I'm Poppy, the booking AI assistant for Falguni's Photography in Northfield. I can answer your questions AND book your session directly right here! How can I help you today?",
+      text: "Hello! I'm Poppy, Falguni's studio coordinator & booking assistant in Northfield. I can answer your questions about session styling, wardrobe, and reserve your session date directly right here! How can I help you today?",
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     }
   ]);
@@ -35,8 +36,17 @@ export const PoppyChatWidget: React.FC<PoppyChatWidgetProps> = ({ onOpenBooking 
   useEffect(() => {
     if (isOpen) {
       scrollToBottom();
+      // Lock scroll on body for mobile screens when chat is open
+      if (window.innerWidth < 640) {
+        document.body.style.overflow = 'hidden';
+      }
+    } else {
+      document.body.style.overflow = '';
     }
-  }, [messages, isOpen]);
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [messages, isOpen, loading]);
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
@@ -86,13 +96,73 @@ export const PoppyChatWidget: React.FC<PoppyChatWidgetProps> = ({ onOpenBooking 
     showToast('📅 iCal Calendar File Downloaded!');
   };
 
-  const quickPrompts = [
-    { label: '✨ Book a Session Now', prompt: 'I would like to book a session. My name is Sarah, phone 0412345678, email sarah@example.com for Aug 20th 10am for Newborn Photography' },
-    { label: 'Package Pricing ($250+)', prompt: 'How much do photography packages cost?' },
-    { label: 'Newborn Session Info', prompt: 'What is included in a newborn shoot?' },
-    { label: 'Maternity Booking Window', prompt: 'When should I book my maternity session?' },
-    { label: 'Studio Address & Location', prompt: 'Where is your studio located?' }
-  ];
+  // Dynamic context-aware suggestion generator
+  const getDynamicSuggestions = () => {
+    if (messages.length <= 1) {
+      return [
+        { label: '✨ Reserve Session in Chat', prompt: 'I would like to book a session. My name is Sarah, phone 0412345678, email sarah@example.com for Aug 20th 10am for Newborn Photography' },
+        { label: 'Package Rates ($250+)', prompt: 'How much do photography packages cost?' },
+        { label: 'Newborn Session Info', prompt: 'What is included in a newborn shoot?' },
+        { label: 'Maternity Gowns Provided?', prompt: 'What gowns and styling wardrobe do you provide for maternity?' },
+        { label: 'Studio Location in Northfield', prompt: 'Where is your studio located and is parking available?' }
+      ];
+    }
+
+    const lastMsg = messages[messages.length - 1];
+    const textLower = (lastMsg?.text || '').toLowerCase();
+
+    if (lastMsg?.bookingExtracted) {
+      return [
+        { label: '📅 Download iCal Event', isAction: true, action: () => downloadIcsCalendarEvent(lastMsg.bookingExtracted) },
+        { label: 'What should we bring?', prompt: 'What should we bring with us to the studio session?' },
+        { label: 'Where is the studio?', prompt: 'Where is your studio located in Northfield?' },
+        { label: 'Book another session', prompt: 'I would also like to book another session for my family.' }
+      ];
+    }
+
+    if (textLower.includes('newborn') || textLower.includes('baby') || textLower.includes('infant')) {
+      return [
+        { label: 'Book Newborn Shoot', prompt: 'I would like to book a newborn photography session for my baby.' },
+        { label: 'When is best time for newborn shoot?', prompt: 'When is the ideal age to photograph a newborn baby?' },
+        { label: 'Are parent & sibling photos included?', prompt: 'Can parents and big brothers or sisters be included in newborn photos?' },
+        { label: 'What wraps and props are provided?', prompt: 'What wraps, bonnets, and props do you provide at the studio?' }
+      ];
+    }
+
+    if (textLower.includes('maternity') || textLower.includes('pregnant') || textLower.includes('bump')) {
+      return [
+        { label: 'Book Maternity Shoot', prompt: 'I would like to book a maternity photo session.' },
+        { label: 'Which week is best for photos?', prompt: 'Which week of pregnancy is best to schedule maternity photos?' },
+        { label: 'Do I need to bring my own gowns?', prompt: 'Do you provide studio dresses and drapes for maternity sessions?' },
+        { label: 'Partner & kids included?', prompt: 'Can my partner and older children join the maternity shoot?' }
+      ];
+    }
+
+    if (textLower.includes('cake') || textLower.includes('smash') || textLower.includes('birthday') || textLower.includes('1st')) {
+      return [
+        { label: 'Book Cake Smash', prompt: 'I would like to book a 1st birthday cake smash session.' },
+        { label: 'Is the cake included?', prompt: 'Do you provide the smash cake or do we bring one?' },
+        { label: 'Is splash bath setup included?', prompt: 'Is the warm bath / splash bath included after the smash?' },
+        { label: 'Theme options available?', prompt: 'What backdrop themes and balloon colors do you offer?' }
+      ];
+    }
+
+    if (textLower.includes('price') || textLower.includes('cost') || textLower.includes('rate') || textLower.includes('$250')) {
+      return [
+        { label: 'Book Session starting $250', prompt: 'I would like to reserve a session date. What details do you need?' },
+        { label: 'What is included in $250 rate?', prompt: 'What is included in the $250 base package?' },
+        { label: 'Gallery delivery turnaround time?', prompt: 'How long does it take to get our edited photo gallery?' },
+        { label: 'Do you offer gift vouchers?', prompt: 'Can I purchase a photography gift voucher for an expecting mom?' }
+      ];
+    }
+
+    return [
+      { label: '✨ Reserve Session in Chat', prompt: 'I would like to book a session with Falguni.' },
+      { label: 'Studio Address & Directions', prompt: 'Where is Falguni\'s studio located in Northfield?' },
+      { label: 'Ask about session packages', prompt: 'What photography packages do you offer?' },
+      { label: 'Speak with Falguni directly', prompt: 'Can Falguni call or message me back?' }
+    ];
+  };
 
   const sendMessageText = async (textToSend: string) => {
     if (!textToSend.trim() || loading) return;
@@ -110,6 +180,18 @@ export const PoppyChatWidget: React.FC<PoppyChatWidgetProps> = ({ onOpenBooking 
     const updatedMessages = [...messages, userMsg];
     setMessages(updatedMessages);
     setLoading(true);
+    setThinkingStage('Poppy is reflecting...');
+
+    const startTime = Date.now();
+
+    // Stage updates for realistic thinking feel
+    const stageTimer1 = setTimeout(() => {
+      setThinkingStage('Checking studio schedule & styling options...');
+    }, 550);
+
+    const stageTimer2 = setTimeout(() => {
+      setThinkingStage('Preparing response & session details...');
+    }, 1100);
 
     try {
       let replyText = '';
@@ -143,20 +225,27 @@ export const PoppyChatWidget: React.FC<PoppyChatWidgetProps> = ({ onOpenBooking 
         // Smart client-side fallback responses for Poppy
         const lower = userText.toLowerCase();
         if (lower.includes('price') || lower.includes('cost') || lower.includes('how much') || lower.includes('rate') || lower.includes('package')) {
-          replyText = "All of our sessions—newborn, maternity, family, and cake smash—start at $250. This includes studio time, full access to our styling wraps and props, and a private online gallery of beautifully edited photos.";
+          replyText = "All of our sessions—newborn, maternity, family, and cake smash—start at $250 AUD. This includes dedicated studio time, full access to our hand-selected wraps, bonnets, props, and maternity gowns, plus a private online gallery of high-resolution edited portraits.";
         } else if (lower.includes('newborn') || lower.includes('baby') || lower.includes('infant')) {
-          replyText = "Our newborn sessions are completely unhurried (lasting 2 to 3 hours with unlimited feeding and settling breaks). We recommend booking while pregnant for the 5–14 day post-birth window. All wraps, floral wreaths, and backdrops are provided!";
+          replyText = "Our newborn sessions are completely unhurried (lasting 2 to 3 hours with unlimited feeding and soothing breaks in our warm studio). We recommend reserving your spot while pregnant for the 5–14 day post-birth window. All wraps, floral wreaths, and backdrops are provided!";
         } else if (lower.includes('maternity') || lower.includes('pregnant') || lower.includes('bump')) {
-          replyText = "Maternity sessions are best booked between 28–34 weeks when your bump is beautifully rounded. We provide studio wardrobe gowns and drapes, and partners and big brothers/sisters are always welcome to join!";
+          replyText = "Maternity sessions are best scheduled between 28–34 weeks when your bump is beautifully rounded and comfortable. We provide a luxury studio wardrobe of lace gowns and silk drapes. Partners and older siblings are always welcome to join!";
         } else if (lower.includes('family')) {
-          replyText = "Our family sessions last 45-60 minutes in a relaxed, play-based environment where kids can be themselves. We focus on capturing genuine smiles rather than forced posing.";
+          replyText = "Our family sessions last 45–60 minutes in a relaxed, play-based environment where kids can be themselves. We focus on capturing genuine love and natural smiles rather than rigid posing.";
         } else if (lower.includes('cake') || lower.includes('smash') || lower.includes('birthday') || lower.includes('1st')) {
-          replyText = "Cake smash sessions celebrate baby's first birthday! They include themed balloon backdrops, a smash cake, portraits before the mess, and full studio cleanup afterwards.";
+          replyText = "Cake smash sessions celebrate baby's first milestone! They include customized balloon backdrop themes, a delicious smash cake, portraits before the mess, and a warm splash bath setup followed by complete studio cleanup!";
         } else if (lower.includes('where') || lower.includes('location') || lower.includes('address') || lower.includes('studio')) {
           replyText = "Falguni's Photography is located at 26 South Pkwy, Northfield SA 5085, Australia. We welcome families from Northfield, Lightsview, Klemzig, Walkerville, and across northern Adelaide.";
         } else {
-          replyText = "Thank you for reaching out! Falguni specializes in gentle, patient newborn, maternity, family, and cake smash sessions starting at $250. Give me your Name, Phone Number, Email, and Preferred Date/Time to reserve your date right now!";
+          replyText = "Thank you for reaching out! Falguni specializes in gentle, patient newborn, maternity, family, and cake smash sessions starting at $250. Share your Name, Phone, Email, and Preferred Date/Time to reserve your spot directly right here!";
         }
+      }
+
+      // Enforce artificial delay for realistic conversational pacing (minimum 1.2s total)
+      const elapsed = Date.now() - startTime;
+      const minDelay = 1300;
+      if (elapsed < minDelay) {
+        await new Promise(res => setTimeout(res, minDelay - elapsed));
       }
 
       if (extracted && extracted.email) {
@@ -180,6 +269,8 @@ export const PoppyChatWidget: React.FC<PoppyChatWidgetProps> = ({ onOpenBooking 
       };
       setMessages(prev => [...prev, fallbackMsg]);
     } finally {
+      clearTimeout(stageTimer1);
+      clearTimeout(stageTimer2);
       setLoading(false);
     }
   };
@@ -203,47 +294,65 @@ export const PoppyChatWidget: React.FC<PoppyChatWidgetProps> = ({ onOpenBooking 
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-6 right-6 z-40 bg-[#423341] text-[#FBF6EF] p-4 rounded-full shadow-2xl hover:bg-[#A7B596] hover:text-[#423341] transition-all flex items-center gap-3 border-2 border-[#EFD4CE] cursor-pointer"
+          className="fixed bottom-5 right-5 sm:bottom-6 sm:right-6 z-40 bg-[#423341] text-[#FBF6EF] p-3.5 sm:p-4 rounded-full shadow-2xl hover:bg-[#A7B596] hover:text-[#423341] transition-all flex items-center gap-2.5 sm:gap-3 border-2 border-[#EFD4CE] cursor-pointer group active:scale-95"
           aria-label="Chat with Poppy"
         >
           <div className="relative">
             <BotanicalRose color="blush" size={24} />
-            <span className="absolute -top-1 -right-1 w-3 h-3 bg-[#A7B596] rounded-full border-2 border-[#423341]" />
+            <span className="absolute -top-1 -right-1 w-3 h-3 bg-[#A7B596] rounded-full border-2 border-[#423341] animate-pulse" />
           </div>
-          <span className="font-body text-sm font-semibold pr-1">Chat & Book with Poppy</span>
+          <span className="font-body text-xs sm:text-sm font-semibold pr-1">Chat & Book with Poppy</span>
         </button>
       )}
 
-      {/* Chat Drawer Widget */}
+      {/* Mobile Backdrop overlay */}
       {isOpen && (
-        <div className="fixed bottom-6 right-6 z-50 w-full sm:w-[420px] h-[580px] max-h-[88vh] bg-[#FBF6EF] rounded-3xl shadow-2xl border border-[#EFD4CE] flex flex-col overflow-hidden animate-fade-in font-body">
+        <div 
+          className="fixed inset-0 bg-[#423341]/60 backdrop-blur-xs z-40 sm:hidden animate-fade-in"
+          onClick={() => setIsOpen(false)}
+        />
+      )}
+
+      {/* Chat Drawer / Bottom Sheet Widget */}
+      {isOpen && (
+        <div className="fixed inset-x-0 bottom-0 sm:inset-x-auto sm:bottom-6 sm:right-6 z-50 w-full sm:w-[430px] h-[88vh] sm:h-[600px] bg-[#FBF6EF] rounded-t-3xl sm:rounded-3xl shadow-2xl border border-[#EFD4CE] flex flex-col overflow-hidden animate-fade-in font-body transition-all">
+          
+          {/* Mobile Handle Drag Bar */}
+          <div className="w-12 h-1.5 bg-[#EFD4CE] rounded-full mx-auto my-2 sm:hidden shrink-0" />
+
           {/* Header */}
-          <div className="bg-[#423341] text-[#FBF6EF] p-4 flex items-center justify-between border-b border-[#EFD4CE]/20">
+          <div className="bg-[#423341] text-[#FBF6EF] p-3.5 sm:p-4 flex items-center justify-between border-b border-[#EFD4CE]/20 shrink-0">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-[#EFD4CE]/30 flex items-center justify-center text-[#EFD4CE]">
                 <BotanicalRose color="blush" size={26} />
               </div>
               <div>
-                <h3 className="font-display text-lg font-medium text-[#EFD4CE] leading-none">
+                <h3 className="font-display text-lg font-medium text-[#EFD4CE] leading-none flex items-center gap-1.5">
                   Poppy
+                  <span className="text-[10px] bg-[#A7B596]/30 text-[#A7B596] border border-[#A7B596]/50 px-2 py-0.5 rounded-full font-mono font-normal">
+                    AI Studio Coordinator
+                  </span>
                 </h3>
-                <span className="text-[11px] text-[#FBF6EF]/70 flex items-center gap-1 mt-0.5">
-                  <span className="w-2 h-2 rounded-full bg-[#A7B596]" />
-                  AI Booking Assistant • Active
+                <span className="text-[11px] text-[#FBF6EF]/70 flex items-center gap-1 mt-1">
+                  <span className="w-2 h-2 rounded-full bg-[#A7B596] animate-pulse" />
+                  Online • Falguni's Photography
                 </span>
               </div>
             </div>
             <button
               onClick={() => setIsOpen(false)}
-              className="w-8 h-8 rounded-full bg-white/10 text-[#FBF6EF] flex items-center justify-center hover:bg-white/20 transition-colors cursor-pointer"
+              className="w-9 h-9 rounded-full bg-white/10 text-[#FBF6EF] flex items-center justify-center hover:bg-white/20 transition-colors cursor-pointer shrink-0"
+              aria-label="Close chat"
             >
-              <X size={18} />
+              <X size={20} />
             </button>
           </div>
 
           {/* Quick links header banner */}
-          <div className="bg-[#EFD4CE]/30 px-4 py-2 flex items-center justify-between text-xs text-[#423341] border-b border-[#EFD4CE]/50">
-            <span className="font-medium">✨ Ask Poppy or Book your session in chat!</span>
+          <div className="bg-[#EFD4CE]/30 px-4 py-2 flex items-center justify-between text-xs text-[#423341] border-b border-[#EFD4CE]/50 shrink-0">
+            <span className="font-medium flex items-center gap-1">
+              ✨ Ask Poppy questions or reserve your date directly!
+            </span>
             <button
               onClick={() => {
                 setIsOpen(false);
@@ -256,7 +365,7 @@ export const PoppyChatWidget: React.FC<PoppyChatWidgetProps> = ({ onOpenBooking 
           </div>
 
           {/* Message List */}
-          <div className="flex-1 p-4 overflow-y-auto space-y-4 bg-[#FBF6EF]">
+          <div className="flex-1 p-3.5 sm:p-4 overflow-y-auto space-y-4 bg-[#FBF6EF]">
             {messages.map(m => (
               <div
                 key={m.id}
@@ -266,15 +375,15 @@ export const PoppyChatWidget: React.FC<PoppyChatWidgetProps> = ({ onOpenBooking 
                   className={`max-w-[88%] px-4 py-3 rounded-2xl text-sm leading-relaxed ${
                     m.sender === 'user'
                       ? 'bg-[#423341] text-[#FBF6EF] rounded-tr-none'
-                      : 'bg-white text-[#423341] border border-[#EFD4CE] rounded-tl-none shadow-sm'
+                      : 'bg-white text-[#423341] border border-[#EFD4CE] rounded-tl-none shadow-xs'
                   }`}
                 >
-                  <p>{m.text}</p>
+                  <p className="whitespace-pre-line">{m.text}</p>
                 </div>
 
                 {/* Booking Confirmation Receipt Card when booking is created */}
                 {m.bookingExtracted && (
-                  <div className="mt-2.5 max-w-[90%] bg-white p-4 rounded-2xl border-2 border-[#A7B596] shadow-md space-y-3 font-body">
+                  <div className="mt-2.5 max-w-[92%] bg-white p-4 rounded-2xl border-2 border-[#A7B596] shadow-md space-y-3 font-body">
                     <div className="flex items-center justify-between border-b border-[#EFD4CE]/60 pb-2">
                       <span className="text-xs font-bold text-[#A7B596] uppercase tracking-wider flex items-center gap-1">
                         <CheckCircle size={16} weight="fill" /> Session Reserved!
@@ -303,7 +412,7 @@ export const PoppyChatWidget: React.FC<PoppyChatWidgetProps> = ({ onOpenBooking 
                       {m.bookingExtracted.notification && (
                         <button
                           onClick={() => setActiveNotificationModal(m.bookingExtracted.notification)}
-                          className="w-full bg-[#EFD4CE] hover:bg-[#ebd0ca] text-[#423341] font-semibold py-2 px-3 rounded-xl transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+                          className="w-full bg-[#EFD4CE] hover:bg-[#ebd0ca] text-[#423341] font-semibold py-2.5 px-3 rounded-xl transition-colors flex items-center justify-center gap-1.5 cursor-pointer min-h-[40px]"
                         >
                           <Eye size={16} /> View Email & SMS Notification Sent
                         </button>
@@ -311,7 +420,7 @@ export const PoppyChatWidget: React.FC<PoppyChatWidgetProps> = ({ onOpenBooking 
 
                       <button
                         onClick={() => downloadIcsCalendarEvent(m.bookingExtracted)}
-                        className="w-full bg-[#A7B596] hover:bg-[#96a585] text-[#423341] font-semibold py-2 px-3 rounded-xl transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+                        className="w-full bg-[#A7B596] hover:bg-[#96a585] text-[#423341] font-semibold py-2.5 px-3 rounded-xl transition-colors flex items-center justify-center gap-1.5 cursor-pointer min-h-[40px]"
                       >
                         <Calendar size={16} /> Save Session to Calendar (.ics)
                       </button>
@@ -325,29 +434,40 @@ export const PoppyChatWidget: React.FC<PoppyChatWidgetProps> = ({ onOpenBooking 
               </div>
             ))}
 
+            {/* Realistic Thinking & Reflection Indicator */}
             {loading && (
-              <div className="flex items-center gap-2 text-xs text-[#423341]/60 italic p-2 bg-white/60 rounded-xl w-fit">
-                <Spinner size={16} className="animate-spin text-[#A7B596]" />
-                <span>Poppy is processing booking & preparing notifications...</span>
+              <div className="flex items-center gap-2.5 text-xs text-[#423341] bg-white border border-[#EFD4CE] px-3.5 py-2.5 rounded-2xl rounded-tl-none shadow-xs w-fit animate-pulse">
+                <div className="flex items-center gap-1 text-[#A7B596]">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#A7B596] animate-bounce" style={{ animationDelay: '0ms' }} />
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#A7B596] animate-bounce" style={{ animationDelay: '150ms' }} />
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#A7B596] animate-bounce" style={{ animationDelay: '300ms' }} />
+                </div>
+                <span className="font-medium text-[#423341]/80">{thinkingStage}</span>
               </div>
             )}
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Quick Guides & Booking Prompts */}
-          <div className="px-3 py-2 bg-[#EFD4CE]/20 border-t border-[#EFD4CE]/40">
+          {/* Dynamic Quick Suggestion Chips */}
+          <div className="px-3 py-2 bg-[#EFD4CE]/20 border-t border-[#EFD4CE]/40 shrink-0">
             <p className="text-[11px] font-semibold text-[#423341]/70 mb-1.5 px-1 flex items-center gap-1">
               <BotanicalRose color="sage" size={14} />
-              <span>Tap a topic or instant booking prompt:</span>
+              <span>Suggested quick responses & topics:</span>
             </p>
             <div className="flex gap-1.5 overflow-x-auto pb-1 no-scrollbar">
-              {quickPrompts.map((q, idx) => (
+              {getDynamicSuggestions().map((q, idx) => (
                 <button
                   key={idx}
                   type="button"
                   disabled={loading}
-                  onClick={() => sendMessageText(q.prompt)}
-                  className="bg-white hover:bg-[#A7B596] hover:text-[#423341] text-[#423341] border border-[#EFD4CE] text-xs font-medium px-3 py-1.5 rounded-full whitespace-nowrap shadow-xs transition-colors shrink-0 disabled:opacity-50 cursor-pointer"
+                  onClick={() => {
+                    if ('isAction' in q && q.isAction) {
+                      q.action();
+                    } else if (q.prompt) {
+                      sendMessageText(q.prompt);
+                    }
+                  }}
+                  className="bg-white hover:bg-[#A7B596] hover:text-[#423341] text-[#423341] border border-[#EFD4CE] text-xs font-medium px-3 py-2 rounded-full whitespace-nowrap shadow-2xs transition-all shrink-0 disabled:opacity-50 cursor-pointer active:scale-95 min-h-[36px] flex items-center"
                 >
                   {q.label}
                 </button>
@@ -356,18 +476,18 @@ export const PoppyChatWidget: React.FC<PoppyChatWidgetProps> = ({ onOpenBooking 
           </div>
 
           {/* Input Form */}
-          <form onSubmit={handleSend} className="p-3 bg-white border-t border-[#EFD4CE] flex items-center gap-2">
+          <form onSubmit={handleSend} className="p-3 bg-white border-t border-[#EFD4CE] flex items-center gap-2 shrink-0">
             <input
               type="text"
-              placeholder="Provide name, phone, email & date to book..."
+              placeholder="Ask Poppy a question or share booking details..."
               value={input}
               onChange={e => setInput(e.target.value)}
-              className="flex-1 bg-[#FBF6EF] border border-[#EFD4CE] rounded-full px-4 py-2.5 text-sm focus:outline-none focus:border-[#A7B596]"
+              className="flex-1 bg-[#FBF6EF] border border-[#EFD4CE] rounded-full px-4 py-2.5 text-sm focus:outline-none focus:border-[#A7B596] min-h-[44px]"
             />
             <button
               type="submit"
               disabled={!input.trim() || loading}
-              className="w-10 h-10 rounded-full bg-[#A7B596] text-[#423341] flex items-center justify-center disabled:opacity-40 hover:bg-[#96a585] transition-colors shrink-0 cursor-pointer"
+              className="w-11 h-11 rounded-full bg-[#A7B596] text-[#423341] flex items-center justify-center disabled:opacity-40 hover:bg-[#96a585] transition-colors shrink-0 cursor-pointer min-h-[44px] min-w-[44px]"
               aria-label="Send message"
             >
               <PaperPlaneRight size={18} weight="fill" />
@@ -430,7 +550,7 @@ export const PoppyChatWidget: React.FC<PoppyChatWidgetProps> = ({ onOpenBooking 
                 <span>📱 SMS Notification Text Sent To:</span>
                 <span className="text-[#A7B596] font-mono">{activeNotificationModal.recipientPhone}</span>
               </div>
-              <div className="bg-[#423341] text-[#FBF6EF] p-3.5 rounded-2xl text-xs font-mono leading-relaxed shadow-sm">
+              <div className="bg-[#423341] text-[#FBF6EF] p-3.5 rounded-2xl text-xs font-mono leading-relaxed shadow-xs">
                 {activeNotificationModal.smsBody}
               </div>
             </div>
@@ -438,7 +558,7 @@ export const PoppyChatWidget: React.FC<PoppyChatWidgetProps> = ({ onOpenBooking 
             <div className="pt-2 text-center">
               <button
                 onClick={() => setActiveNotificationModal(null)}
-                className="bg-[#A7B596] text-[#423341] font-semibold text-sm px-6 py-2.5 rounded-full hover:bg-[#96a585] transition-colors cursor-pointer"
+                className="bg-[#A7B596] text-[#423341] font-semibold text-sm px-6 py-2.5 rounded-full hover:bg-[#96a585] transition-colors cursor-pointer min-h-[44px]"
               >
                 Close Notification Preview
               </button>
@@ -449,4 +569,3 @@ export const PoppyChatWidget: React.FC<PoppyChatWidgetProps> = ({ onOpenBooking 
     </>
   );
 };
-
