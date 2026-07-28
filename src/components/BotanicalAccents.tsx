@@ -4,12 +4,14 @@ interface BotanicalRoseProps {
   className?: string;
   color?: 'sage' | 'blush' | 'lavender';
   size?: number;
+  style?: React.CSSProperties;
 }
 
 export const BotanicalRose: React.FC<BotanicalRoseProps> = ({
   className = '',
   color = 'sage',
-  size = 48
+  size = 48,
+  style
 }) => {
   const strokeColor = color === 'sage' ? '#A7B596' : color === 'blush' ? '#EFD4CE' : '#D2C6E3';
 
@@ -23,6 +25,7 @@ export const BotanicalRose: React.FC<BotanicalRoseProps> = ({
       strokeWidth="1.5"
       strokeLinecap="round"
       strokeLinejoin="round"
+      style={style}
       className={`inline-block transition-transform duration-700 ease-out hover:scale-110 ${className}`}
     >
       {/* Rose Bloom contour */}

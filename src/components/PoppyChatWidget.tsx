@@ -14,7 +14,7 @@ export const PoppyChatWidget: React.FC<PoppyChatWidgetProps> = ({ onOpenBooking 
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
-  const [thinkingStage, setThinkingStage] = useState<string>('Poppy is listening gently...');
+  const [thinkingStage, setThinkingStage] = useState<string>('Poppy is thinking...');
   const [activeNotificationModal, setActiveNotificationModal] = useState<any | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
@@ -100,7 +100,7 @@ export const PoppyChatWidget: React.FC<PoppyChatWidgetProps> = ({ onOpenBooking 
   const getDynamicSuggestions = () => {
     if (messages.length <= 1) {
       return [
-        { label: '✨ Reserve Session in Chat', prompt: 'I would like to book a session with Falguni. My name is Sarah, phone 0412345678, email sarah@example.com for Aug 20th 10am for Newborn Photography' },
+        { label: '✨ How do I reserve a date?', prompt: 'I would like to reserve a session date with Falguni. What details do you need?' },
         { label: 'Package Rates ($250+)', prompt: 'How much do photography packages cost?' },
         { label: 'Newborn Session Info', prompt: 'What is included in a newborn shoot?' },
         { label: 'Maternity Gowns Provided?', prompt: 'What gowns and styling wardrobe do you provide for maternity?' },
@@ -180,17 +180,17 @@ export const PoppyChatWidget: React.FC<PoppyChatWidgetProps> = ({ onOpenBooking 
     const updatedMessages = [...messages, userMsg];
     setMessages(updatedMessages);
     setLoading(true);
-    setThinkingStage('Poppy is listening gently...');
+    setThinkingStage('Poppy is thinking...');
 
     const startTime = Date.now();
 
     // Multi-stage unhurried thinking updates for a calm, serene feel
     const stageTimer1 = setTimeout(() => {
-      setThinkingStage('Reflecting on Falguni\'s studio schedule & styling options...');
+      setThinkingStage('Poppy is reflecting gently...');
     }, 700);
 
     const stageTimer2 = setTimeout(() => {
-      setThinkingStage('Poppy is typing a thoughtful response...');
+      setThinkingStage('Poppy is typing a response...');
     }, 1500);
 
     try {
@@ -446,15 +446,19 @@ export const PoppyChatWidget: React.FC<PoppyChatWidgetProps> = ({ onOpenBooking 
               </div>
             ))}
 
-            {/* Unhurried, Soothing Thinking & Reflection Indicator */}
+            {/* Subtle, Gentle 'Poppy is thinking...' Animation & Dot Indicator */}
             {loading && (
-              <div className="flex items-center gap-2.5 text-xs text-[#423341] bg-white border border-[#EFD4CE] px-4 py-3 rounded-3xl rounded-tl-xs shadow-xs w-fit animate-fade-in">
-                <div className="flex items-center gap-1 text-[#A7B596]">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#A7B596] animate-bounce" style={{ animationDelay: '0ms' }} />
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#A7B596] animate-bounce" style={{ animationDelay: '200ms' }} />
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#A7B596] animate-bounce" style={{ animationDelay: '400ms' }} />
+              <div className="flex items-center gap-3 text-xs text-[#423341] bg-white border border-[#EFD4CE] px-4 py-3 rounded-3xl rounded-tl-xs shadow-xs w-fit animate-fade-in">
+                {/* Gentle Pulsing & Bouncing Dot Indicator */}
+                <div className="flex items-center gap-1.5 text-[#A7B596]">
+                  <span className="w-2 h-2 rounded-full bg-[#A7B596] animate-bounce" style={{ animationDelay: '0ms', animationDuration: '1s' }} />
+                  <span className="w-2 h-2 rounded-full bg-[#A7B596] animate-bounce" style={{ animationDelay: '200ms', animationDuration: '1s' }} />
+                  <span className="w-2 h-2 rounded-full bg-[#A7B596] animate-bounce" style={{ animationDelay: '400ms', animationDuration: '1s' }} />
                 </div>
-                <span className="font-medium text-[#423341]/80 italic">{thinkingStage}</span>
+                <div className="flex items-center gap-1.5">
+                  <BotanicalRose color="sage" size={15} className="animate-spin text-[#A7B596]" style={{ animationDuration: '8s' }} />
+                  <span className="font-medium text-[#423341]/90 italic">{thinkingStage}</span>
+                </div>
               </div>
             )}
             <div ref={messagesEndRef} />
