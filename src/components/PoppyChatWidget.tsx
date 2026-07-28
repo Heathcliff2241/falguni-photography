@@ -243,24 +243,32 @@ export const PoppyChatWidget: React.FC<PoppyChatWidgetProps> = ({ onOpenBooking 
       }
 
       if (!replyText) {
-        // Soft, gentle client-side fallback responses for Poppy
+        // Soft, gentle client-side fallback responses for Poppy without em dashes
         const lower = userText.toLowerCase();
         if (lower.includes('price') || lower.includes('cost') || lower.includes('how much') || lower.includes('rate') || lower.includes('package')) {
-          replyText = "Every session at Falguni's Photography—whether newborn, maternity, family, or cake smash—starts gently at $250 AUD. This includes our peaceful studio time, complete access to our curated newborn wraps, floral wreaths, hand-crafted props, and luxury maternity gown wardrobe, followed by a private gallery of beautifully edited portraits.";
+          replyText = "Every session at Falguni's Photography, whether newborn, maternity, family, or cake smash, starts gently at $250 AUD. This includes our peaceful studio time, complete access to our curated newborn wraps, floral wreaths, hand-crafted props, and luxury maternity gown wardrobe, followed by a private gallery of beautifully edited portraits. Which type of session are you thinking about booking?";
         } else if (lower.includes('newborn') || lower.includes('baby') || lower.includes('infant')) {
-          replyText = "Our newborn sessions are completely baby-led and unhurried—lasting 2 to 3 hours in our cozy, temperature-controlled studio with unlimited feeding and soothing breaks. We love capturing your little one in their first 5 to 14 days of life. All wraps, bonnets, and floral styling are lovingly provided!";
+          replyText = "Our newborn sessions are completely baby-led and unhurried, lasting 2 to 3 hours in our cozy, temperature-controlled studio with unlimited feeding and soothing breaks. We love capturing your little one in their first 5 to 14 days of life. All wraps, bonnets, and floral styling are lovingly provided! What is your estimated due date or baby's birth date?";
         } else if (lower.includes('maternity') || lower.includes('pregnant') || lower.includes('bump')) {
-          replyText = "Maternity sessions are a beautiful celebration of your journey! We recommend scheduling between 28 and 34 weeks, when your bump is comfortably rounded. You are invited to wear any of our studio's lace gowns and silk drapes, and partners and big brothers or sisters are always warmly included.";
+          replyText = "Maternity sessions are a beautiful celebration of your journey! We recommend scheduling between 28 and 34 weeks, when your bump is comfortably rounded. You are invited to wear any of our studio's lace gowns and silk drapes, and partners and big brothers or sisters are always warmly included. What month or date range works best for you?";
         } else if (lower.includes('family')) {
-          replyText = "Our family sessions are relaxed and play-focused, lasting around 45 to 60 minutes. We create an encouraging, pressure-free atmosphere where children can laugh and be themselves, resulting in authentic, timeless portraits.";
+          replyText = "Our family sessions are relaxed and play-focused, lasting around 45 to 60 minutes. We create an encouraging, pressure-free atmosphere where children can laugh and be themselves, resulting in authentic, timeless portraits. Would you like to check Falguni's availability for an upcoming weekend or weekday session?";
         } else if (lower.includes('cake') || lower.includes('smash') || lower.includes('birthday') || lower.includes('1st')) {
-          replyText = "Cake smash sessions are such a joyful way to honor baby's first birthday! We provide a custom balloon backdrop, a delicious smash cake, milestone portraits beforehand, and a warm splash bath setup afterwards—along with complete studio cleanup!";
+          replyText = "Cake smash sessions are such a joyful way to honor baby's first birthday! We provide a custom balloon backdrop, a delicious smash cake, milestone portraits beforehand, and a warm splash bath setup afterwards, along with complete studio cleanup! What date is your little one turning one?";
         } else if (lower.includes('where') || lower.includes('location') || lower.includes('address') || lower.includes('studio')) {
-          replyText = "Falguni's studio is nestled at 26 South Pkwy, Northfield SA 5085, Australia. It is a quiet, comfortable sanctuary with easy driveway parking, dedicated nursing nooks, and complimentary coffee and tea.";
+          replyText = "Falguni's studio is nestled at 26 South Pkwy, Northfield SA 5085, Australia. It is a quiet, comfortable sanctuary with easy driveway parking, dedicated nursing nooks, and complimentary coffee and tea. May I ask your name and preferred session date so I can check our schedule for you?";
         } else {
-          replyText = "Thank you so much for reaching out to us! Falguni specializes in calm, patient sessions tailored to your family's rhythm. If you would like to reserve a date, simply let me know your Name, Phone Number, Email, and Preferred Date or Due Date!";
+          replyText = "Thank you so much for reaching out to us! Falguni specializes in calm, patient sessions tailored to your family's rhythm. Which photography session are you interested in, and what date or month works best for you?";
         }
       }
+
+      // Strip any remaining em-dashes or en-dashes from replyText
+      replyText = replyText
+        .replace(/\s*—\s*/g, ', ')
+        .replace(/\s*–\s*/g, ', ')
+        .replace(/\s*--\s*/g, ', ')
+        .replace(/—/g, ', ')
+        .replace(/–/g, ', ');
 
       // Enforce an unhurried, peaceful simulated delay (minimum 2200ms)
       const elapsed = Date.now() - startTime;
