@@ -114,14 +114,14 @@ export const PoppyChatWidget: React.FC<PoppyChatWidgetProps> = ({ onOpenBooking 
     link.click();
     document.body.removeChild(link);
 
-    showToast('📅 iCal Calendar File Downloaded!');
+    showToast('iCal Calendar File Downloaded!');
   };
 
   // Dynamic context-aware suggestion generator formatted as message speech bubbles
   const getDynamicSuggestions = () => {
     if (messages.length <= 1) {
       return [
-        { label: '✨ How do I reserve a date?', prompt: 'I would like to reserve a session date with Falguni. What details do you need?' },
+        { label: 'How do I reserve a date?', prompt: 'I would like to reserve a session date with Falguni. What details do you need?' },
         { label: 'Package Rates ($250+)', prompt: 'How much do photography packages cost?' },
         { label: 'Newborn Session Info', prompt: 'What is included in a newborn shoot?' },
         { label: 'Maternity Gowns Provided?', prompt: 'What gowns and styling wardrobe do you provide for maternity?' },
@@ -134,7 +134,7 @@ export const PoppyChatWidget: React.FC<PoppyChatWidgetProps> = ({ onOpenBooking 
 
     if (lastMsg?.bookingExtracted) {
       return [
-        { label: '📅 Download iCal Event', isAction: true, action: () => downloadIcsCalendarEvent(lastMsg.bookingExtracted) },
+        { label: 'Download iCal Event', isAction: true, action: () => downloadIcsCalendarEvent(lastMsg.bookingExtracted) },
         { label: 'What should we bring?', prompt: 'What should we bring with us to the studio session?' },
         { label: 'Where is the studio?', prompt: 'Where is your studio located in Northfield?' },
         { label: 'Book another session', prompt: 'I would also like to book another session for my family.' }
@@ -178,7 +178,7 @@ export const PoppyChatWidget: React.FC<PoppyChatWidgetProps> = ({ onOpenBooking 
     }
 
     return [
-      { label: '✨ Reserve Session in Chat', prompt: 'I would like to book a session with Falguni.' },
+      { label: 'Reserve Session in Chat', prompt: 'I would like to book a session with Falguni.' },
       { label: 'Studio Address & Directions', prompt: 'Where is Falguni\'s studio located in Northfield?' },
       { label: 'Ask about session packages', prompt: 'What photography packages do you offer?' },
       { label: 'Speak with Falguni directly', prompt: 'Can Falguni call or message me back?' }
@@ -243,27 +243,50 @@ export const PoppyChatWidget: React.FC<PoppyChatWidgetProps> = ({ onOpenBooking 
       }
 
       if (!replyText) {
-        // Soft, gentle client-side fallback responses for Poppy without em dashes
+        // Soft, gentle, intelligent client-side fallback responses for Poppy without em dashes
         const lower = userText.toLowerCase();
-        if (lower.includes('price') || lower.includes('cost') || lower.includes('how much') || lower.includes('rate') || lower.includes('package')) {
+
+        if (
+          lower.includes('session') ||
+          lower.includes('service') ||
+          lower.includes('offer') ||
+          lower.includes('choose') ||
+          lower.includes('option') ||
+          lower.includes('tell me') ||
+          lower.includes('what do you') ||
+          lower.includes('types')
+        ) {
+          replyText = "We offer four boutique portrait sessions at Falguni's studio, each starting at $250 AUD:\n\n1. Newborn Photography: Peaceful 2 to 3 hour baby-led sessions in our warm 26°C studio, ideal in the first 5 to 14 days. Includes all wraps, bonnets, floral wreaths, handcrafted props, and family posing.\n2. Maternity Photography: Celebrates your pregnancy journey between 28 and 34 weeks, with full access to our luxury studio gown wardrobe and silk drapes. Partners and siblings are warmly included.\n3. Family Portraits: Relaxed 45 to 60 minute play-focused sessions capturing genuine smiles, warm hugs, and connection.\n4. Cake Smash & 1st Birthday: Milestone portraits, custom balloon decor, a delicious smash cake, and a warm splash bath in a vintage tub with full studio cleanup included.\n\nWhich of these sessions catches your heart, or would you like me to check Falguni's calendar for an upcoming date?";
+        } else if (lower.includes('price') || lower.includes('cost') || lower.includes('how much') || lower.includes('rate') || lower.includes('package') || lower.includes('fee')) {
           replyText = "Every session at Falguni's Photography, whether newborn, maternity, family, or cake smash, starts gently at $250 AUD. This includes our peaceful studio time, complete access to our curated newborn wraps, floral wreaths, hand-crafted props, and luxury maternity gown wardrobe, followed by a private gallery of beautifully edited portraits. Which type of session are you thinking about booking?";
         } else if (lower.includes('newborn') || lower.includes('baby') || lower.includes('infant')) {
           replyText = "Our newborn sessions are completely baby-led and unhurried, lasting 2 to 3 hours in our cozy, temperature-controlled studio with unlimited feeding and soothing breaks. We love capturing your little one in their first 5 to 14 days of life. All wraps, bonnets, and floral styling are lovingly provided! What is your estimated due date or baby's birth date?";
-        } else if (lower.includes('maternity') || lower.includes('pregnant') || lower.includes('bump')) {
+        } else if (lower.includes('maternity') || lower.includes('pregnant') || lower.includes('bump') || lower.includes('gown') || lower.includes('dress')) {
           replyText = "Maternity sessions are a beautiful celebration of your journey! We recommend scheduling between 28 and 34 weeks, when your bump is comfortably rounded. You are invited to wear any of our studio's lace gowns and silk drapes, and partners and big brothers or sisters are always warmly included. What month or date range works best for you?";
-        } else if (lower.includes('family')) {
+        } else if (lower.includes('family') || lower.includes('kids') || lower.includes('children') || lower.includes('parents')) {
           replyText = "Our family sessions are relaxed and play-focused, lasting around 45 to 60 minutes. We create an encouraging, pressure-free atmosphere where children can laugh and be themselves, resulting in authentic, timeless portraits. Would you like to check Falguni's availability for an upcoming weekend or weekday session?";
         } else if (lower.includes('cake') || lower.includes('smash') || lower.includes('birthday') || lower.includes('1st')) {
           replyText = "Cake smash sessions are such a joyful way to honor baby's first birthday! We provide a custom balloon backdrop, a delicious smash cake, milestone portraits beforehand, and a warm splash bath setup afterwards, along with complete studio cleanup! What date is your little one turning one?";
-        } else if (lower.includes('where') || lower.includes('location') || lower.includes('address') || lower.includes('studio')) {
+        } else if (lower.includes('where') || lower.includes('location') || lower.includes('address') || lower.includes('studio') || lower.includes('park')) {
           replyText = "Falguni's studio is nestled at 26 South Pkwy, Northfield SA 5085, Australia. It is a quiet, comfortable sanctuary with easy driveway parking, dedicated nursing nooks, and complimentary coffee and tea. May I ask your name and preferred session date so I can check our schedule for you?";
+        } else if (lower.includes('falguni') || lower.includes('photographer') || lower.includes('who') || lower.includes('experience')) {
+          replyText = "Falguni is a specialized portrait photographer with over 3 years of experience and 56+ five-star Google reviews. She is certified in newborn safety and gentle soothing techniques, creating a serene environment where parents can relax while she preserves your most cherished memories. Would you like to reserve a date on Falguni's calendar?";
+        } else if (lower.includes('book') || lower.includes('reserve') || lower.includes('schedule') || lower.includes('date') || lower.includes('time')) {
+          replyText = "I would be delighted to help reserve your date right here! To hold your spot on Falguni's calendar, could you share your Full Name, Phone Number, Email Address, and your preferred session date or due date?";
         } else {
-          replyText = "Thank you so much for reaching out to us! Falguni specializes in calm, patient sessions tailored to your family's rhythm. Which photography session are you interested in, and what date or month works best for you?";
+          // Dynamic conversational fallback so Poppy never repeats identical responses
+          const userMsgCount = updatedMessages.filter(m => m.sender === 'user').length;
+          if (userMsgCount > 2) {
+            replyText = "I want to make sure I give you the exact details you need! Falguni offers Newborn, Maternity, Family, and Cake Smash sessions starting at $250 AUD. What specific session or date can I help you explore today?";
+          } else {
+            replyText = "Thank you for reaching out to Falguni's Photography studio! Falguni specializes in calm, patient sessions tailored to your family's rhythm. Which photography session are you interested in, and what date or month works best for you?";
+          }
         }
       }
 
-      // Strip any remaining em-dashes or en-dashes from replyText
+      // Strip any remaining emojis, em-dashes or en-dashes from replyText
       replyText = replyText
+        .replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F700}-\u{1F77F}\u{1F780}-\u{1F7FF}\u{1F800}-\u{1F8FF}\u{1F900}-\u{1F9FF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, '')
         .replace(/\s*—\s*/g, ', ')
         .replace(/\s*–\s*/g, ', ')
         .replace(/\s*--\s*/g, ', ')
@@ -278,7 +301,7 @@ export const PoppyChatWidget: React.FC<PoppyChatWidgetProps> = ({ onOpenBooking 
       }
 
       if (extracted && extracted.email) {
-        showToast(`🔔 Booking Confirmed! Confirmation email dispatched to ${extracted.email}`);
+        showToast(`Booking Confirmed! Confirmation email dispatched to ${extracted.email}`);
       }
 
       const poppyMsg: ChatMessage = {
@@ -576,7 +599,7 @@ export const PoppyChatWidget: React.FC<PoppyChatWidgetProps> = ({ onOpenBooking 
             {/* Email Preview Section */}
             <div className="space-y-2">
               <div className="flex items-center justify-between text-xs font-semibold text-[#423341]/80">
-                <span>📧 Email Notification Sent To:</span>
+                <span>Email Notification Sent To:</span>
                 <span className="text-[#A7B596] font-mono">{activeNotificationModal.recipientEmail}</span>
               </div>
               <div className="bg-white p-4 rounded-2xl border border-[#EFD4CE] text-xs text-[#423341] shadow-inner space-y-2">
@@ -593,7 +616,7 @@ export const PoppyChatWidget: React.FC<PoppyChatWidgetProps> = ({ onOpenBooking 
             {/* SMS Preview Section */}
             <div className="space-y-2 pt-2 border-t border-[#EFD4CE]">
               <div className="flex items-center justify-between text-xs font-semibold text-[#423341]/80">
-                <span>📱 SMS Notification Text Sent To:</span>
+                <span>SMS Notification Text Sent To:</span>
                 <span className="text-[#A7B596] font-mono">{activeNotificationModal.recipientPhone}</span>
               </div>
               <div className="bg-[#423341] text-[#FBF6EF] p-3.5 rounded-2xl text-xs font-mono leading-relaxed shadow-xs">
