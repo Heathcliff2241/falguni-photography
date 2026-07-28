@@ -18,14 +18,35 @@ export const PoppyChatWidget: React.FC<PoppyChatWidgetProps> = ({ onOpenBooking 
   const [activeNotificationModal, setActiveNotificationModal] = useState<any | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    {
-      id: 'init-1',
-      sender: 'poppy',
-      text: "Hello! I'm Poppy, Falguni's studio coordinator. I am here to gently guide you through our newborn, maternity, family, and cake smash sessions, answer any questions about our warm studio and luxury wardrobe, or lovingly reserve your date directly right here in chat. How may I care for you today?",
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+  const [messages, setMessages] = useState<ChatMessage[]>(() => {
+    try {
+      const saved = sessionStorage.getItem('poppy_chat_history');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed;
+        }
+      }
+    } catch (e) {
+      console.warn('Could not restore chat history from sessionStorage:', e);
     }
-  ]);
+    return [
+      {
+        id: 'init-1',
+        sender: 'poppy',
+        text: "Hello! I'm Poppy, Falguni's studio coordinator. I am here to gently guide you through our newborn, maternity, family, and cake smash sessions, answer any questions about our warm studio and luxury wardrobe, or lovingly reserve your date directly right here in chat. How may I care for you today?",
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      }
+    ];
+  });
+
+  useEffect(() => {
+    try {
+      sessionStorage.setItem('poppy_chat_history', JSON.stringify(messages));
+    } catch (e) {
+      console.warn('Could not save chat history to sessionStorage:', e);
+    }
+  }, [messages]);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 

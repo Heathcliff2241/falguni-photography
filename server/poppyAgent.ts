@@ -54,12 +54,46 @@ interface ChatHistoryItem {
 
 export async function processPoppyChat(message: string, history: ChatHistoryItem[] = []) {
   try {
-    const formattedContents = history.map(h => ({
-      role: h.role,
-      parts: h.parts
-    }));
+    // Sanitize and format history items from client
+    const rawItems: { role: 'user' | 'model'; parts: { text: string }[] }[] = [];
 
-    if (formattedContents.length === 0 || formattedContents[formattedContents.length - 1].parts[0]?.text !== message) {
+    if (Array.isArray(history)) {
+      for (const item of history) {
+        if (!item) continue;
+        const role = item.role === 'user' ? 'user' : 'model';
+        const text = item.parts?.[0]?.text || '';
+        if (text.trim().length > 0) {
+          rawItems.push({
+            role,
+            parts: [{ text: text.trim() }]
+          });
+        }
+      }
+    }
+
+    // Drop any leading 'model' welcome messages so conversation starts with a 'user' turn
+    while (rawItems.length > 0 && rawItems[0].role === 'model') {
+      rawItems.shift();
+    }
+
+    // Collapse adjacent same-role messages to satisfy Gemini's strict alternating turn requirement
+    const formattedContents: { role: 'user' | 'model'; parts: { text: string }[] }[] = [];
+    for (const item of rawItems) {
+      if (formattedContents.length > 0 && formattedContents[formattedContents.length - 1].role === item.role) {
+        formattedContents[formattedContents.length - 1].parts[0].text += '\n' + item.parts[0].text;
+      } else {
+        formattedContents.push({
+          role: item.role,
+          parts: [{ text: item.parts[0].text }]
+        });
+      }
+    }
+
+    // Ensure the current user message is present as the latest 'user' turn
+    if (
+      formattedContents.length === 0 ||
+      formattedContents[formattedContents.length - 1].role !== 'user'
+    ) {
       formattedContents.push({
         role: 'user',
         parts: [{ text: message }]
