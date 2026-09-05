@@ -3,6 +3,7 @@ import { SITE_PAGES, LOCAL_NAP } from '../data/siteData';
 import { BotanicalRose, BotanicalVineDivider } from '../components/BotanicalAccents';
 import { FaqAccordion } from '../components/FaqAccordion';
 import { MaskingTape } from '../components/MaskingTape';
+import { Breadcrumbs } from '../components/Breadcrumbs';
 import { CalendarCheck, PhoneCall, Heart, Star, MapPin } from '@phosphor-icons/react';
 
 interface AboutViewProps {
@@ -14,9 +15,12 @@ export const AboutView: React.FC<AboutViewProps> = ({ onOpenBooking }) => {
   const hero = page.sections[0];
 
   return (
-    <div className="py-12 bg-[#FBF6EF] space-y-12">
+    <article className="py-8 sm:py-12 bg-[#FBF6EF] space-y-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
+        {/* Breadcrumb Navigation for SEO */}
+        <Breadcrumbs items={[{ label: 'About' }]} />
+
         {/* Hero Section */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           <div className="lg:col-span-7 space-y-6">
@@ -93,6 +97,6 @@ export const AboutView: React.FC<AboutViewProps> = ({ onOpenBooking }) => {
           subtitle="Learn more about our studio setup at 26 South Pkwy, Northfield SA."
         />
       </div>
-    </div>
+    </article>
   );
 };

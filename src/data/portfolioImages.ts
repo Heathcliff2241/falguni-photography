@@ -6,8 +6,8 @@ import maternityPurple from '../assets/images/maternity_purple_gown_178504383622
 import familyBlue from '../assets/images/family_blue_attire_1785043847819.jpg';
 import cakeSmash from '../assets/images/cake_smash_birthday_1785043899473.jpg';
 import studioInterior from '../assets/images/studio_interior_props_1785043925769.jpg';
+import studioCouple from '../assets/images/falguni_studio_couple_1785043914176.jpg';
 
-const studioCouple = 'https://scontent.fceb1-2.fna.fbcdn.net/v/t39.30808-6/492338892_664603936368485_893668748178494389_n.jpg?stp=dst-jpg_tt6&cstp=mx1068x1067&ctp=s1068x1067&_nc_cat=100&ccb=1-7&_nc_sid=6ee11a&_nc_eui2=AeE4Jun_US60n9N4vWPuIVbHkR7uDfe2NLmRHu4N97Y0uTQeuXhn43R-ybNTHRD2CFpGlKl7SAm3Zs_L9L9PSx2y&_nc_ohc=dUjdeQgyJcgQ7kNvwGEfCq-&_nc_oc=AdoGeY_wqMVGyEd2tEhkc64ei0uEpukZMareAbREfr7EaI-4GfG7HUGEeJROCtOAWVM&_nc_pt=1&_nc_zt=23&_nc_ht=scontent.fceb1-2.fna&_nc_gid=Nae5TP_idlRAyfeW8ZCiqw&_nc_ss=7b2a8&oh=00_AQDiNl4buRYqlw2MQ2DDMONrHUlAZTgJKtbNh83TTT87qw&oe=6A6E2B5A';
 const falguniPortrait = studioCouple;
 
 export {

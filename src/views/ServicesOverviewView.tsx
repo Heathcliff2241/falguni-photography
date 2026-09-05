@@ -1,6 +1,7 @@
 import React from 'react';
 import { SITE_PAGES } from '../data/siteData';
 import { BotanicalRose, BotanicalVineDivider } from '../components/BotanicalAccents';
+import { Breadcrumbs } from '../components/Breadcrumbs';
 import { CalendarCheck, ArrowRight } from '@phosphor-icons/react';
 
 interface ServicesOverviewViewProps {
@@ -51,8 +52,11 @@ export const ServicesOverviewView: React.FC<ServicesOverviewViewProps> = ({ onOp
   ];
 
   return (
-    <div className="py-12 bg-[#FBF6EF] space-y-12">
+    <article className="py-8 sm:py-12 bg-[#FBF6EF] space-y-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Breadcrumb Navigation for SEO */}
+        <Breadcrumbs items={[{ label: 'Services' }]} />
+
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto space-y-4">
           <h1 className="font-display text-4xl sm:text-5xl text-[#423341] font-medium tracking-tight">
@@ -110,6 +114,6 @@ export const ServicesOverviewView: React.FC<ServicesOverviewViewProps> = ({ onOp
           ))}
         </div>
       </div>
-    </div>
+    </article>
   );
 };

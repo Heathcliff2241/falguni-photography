@@ -74,7 +74,7 @@ export const TestimonialSection: React.FC = () => {
       name: 'Kuljeet SINGH',
       badge: '15 reviews · 3 photos',
       time: 'a year ago',
-      text: 'We are so grateful to Falguni photography for capturing such beautiful memories during our family photoshoot. The way she worked with our kids was simply amazing—patient, kind, and creative, bringing out their genuine smiles and moments.',
+      text: 'We are so grateful to Falguni photography for capturing such beautiful memories during our family photoshoot. The way she worked with our kids was simply amazing: patient, kind, and creative, bringing out their genuine smiles and moments.',
       rating: 5,
       category: 'cake_family',
       likes: 1,
@@ -191,7 +191,7 @@ export const TestimonialSection: React.FC = () => {
             <BotanicalRose color="blush" size={32} />
           </div>
           <p className="text-sm text-[#423341]/80 font-body">
-            Read authentic feedback from parents who trusted Falguni's Photography with their most cherished milestones.
+            Read authentic feedback from parents who chose Falguni's Photography for their earliest family milestones.
           </p>
         </div>
 

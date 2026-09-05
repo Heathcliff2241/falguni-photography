@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { SITE_PAGES, LOCAL_NAP } from '../data/siteData';
 import { BotanicalRose, BotanicalVineDivider } from '../components/BotanicalAccents';
+import { Breadcrumbs } from '../components/Breadcrumbs';
 import { PhoneCall, MapPin, EnvelopeSimple, CalendarCheck, CheckCircle, Spinner } from '@phosphor-icons/react';
 
 interface ContactViewProps {
@@ -57,9 +58,12 @@ export const ContactView: React.FC<ContactViewProps> = ({ onOpenBooking }) => {
   };
 
   return (
-    <div className="py-12 bg-[#FBF6EF] space-y-12">
+    <article className="py-8 sm:py-12 bg-[#FBF6EF] space-y-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
+        {/* Breadcrumb Navigation for SEO */}
+        <Breadcrumbs items={[{ label: 'Contact' }]} />
+
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto space-y-4">
           <h1 className="font-display text-4xl sm:text-5xl text-[#423341] font-medium tracking-tight">
@@ -258,7 +262,7 @@ export const ContactView: React.FC<ContactViewProps> = ({ onOpenBooking }) => {
                     Message Received!
                   </h3>
                   <p className="text-sm text-[#423341]/90 leading-relaxed max-w-md mx-auto mb-6 bg-[#EFD4CE]/30 p-4 rounded-2xl border border-[#EFD4CE]">
-                    Got it, thank you! I've passed your details along to Falguni. She'll confirm your session by phone or email within 24 hours. If your dates are flexible, mention that and she'll do her best to work around them.
+                    Thank you. Your details have been sent to Falguni, who will follow up within 24 hours to confirm your date or answer your questions.
                   </p>
                   <button
                     onClick={() => setSubmitted(false)}
@@ -273,6 +277,6 @@ export const ContactView: React.FC<ContactViewProps> = ({ onOpenBooking }) => {
 
         </div>
       </div>
-    </div>
+    </article>
   );
 };

@@ -3,6 +3,7 @@ import { SITE_PAGES, LOCAL_NAP } from '../data/siteData';
 import { BotanicalRose, BotanicalVineDivider } from '../components/BotanicalAccents';
 import { FaqAccordion } from '../components/FaqAccordion';
 import { MaskingTape } from '../components/MaskingTape';
+import { Breadcrumbs } from '../components/Breadcrumbs';
 import { CalendarCheck, PhoneCall, CheckCircle } from '@phosphor-icons/react';
 
 interface NewbornViewProps {
@@ -14,9 +15,17 @@ export const NewbornView: React.FC<NewbornViewProps> = ({ onOpenBooking }) => {
   const hero = page.sections[0];
 
   return (
-    <div className="py-12 bg-[#FBF6EF] space-y-12">
+    <article className="py-8 sm:py-12 bg-[#FBF6EF] space-y-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
+        {/* Breadcrumb Navigation for SEO */}
+        <Breadcrumbs
+          items={[
+            { label: 'Services', href: '/services' },
+            { label: 'Newborn Photography' }
+          ]}
+        />
+
         {/* Hero Section */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           <div className="lg:col-span-7 space-y-6">
@@ -93,6 +102,6 @@ export const NewbornView: React.FC<NewbornViewProps> = ({ onOpenBooking }) => {
           subtitle="Common questions from expecting parents booking their first session in Northfield."
         />
       </div>
-    </div>
+    </article>
   );
 };

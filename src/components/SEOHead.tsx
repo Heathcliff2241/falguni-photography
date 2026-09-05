@@ -121,6 +121,40 @@ export const SEOHead: React.FC<SEOHeadProps> = ({
       ]
     };
 
+    const schemasToInject: any[] = [localBusinessSchema];
+
+    // Dynamic BreadcrumbList Schema for On-Page SEO
+    const pathSegments = currentPath.split('/').filter(Boolean);
+    if (pathSegments.length > 0) {
+      const breadcrumbItems = [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": CENTRAL_SEO_CONFIG.siteUrl
+        }
+      ];
+
+      let accumulatedPath = '';
+      pathSegments.forEach((segment, idx) => {
+        accumulatedPath += `/${segment}`;
+        const routeMeta = CENTRAL_SEO_CONFIG.routeMetadata[accumulatedPath];
+        const readableName = routeMeta?.h1 || segment.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+        breadcrumbItems.push({
+          "@type": "ListItem",
+          "position": idx + 2,
+          "name": readableName,
+          "item": `${CENTRAL_SEO_CONFIG.siteUrl}${accumulatedPath}`
+        });
+      });
+
+      schemasToInject.push({
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": breadcrumbItems
+      });
+    }
+
     // Dynamic FAQ Schema Injection
     let faqSchema: any = null;
     const pageKeyMap: Record<string, string> = {
@@ -145,10 +179,8 @@ export const SEOHead: React.FC<SEOHeadProps> = ({
           }
         }))
       };
+      schemasToInject.push(faqSchema);
     }
-
-    const schemasToInject = [localBusinessSchema];
-    if (faqSchema) schemasToInject.push(faqSchema);
 
     let scriptEl = document.getElementById('json-ld-client') as HTMLScriptElement;
     if (!scriptEl) {
