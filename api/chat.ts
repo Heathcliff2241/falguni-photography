@@ -6,6 +6,7 @@ import {
   renderClientBookingEmail,
   renderStudioLeadEmail
 } from '../server/emailTemplates';
+import { extractConversationState, generateContextualResponse, ChatTurn } from '../src/data/poppyBrain';
 
 // --- Types ---
 interface ChatHistoryItem {
@@ -86,44 +87,7 @@ STUDIO KNOWLEDGE & DIRECTIVES:
 `;
 
 function getSmartFallbackReply(message: string): string {
-  const lower = message.toLowerCase();
-  if (
-    lower.includes('session') ||
-    lower.includes('service') ||
-    lower.includes('offer') ||
-    lower.includes('choose') ||
-    lower.includes('option') ||
-    lower.includes('tell me') ||
-    lower.includes('what do you') ||
-    lower.includes('types')
-  ) {
-    return "We offer four boutique portrait sessions at Falguni's studio:\n\n1. Newborn Photography: Certified safe infant handling and gentle, baby-led posing in our warm 26°C sanctuary (best booked 5 to 14 days after birth). Includes organic wraps, bonnets, floral wreaths, and family connection portraits.\n2. Maternity Photography: Sculptural studio lighting and couture gowns celebrating your pregnancy journey between 28 and 34 weeks. Partners and siblings are warmly included.\n3. Family Portraits: Relaxed 45 to 60 minute play-focused sessions capturing natural laughter and authentic connection.\n4. Cake Smash & 1st Birthday: Custom themed decor, delicious smash cake, milestone portraits, and a warm splash bath with full studio cleanup included.\n\nWhich session type interests you, or would you like me to check Falguni's calendar for an upcoming date?";
-  }
-  if (lower.includes('price') || lower.includes('cost') || lower.includes('how much') || lower.includes('rate') || lower.includes('package') || lower.includes('fee')) {
-    return "Every session at Falguni's Photography is an unhurried, boutique experience focused on quality, safety, and artistry rather than rushed commercial time slots. Falguni is certified in newborn handling and specializes in gentle, baby-led posing and sculptural maternity lighting. Each session includes dedicated studio time, curated styling, and a private proofing gallery with bespoke archival print, album, and digital collection options. Which type of session are you planning?";
-  }
-  if (lower.includes('newborn') || lower.includes('baby') || lower.includes('infant')) {
-    return "Our newborn sessions emphasize certified infant handling safety, gentle baby-led posing, and unhurried soothing care, lasting 2 to 3 hours in our heated 26°C sanctuary with unlimited nursing pauses. All organic wraps, bonnets, and floral wreaths are lovingly provided. What is your estimated due date or baby's birth date?";
-  }
-  if (lower.includes('maternity') || lower.includes('pregnant') || lower.includes('bump') || lower.includes('gown') || lower.includes('dress')) {
-    return "Maternity sessions celebrate your pregnancy with Falguni's signature sculptural studio lighting, delicately flattering maternal contours, alongside access to our couture gown and silk wardrobe. Partners and siblings are always warmly included (best booked 28 to 34 weeks). What month or date range works best for you?";
-  }
-  if (lower.includes('family') || lower.includes('kids') || lower.includes('children') || lower.includes('parents')) {
-    return "Our family sessions are relaxed and play-focused, lasting around 45 to 60 minutes. We create an encouraging, pressure-free atmosphere where children can laugh and be themselves, resulting in natural family portraits. Would you like to check Falguni's availability for an upcoming weekend or weekday session?";
-  }
-  if (lower.includes('cake') || lower.includes('smash') || lower.includes('birthday') || lower.includes('1st')) {
-    return "Cake smash sessions are a joyful way to honor baby's first birthday! We provide a custom balloon backdrop, a delicious smash cake, milestone portraits beforehand, and a warm splash bath setup afterwards, along with complete studio cleanup. What date is your little one turning one?";
-  }
-  if (lower.includes('where') || lower.includes('location') || lower.includes('address') || lower.includes('studio') || lower.includes('park')) {
-    return "Falguni's studio is located at 26 South Pkwy, Northfield SA 5085, Australia. It is a quiet, comfortable sanctuary with easy driveway parking and dedicated nursing nooks. May I ask your name and preferred session date so I can check our schedule for you?";
-  }
-  if (lower.includes('falguni') || lower.includes('photographer') || lower.includes('who') || lower.includes('experience')) {
-    return "Falguni is a specialized portrait photographer with over 3 years of experience and 56 five-star Google reviews. She holds dedicated training in certified newborn handling, infant airway safety, gentle baby-led posing, and sculptural maternity lighting. Would you like to reserve a date on Falguni's calendar?";
-  }
-  if (lower.includes('book') || lower.includes('reserve') || lower.includes('schedule') || lower.includes('date') || lower.includes('time')) {
-    return "I would be delighted to help reserve your date right here. To hold your spot on Falguni's calendar, could you share your Full Name, Phone Number, Email Address, and your preferred session date or due date?";
-  }
-  return "Thank you for reaching out to Falguni's Photography in Northfield. We specialize in calm, patient sessions tailored to your family's rhythm. Which photography session are you interested in, and what date or month works best for you?";
+  return generateContextualResponse([], message).text;
 }
 
 // --- In-Memory Lead Store (Serverless Safe) ---
@@ -254,6 +218,34 @@ async function processPoppy(message: string, history: ChatHistoryItem[] = []) {
       formattedContents.push({ role: 'user', parts: [{ text: message }] });
     }
 
+    // Analyze accumulated conversation history
+    const chatTurns: ChatTurn[] = rawItems.map(item => ({
+      sender: item.role === 'user' ? 'user' : 'poppy',
+      text: item.parts[0]?.text || ''
+    }));
+    const convState = extractConversationState(chatTurns, message);
+
+    const dynamicSystemInstruction = `${SYSTEM_INSTRUCTION}
+
+CURRENT CONVERSATIONAL DOSSIER (MIND THIS STATE AT ALL COSTS):
+- Selected Session: ${convState.serviceLabel || '[Not yet chosen]'}
+- Milestone / Preferred Date: ${convState.preferredDate || '[Not yet specified]'}
+- Client Full Name: ${convState.fullName || '[Not yet provided]'}
+- Phone: ${convState.phone || '[Not yet provided]'}
+- Email: ${convState.email || '[Not yet provided]'}
+- Missing Information to Finalize: ${convState.missingFields.join(', ') || 'All details collected!'}
+- Last Poppy Question: ${convState.lastPoppyQuestion || 'General greeting'}
+
+STRICT RECEPTIONIST BEHAVIORAL DIRECTIVES:
+1. ALWAYS DIRECTLY ANSWER THE CLIENT'S QUESTION FIRST!
+   - If the client asks "What details do you need?", explain: (1) Session type (Newborn, Maternity, Family, or Cake Smash), (2) Preferred date or baby's due date / birth date, (3) Full name, (4) Phone and email for confirmation.
+2. REMEMBER AND BUILD ON PREVIOUS ANSWERS:
+   - If the client chose Cake Smash, and then says "september 11", CELEBRATE the date ("September 11 is such a wonderful milestone to celebrate your little one turning one! We will have the balloon decor, cake, and splash bath ready.") and ask for their Full Name to note on the studio calendar.
+   - NEVER ask what session they want if they already stated Cake Smash!
+   - If client provides their name, warmly welcome them and ask for their phone and email to complete the booking.
+3. NEVER REPEAT CANNED INTRODUCTIONS OR REVERT TO GENERIC QUESTIONS.
+4. ZERO EMOJIS, ZERO EM DASHES (— OR – OR --).`;
+
     let rawReply = '';
     const ai = getAI();
 
@@ -263,21 +255,24 @@ async function processPoppy(message: string, history: ChatHistoryItem[] = []) {
           model: 'gemini-3.8-flash',
           contents: formattedContents,
           config: {
-            systemInstruction: SYSTEM_INSTRUCTION,
+            systemInstruction: dynamicSystemInstruction,
             temperature: 0.7
           }
         });
         rawReply = response.text || '';
       } catch (geminiError) {
         console.warn('Gemini API call unsuccessful, using intelligent fallback:', geminiError);
-        rawReply = getSmartFallbackReply(message);
+        const fallbackRes = generateContextualResponse(chatTurns, message);
+        rawReply = fallbackRes.text;
       }
     } else {
-      rawReply = getSmartFallbackReply(message);
+      const fallbackRes = generateContextualResponse(chatTurns, message);
+      rawReply = fallbackRes.text;
     }
 
     if (!rawReply) {
-      rawReply = getSmartFallbackReply(message);
+      const fallbackRes = generateContextualResponse(chatTurns, message);
+      rawReply = fallbackRes.text;
     }
 
     // Strip thinking blocks
@@ -287,7 +282,8 @@ async function processPoppy(message: string, history: ChatHistoryItem[] = []) {
       .trim();
 
     if (!cleanReply) {
-      cleanReply = "I would be delighted to assist you with booking your portrait session at Falguni's studio in Northfield. Which session type are you interested in, or what date do you prefer?";
+      const fallbackRes = generateContextualResponse(chatTurns, message);
+      cleanReply = fallbackRes.text;
     }
 
     // Strip all emojis, em-dashes, and en-dashes strictly
@@ -304,40 +300,16 @@ async function processPoppy(message: string, history: ChatHistoryItem[] = []) {
     const fullTranscriptText = formattedContents.map(c => `${c.role}: ${c.parts[0]?.text}`).join('\n') + `\nmodel: ${replyText}`;
     const emailMatch = fullTranscriptText.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
     const phoneMatch = fullTranscriptText.match(/(?:\+?61|0)4\d{8}|0[2-9]\d{8}|\+?\d{10,12}/);
-    const dateMatch = fullTranscriptText.match(/(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec|mon|tue|wed|thu|fri|sat|sun|today|tomorrow|next|202\d|\d{1,2}(?:st|nd|rd|th)?\s+(?:of\s+)?(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)|at\s+\d{1,2}(?::\d{2})?\s*(?:am|pm)?)/i);
-
-    let serviceRequested = 'Newborn Photography';
-    const lowerTranscript = fullTranscriptText.toLowerCase();
-    if (lowerTranscript.includes('maternity') || lowerTranscript.includes('bump')) {
-      serviceRequested = 'Maternity Photography';
-    } else if (lowerTranscript.includes('family') || lowerTranscript.includes('portrait')) {
-      serviceRequested = 'Family Photography';
-    } else if (lowerTranscript.includes('cake') || lowerTranscript.includes('smash') || lowerTranscript.includes('birthday')) {
-      serviceRequested = 'Cake Smash Photography';
-    } else if (lowerTranscript.includes('newborn') || lowerTranscript.includes('baby')) {
-      serviceRequested = 'Newborn Photography';
-    }
-
-    let fullName = 'Valued Client';
-    const namePatterns = [
-      /my name is ([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)/i,
-      /i'm ([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)/i,
-      /name:\s*([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)/i,
-      /this is ([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)/i
-    ];
-    for (const pat of namePatterns) {
-      const match = fullTranscriptText.match(pat);
-      if (match && match[1]) {
-        fullName = match[1].trim();
-        break;
-      }
-    }
 
     let bookingExtracted: any = null;
     let clientNotification: ClientNotificationResult | null = null;
 
-    if (emailMatch || phoneMatch) {
-      const preferredDate = dateMatch ? dateMatch[0] : 'Upcoming Session';
+    if (emailMatch || phoneMatch || (convState.email || convState.phone)) {
+      const effectiveEmail = convState.email || (emailMatch ? emailMatch[0] : '');
+      const effectivePhone = convState.phone || (phoneMatch ? phoneMatch[0] : '');
+      const effectiveName = convState.fullName || 'Valued Client';
+      const effectiveService = convState.serviceLabel || 'Newborn Photography';
+      const effectiveDate = convState.preferredDate || 'Upcoming Session';
 
       const transcriptFormatted = formattedContents.map(c => ({
         sender: c.role === 'user' ? 'user' : 'poppy',
@@ -346,11 +318,11 @@ async function processPoppy(message: string, history: ChatHistoryItem[] = []) {
       }));
 
       const leadRecord = saveLeadSafe({
-        fullName,
-        phone: phoneMatch ? phoneMatch[0] : '',
-        email: emailMatch ? emailMatch[0] : '',
-        serviceRequested,
-        preferredDate,
+        fullName: effectiveName,
+        phone: effectivePhone,
+        email: effectiveEmail,
+        serviceRequested: effectiveService,
+        preferredDate: effectiveDate,
         notes: message,
         source: 'ai_poppy',
         transcript: transcriptFormatted

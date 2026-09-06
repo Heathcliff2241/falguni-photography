@@ -5,6 +5,7 @@ import {
   Calendar, Eye, ChatCircleText, Heart
 } from '@phosphor-icons/react';
 import { BotanicalRose } from './BotanicalAccents';
+import { extractConversationState, generateContextualResponse, ChatTurn } from '../data/poppyBrain';
 
 interface PoppyChatWidgetProps {
   onOpenBooking: (service?: string) => void;
@@ -129,59 +130,74 @@ export const PoppyChatWidget: React.FC<PoppyChatWidgetProps> = ({ onOpenBooking 
       ];
     }
 
+    const chatTurns: ChatTurn[] = messages.map(m => ({
+      sender: m.sender,
+      text: m.text
+    }));
+    const convState = extractConversationState(chatTurns);
     const lastMsg = messages[messages.length - 1];
-    const textLower = (lastMsg?.text || '').toLowerCase();
 
-    if (lastMsg?.bookingExtracted) {
+    if (lastMsg?.bookingExtracted || convState.isBookingComplete) {
       return [
-        { label: 'Download iCal Event', isAction: true, action: () => downloadIcsCalendarEvent(lastMsg.bookingExtracted) },
+        { label: 'Download iCal Event', isAction: true, action: () => downloadIcsCalendarEvent(lastMsg?.bookingExtracted || convState) },
         { label: 'What should we bring?', prompt: 'What should we bring with us to the studio session?' },
-        { label: 'Where is the studio?', prompt: 'Where is your studio located in Northfield?' },
-        { label: 'Book another session', prompt: 'I would also like to book another session for my family.' }
+        { label: 'Where is the studio located?', prompt: 'Where is your studio located in Northfield?' },
+        { label: 'Book another portrait session', prompt: 'I would also like to explore booking another session for my family.' }
       ];
     }
 
-    if (textLower.includes('newborn') || textLower.includes('baby') || textLower.includes('infant')) {
+    // If session chosen and date is missing, offer quick date options
+    if (convState.service && !convState.preferredDate) {
+      if (convState.service === 'cake_smash') {
+        return [
+          { label: 'Around baby\'s 1st birthday', prompt: 'Our preferred date is around our baby\'s 1st birthday next month.' },
+          { label: 'Weekend morning slot', prompt: 'Do you have weekend morning availability?' },
+          { label: 'Is the smash cake provided?', prompt: 'Do you provide the smash cake or do we bring one?' },
+          { label: 'Studio address & parking', prompt: 'Where is your studio located in Northfield?' }
+        ];
+      }
+      if (convState.service === 'newborn') {
+        return [
+          { label: 'Due in upcoming weeks', prompt: 'My baby is due in the coming weeks and I would like to reserve a tentative date.' },
+          { label: 'Baby is 1 week old', prompt: 'Baby is already here and 1 week old.' },
+          { label: 'Are parent photos included?', prompt: 'Can parents and siblings be included in newborn portraits?' },
+          { label: 'What wraps and props provided?', prompt: 'What wraps, bonnets, and props do you provide?' }
+        ];
+      }
+      if (convState.service === 'maternity') {
+        return [
+          { label: 'Between 28 and 34 weeks', prompt: 'I am looking to book around week 30 of my pregnancy.' },
+          { label: 'Upcoming weekend date', prompt: 'Do you have availability for an upcoming Saturday or Sunday?' },
+          { label: 'Studio gowns provided?', prompt: 'Do you provide studio dresses and drapes for maternity sessions?' },
+          { label: 'Can partner and kids join?', prompt: 'Can my partner and older children join the session?' }
+        ];
+      }
+      if (convState.service === 'family') {
+        return [
+          { label: 'Upcoming Saturday morning', prompt: 'We are hoping for an upcoming Saturday morning.' },
+          { label: 'Weekday late afternoon', prompt: 'Do you have weekday late afternoon availability?' },
+          { label: 'What styling do you recommend?', prompt: 'What clothing colors do you recommend for family portraits?' },
+          { label: 'Where is the studio?', prompt: 'Where is your studio located in Northfield?' }
+        ];
+      }
+    }
+
+    // If date is provided but name is missing
+    if (convState.preferredDate && !convState.fullName) {
       return [
-        { label: 'Book Newborn Shoot', prompt: 'I would like to book a newborn photography session for my baby.' },
-        { label: 'When is best time for newborn shoot?', prompt: 'When is the ideal age to photograph a newborn baby?' },
-        { label: 'Are parent & sibling photos included?', prompt: 'Can parents and big brothers or sisters be included in newborn photos?' },
-        { label: 'What wraps and props are provided?', prompt: 'What wraps, bonnets, and props do you provide at the studio?' }
+        { label: 'Share my contact details', prompt: 'I would like to share my details to finalize this booking.' },
+        { label: 'What is included in this session?', prompt: 'What is included in this session package?' },
+        { label: 'Studio location & parking', prompt: 'Where is Falguni\'s studio located?' },
+        { label: 'How long until photos are ready?', prompt: 'How long does gallery delivery take after the session?' }
       ];
     }
 
-    if (textLower.includes('maternity') || textLower.includes('pregnant') || textLower.includes('bump')) {
-      return [
-        { label: 'Book Maternity Shoot', prompt: 'I would like to book a maternity photo session.' },
-        { label: 'Which week is best for photos?', prompt: 'Which week of pregnancy is best to schedule maternity photos?' },
-        { label: 'Do I need to bring my own gowns?', prompt: 'Do you provide studio dresses and drapes for maternity sessions?' },
-        { label: 'Partner & kids included?', prompt: 'Can my partner and older children join the maternity shoot?' }
-      ];
-    }
-
-    if (textLower.includes('cake') || textLower.includes('smash') || textLower.includes('birthday') || textLower.includes('1st')) {
-      return [
-        { label: 'Book Cake Smash', prompt: 'I would like to book a 1st birthday cake smash session.' },
-        { label: 'Is the cake included?', prompt: 'Do you provide the smash cake or do we bring one?' },
-        { label: 'Is splash bath setup included?', prompt: 'Is the warm bath / splash bath included after the smash?' },
-        { label: 'Theme options available?', prompt: 'What backdrop themes and balloon colors do you offer?' }
-      ];
-    }
-
-    if (textLower.includes('price') || textLower.includes('cost') || textLower.includes('rate') || textLower.includes('package')) {
-      return [
-        { label: 'Reserve Studio Session', prompt: 'I would like to reserve a session date. What details do you need?' },
-        { label: 'What is included in sessions?', prompt: 'What styling and props are included in the studio sessions?' },
-        { label: 'Gallery delivery turnaround time?', prompt: 'How long does it take to get our edited photo gallery?' },
-        { label: 'Do you offer gift vouchers?', prompt: 'Can I purchase a photography gift voucher for an expecting mom?' }
-      ];
-    }
-
+    // Default suggestions
     return [
-      { label: 'Reserve Session in Chat', prompt: 'I would like to book a session with Falguni.' },
-      { label: 'Studio Address & Directions', prompt: 'Where is Falguni\'s studio located in Northfield?' },
-      { label: 'Ask about session packages', prompt: 'What photography packages do you offer?' },
-      { label: 'Speak with Falguni directly', prompt: 'Can Falguni call or message me back?' }
+      { label: 'Reserve Session in Chat', prompt: 'I would like to reserve a session with Falguni.' },
+      { label: 'What details do you need to book?', prompt: 'What details do you need to reserve a date?' },
+      { label: 'Explore Session Packages', prompt: 'What photography sessions and packages do you offer?' },
+      { label: 'Studio Address & Directions', prompt: 'Where is Falguni\'s studio located in Northfield?' }
     ];
   };
 
@@ -201,13 +217,13 @@ export const PoppyChatWidget: React.FC<PoppyChatWidgetProps> = ({ onOpenBooking 
     const updatedMessages = [...messages, userMsg];
     setMessages(updatedMessages);
     setLoading(true);
-    setThinkingStage('Poppy is carefully analyzing your request...');
+    setThinkingStage('Poppy is carefully reviewing our conversation...');
 
     const startTime = Date.now();
 
     // Multi-stage receptionist thinking updates for a thoughtful, reliable feel
     const stageTimer1 = setTimeout(() => {
-      setThinkingStage('Poppy is checking Falguni\'s studio calendar and context...');
+      setThinkingStage('Poppy is checking Falguni\'s studio calendar and details...');
     }, 900);
 
     const stageTimer2 = setTimeout(() => {
@@ -225,7 +241,7 @@ export const PoppyChatWidget: React.FC<PoppyChatWidgetProps> = ({ onOpenBooking 
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             message: userText,
-            history: updatedMessages.map(m => ({
+            history: updatedMessages.slice(0, -1).map(m => ({
               role: m.sender === 'user' ? 'user' : 'model',
               parts: [{ text: m.text }]
             }))
@@ -239,48 +255,29 @@ export const PoppyChatWidget: React.FC<PoppyChatWidgetProps> = ({ onOpenBooking 
           notification = data.clientNotification;
         }
       } catch (e) {
-        console.warn('Backend chat API request failed, using local Poppy fallback response.');
+        console.warn('Backend chat API request failed, using local Poppy brain fallback response.');
       }
 
+      // If backend was unreachable or returned empty, use state-aware Poppy brain
       if (!replyText) {
-        // Soft, gentle, intelligent client-side fallback responses for Poppy without em dashes
-        const lower = userText.toLowerCase();
+        const chatHistoryTurns: ChatTurn[] = updatedMessages.slice(0, -1).map(m => ({
+          sender: m.sender,
+          text: m.text
+        }));
+        const contextualRes = generateContextualResponse(chatHistoryTurns, userText);
+        replyText = contextualRes.text;
 
-        if (
-          lower.includes('session') ||
-          lower.includes('service') ||
-          lower.includes('offer') ||
-          lower.includes('choose') ||
-          lower.includes('option') ||
-          lower.includes('tell me') ||
-          lower.includes('what do you') ||
-          lower.includes('types')
-        ) {
-          replyText = "We offer four boutique portrait sessions at Falguni's studio:\n\n1. Newborn Photography: Peaceful 2 to 3 hour baby-led sessions in our warm 26°C studio, ideal in the first 5 to 14 days. Includes all wraps, bonnets, floral wreaths, handcrafted props, and family posing.\n2. Maternity Photography: Celebrates your pregnancy journey between 28 and 34 weeks, with full access to our luxury studio gown wardrobe and silk drapes. Partners and siblings are warmly included.\n3. Family Portraits: Relaxed 45 to 60 minute play-focused sessions capturing genuine smiles, warm hugs, and connection.\n4. Cake Smash & 1st Birthday: Milestone portraits, custom balloon decor, a delicious smash cake, and a warm splash bath in a vintage tub with full studio cleanup included.\n\nWhich of these sessions catches your heart, or would you like me to check Falguni's calendar for an upcoming date?";
-        } else if (lower.includes('price') || lower.includes('cost') || lower.includes('how much') || lower.includes('rate') || lower.includes('package') || lower.includes('fee')) {
-          replyText = "Every session at Falguni's Photography, whether newborn, maternity, family, or cake smash, is a complete boutique experience. This includes dedicated, unhurried studio time, complete access to our curated newborn wraps, floral wreaths, hand-crafted props, and luxury maternity gown wardrobe, followed by a private proofing gallery of beautifully edited portraits with bespoke print, album, and digital collections available. Which type of session are you thinking about booking?";
-        } else if (lower.includes('newborn') || lower.includes('baby') || lower.includes('infant')) {
-          replyText = "Our newborn sessions are completely baby-led and unhurried, lasting 2 to 3 hours in our cozy, temperature-controlled studio with unlimited feeding and soothing breaks. We love capturing your little one in their first 5 to 14 days of life. All wraps, bonnets, and floral styling are lovingly provided! What is your estimated due date or baby's birth date?";
-        } else if (lower.includes('maternity') || lower.includes('pregnant') || lower.includes('bump') || lower.includes('gown') || lower.includes('dress')) {
-          replyText = "Maternity sessions are a beautiful celebration of your journey! We recommend scheduling between 28 and 34 weeks, when your bump is comfortably rounded. You are invited to wear any of our studio's lace gowns and silk drapes, and partners and big brothers or sisters are always warmly included. What month or date range works best for you?";
-        } else if (lower.includes('family') || lower.includes('kids') || lower.includes('children') || lower.includes('parents')) {
-          replyText = "Our family sessions are relaxed and play-focused, lasting around 45 to 60 minutes. We create an encouraging, pressure-free atmosphere where children can laugh and be themselves, resulting in natural family portraits. Would you like to check Falguni's availability for an upcoming weekend or weekday session?";
-        } else if (lower.includes('cake') || lower.includes('smash') || lower.includes('birthday') || lower.includes('1st')) {
-          replyText = "Cake smash sessions are such a joyful way to honor baby's first birthday! We provide a custom balloon backdrop, a delicious smash cake, milestone portraits beforehand, and a warm splash bath setup afterwards, along with complete studio cleanup! What date is your little one turning one?";
-        } else if (lower.includes('where') || lower.includes('location') || lower.includes('address') || lower.includes('studio') || lower.includes('park')) {
-          replyText = "Falguni's studio is nestled at 26 South Pkwy, Northfield SA 5085, Australia. It is a quiet, comfortable sanctuary with easy driveway parking, dedicated nursing nooks, and complimentary coffee and tea. May I ask your name and preferred session date so I can check our schedule for you?";
-        } else if (lower.includes('falguni') || lower.includes('photographer') || lower.includes('who') || lower.includes('experience')) {
-          replyText = "Falguni is a specialized portrait photographer with over 3 years of experience and 56 five-star Google reviews. She is certified in newborn safety and gentle soothing techniques, creating a serene environment where parents can relax while she photographs your family. Would you like to reserve a date on Falguni's calendar?";
-        } else if (lower.includes('book') || lower.includes('reserve') || lower.includes('schedule') || lower.includes('date') || lower.includes('time')) {
-          replyText = "I would be delighted to help reserve your date right here! To hold your spot on Falguni's calendar, could you share your Full Name, Phone Number, Email Address, and your preferred session date or due date?";
-        } else {
-          // Dynamic conversational fallback so Poppy never repeats identical responses
-          const userMsgCount = updatedMessages.filter(m => m.sender === 'user').length;
-          if (userMsgCount > 2) {
-            replyText = "I want to make sure I give you the exact details you need! Falguni offers Newborn, Maternity, Family, and Cake Smash sessions with full wardrobe styling and prop curation. What specific session or date can I help you explore today?";
-          } else {
-            replyText = "Thank you for reaching out to Falguni's Photography studio! Falguni specializes in calm, patient sessions tailored to your family's rhythm. Which photography session are you interested in, and what date or month works best for you?";
-          }
+        if (contextualRes.extractedBooking) {
+          extracted = contextualRes.extractedBooking;
+          // Synchronize lead with backend database
+          fetch('/api/booking', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              ...contextualRes.extractedBooking,
+              source: 'ai_poppy'
+            })
+          }).catch(err => console.warn('Could not sync booking lead in fallback mode:', err));
         }
       }
 
