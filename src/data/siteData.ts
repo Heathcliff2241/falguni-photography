@@ -6,6 +6,7 @@ import {
   familyBlue,
   cakeSmash,
   studioCouple,
+  falguniPortrait,
   studioInterior
 } from './portfolioImages';
 
@@ -267,7 +268,7 @@ export const SITE_PAGES: Record<string, PageData> = {
         body_copy: "Located at 26 South Pkwy in Northfield, Falguni has spent more than 3 years photographing Adelaide newborns, expecting mothers, and growing families. Rather than running a rushed commercial studio, she photographs one family at a time so every shoot feels peaceful, relaxed, and welcoming.",
         cta_text: "Book Your Session",
         cta_path: "/contact",
-        image_source: studioCouple,
+        image_source: falguniPortrait,
         image_alt_text: "Falguni in her Northfield studio, owner of Falguni's Photography",
         seo_notes: ""
       }

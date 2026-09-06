@@ -73,7 +73,7 @@ export const AboutView: React.FC<AboutViewProps> = ({ onOpenBooking }) => {
               {/* Textured Washi / Masking Tape held on wall */}
               <MaskingTape variant="sage" rotation="-rotate-1" width="w-24" />
 
-              <div className="relative aspect-[4/3] rounded-none overflow-hidden bg-[#FBF6EF] border border-neutral-200/60">
+              <div className="relative aspect-square rounded-none overflow-hidden bg-[#FBF6EF] border border-neutral-200/60">
                 <img
                   src={hero.image_source}
                   alt={hero.image_alt_text}

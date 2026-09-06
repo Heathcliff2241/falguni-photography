@@ -2,22 +2,26 @@ import fs from 'fs';
 import path from 'path';
 import { BookingLead } from '../src/types';
 
-const DB_FILE = path.join(process.cwd(), 'server', 'leads_db.json');
-
-// Ensure directory exists
-if (!fs.existsSync(path.dirname(DB_FILE))) {
-  fs.mkdirSync(path.dirname(DB_FILE), { recursive: true });
+// Helper to determine a writable file path (e.g. /tmp in AWS Lambda / Vercel)
+function resolveDbPath(): string {
+  if (process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME) {
+    return path.join('/tmp', 'leads_db.json');
+  }
+  return path.join(process.cwd(), 'server', 'leads_db.json');
 }
 
 let inMemoryLeads: BookingLead[] = [];
 
-if (fs.existsSync(DB_FILE)) {
-  try {
-    const raw = fs.readFileSync(DB_FILE, 'utf-8');
+// Initialize database safely without breaking in read-only environments
+try {
+  const dbFile = resolveDbPath();
+  if (fs.existsSync(dbFile)) {
+    const raw = fs.readFileSync(dbFile, 'utf-8');
     inMemoryLeads = JSON.parse(raw);
-  } catch (err) {
-    inMemoryLeads = [];
   }
+} catch (err) {
+  // Graceful fallback to memory array
+  inMemoryLeads = [];
 }
 
 export function saveLead(lead: Partial<BookingLead>): BookingLead {
@@ -38,9 +42,15 @@ export function saveLead(lead: Partial<BookingLead>): BookingLead {
   inMemoryLeads.unshift(fullLead);
 
   try {
-    fs.writeFileSync(DB_FILE, JSON.stringify(inMemoryLeads, null, 2));
+    const dbFile = resolveDbPath();
+    const dir = path.dirname(dbFile);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+    fs.writeFileSync(dbFile, JSON.stringify(inMemoryLeads, null, 2));
   } catch (err) {
-    console.error('Error persisting leads_db.json:', err);
+    // Non-fatal: in serverless, persistence to disk may be restricted
+    console.warn('Note: Could not write leads_db.json to disk (safe in serverless runtime):', err);
   }
 
   return fullLead;
@@ -49,3 +59,4 @@ export function saveLead(lead: Partial<BookingLead>): BookingLead {
 export function getAllLeads(): BookingLead[] {
   return inMemoryLeads;
 }
+

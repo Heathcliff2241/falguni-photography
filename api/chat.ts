@@ -30,6 +30,10 @@ export default async function handler(req: any, res: any) {
     return res.status(200).json(result);
   } catch (error: any) {
     console.error('Vercel API chat error:', error);
-    return res.status(500).json({ error: error.message || 'Internal server error' });
+    return res.status(200).json({
+      text: "Thank you for reaching out to Falguni's Photography studio in Northfield. Which session type (Newborn, Maternity, Family, or Cake Smash) are you interested in booking, or what date do you prefer?",
+      extracted: null,
+      clientNotification: null
+    });
   }
 }

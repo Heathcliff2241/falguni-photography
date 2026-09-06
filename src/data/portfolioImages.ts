@@ -7,8 +7,7 @@ import familyBlue from '../assets/images/family_blue_attire_1785043847819.jpg';
 import cakeSmash from '../assets/images/cake_smash_birthday_1785043899473.jpg';
 import studioInterior from '../assets/images/studio_interior_props_1785043925769.jpg';
 import studioCouple from '../assets/images/falguni_studio_couple_1785043914176.jpg';
-
-const falguniPortrait = studioCouple;
+import falguniPortrait from '../assets/images/falguni_portrait.jpg';
 
 export {
   newbornWreath,

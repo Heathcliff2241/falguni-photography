@@ -1,10 +1,12 @@
 // Footer Component - Pure React Layout
-import React from 'react';
+import React, { useState } from 'react';
 import { LOCAL_NAP } from '../data/siteData';
 import { BotanicalRose } from './BotanicalAccents';
-import { PhoneCall, MapPin, EnvelopeSimple, InstagramLogo, FacebookLogo, Heart } from '@phosphor-icons/react';
+import { PhoneCall, MapPin, EnvelopeSimple, InstagramLogo, FacebookLogo, Heart, Compass } from '@phosphor-icons/react';
 
 export const Footer: React.FC = () => {
+  const [showMap, setShowMap] = useState(false);
+
   return (
     <footer className="bg-[#423341] text-[#FBF6EF] font-body pt-16 pb-12 border-t border-[#EFD4CE]/20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -50,17 +52,31 @@ export const Footer: React.FC = () => {
 
             {/* Google Map Embed Frame */}
             <div className="rounded-2xl overflow-hidden border border-[#EFD4CE]/30 bg-[#322631] shadow-inner">
-              <iframe
-                title="Falguni's Photography Studio Location - Northfield SA"
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3274.288210344234!2d138.62272507647248!3d-34.85692697286469!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x6ab0c92fb3874d15%3A0x6b6cddb32267b2d5!2s26%20South%20Pkwy%2C%20Northfield%20SA%205085!5e0!3m2!1sen!2sau!4v1700000000000!5m2!1sen!2sau"
-                width="100%"
-                height="150"
-                style={{ border: 0 }}
-                allowFullScreen={false}
-                loading="lazy"
-                referrerPolicy="no-referrer"
-                className="w-full h-[140px] opacity-90 hover:opacity-100 transition-opacity"
-              ></iframe>
+              {showMap ? (
+                <iframe
+                  title="Falguni's Photography Studio Location - Northfield SA"
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3274.288210344234!2d138.62272507647248!3d-34.85692697286469!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x6ab0c92fb3874d15%3A0x6b6cddb32267b2d5!2s26%20South%20Pkwy%2C%20Northfield%20SA%205085!5e0!3m2!1sen!2sau!4v1700000000000!5m2!1sen!2sau"
+                  width="100%"
+                  height="140"
+                  style={{ border: 0 }}
+                  allowFullScreen={false}
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  className="w-full h-[140px] opacity-95 transition-opacity"
+                ></iframe>
+              ) : (
+                <div className="h-[140px] flex flex-col items-center justify-center p-3 text-center bg-[#3a2c39]">
+                  <Compass size={24} className="text-[#EFD4CE] mb-1.5" />
+                  <p className="text-xs text-[#FBF6EF]/80 mb-2">Northfield SA 5085 (15 min north of Adelaide CBD)</p>
+                  <button
+                    type="button"
+                    onClick={() => setShowMap(true)}
+                    className="text-xs px-3 py-1.5 rounded-full bg-[#EFD4CE] text-[#423341] font-medium hover:bg-[#FBF6EF] transition-colors"
+                  >
+                    Load Interactive Map
+                  </button>
+                </div>
+              )}
               <a
                 href="https://maps.app.goo.gl/Yif226m28rnSjBNq9"
                 target="_blank"

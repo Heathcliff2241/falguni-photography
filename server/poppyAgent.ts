@@ -2,16 +2,23 @@ import { GoogleGenAI } from '@google/genai';
 import { saveLead } from './db';
 import { sendLeadNotificationEmail, sendClientConfirmationNotification, ClientNotificationResult } from './email';
 
-const apiKey = process.env.GEMINI_API_KEY;
-
-const ai = new GoogleGenAI({
-  apiKey: apiKey,
-  httpOptions: {
-    headers: {
-      'User-Agent': 'aistudio-build'
-    }
+// Lazy client initialization to prevent serverless startup crashes when key is missing
+let aiClient: GoogleGenAI | null = null;
+function getAI(): GoogleGenAI | null {
+  const key = process.env.GEMINI_API_KEY;
+  if (!key) return null;
+  if (!aiClient) {
+    aiClient = new GoogleGenAI({
+      apiKey: key,
+      httpOptions: {
+        headers: {
+          'User-Agent': 'aistudio-build'
+        }
+      }
+    });
   }
-});
+  return aiClient;
+}
 
 const SYSTEM_INSTRUCTION = `
 You are Poppy, the warm, gentle, and highly reliable front-desk studio receptionist for Falguni's Photography, a premier portrait studio located at 26 South Pkwy, Northfield SA 5085, Adelaide, Australia (Phone: +61 469 753 238).
@@ -42,6 +49,48 @@ STUDIO KNOWLEDGE & DIRECTIVES:
 - Keep the tone deeply gentle, caring, and professional.
 - ABSOLUTELY NO EMOJIS AND NO EM DASHES (— OR – OR --) in the final response.
 `;
+
+function getSmartFallbackReply(message: string): string {
+  const lower = message.toLowerCase();
+  if (
+    lower.includes('session') ||
+    lower.includes('service') ||
+    lower.includes('offer') ||
+    lower.includes('choose') ||
+    lower.includes('option') ||
+    lower.includes('tell me') ||
+    lower.includes('what do you') ||
+    lower.includes('types')
+  ) {
+    return "We offer four boutique portrait sessions at Falguni's studio, each starting at $250 AUD:\n\n1. Newborn Photography: Peaceful 2 to 3 hour baby-led sessions in our warm 26°C studio, ideal in the first 5 to 14 days. Includes all wraps, bonnets, floral wreaths, handcrafted props, and family posing.\n2. Maternity Photography: Celebrates your pregnancy journey between 28 and 34 weeks, with full access to our studio gown wardrobe and silk drapes. Partners and siblings are warmly included.\n3. Family Portraits: Relaxed 45 to 60 minute play-focused sessions capturing genuine smiles and connection.\n4. Cake Smash & 1st Birthday: Milestone portraits, custom balloon decor, a delicious smash cake, and a warm splash bath in a vintage tub with full studio cleanup included.\n\nWhich session type interests you, or would you like to check Falguni's calendar for an upcoming date?";
+  }
+  if (lower.includes('price') || lower.includes('cost') || lower.includes('how much') || lower.includes('rate') || lower.includes('package') || lower.includes('fee')) {
+    return "Every session at Falguni's Photography starts at $250 AUD. This includes our peaceful Northfield studio time, complete access to our curated newborn wraps, floral wreaths, hand-crafted props, and luxury maternity gown wardrobe, followed by a private gallery of beautifully edited portraits. Which type of session are you thinking about booking?";
+  }
+  if (lower.includes('newborn') || lower.includes('baby') || lower.includes('infant')) {
+    return "Our newborn sessions are completely baby-led and unhurried, lasting 2 to 3 hours in our cozy, temperature-controlled studio with unlimited feeding and soothing breaks. We love capturing your little one in their first 5 to 14 days of life. All wraps, bonnets, and floral styling are provided. What is your estimated due date or baby's birth date?";
+  }
+  if (lower.includes('maternity') || lower.includes('pregnant') || lower.includes('bump') || lower.includes('gown') || lower.includes('dress')) {
+    return "Maternity sessions are a beautiful celebration of your journey! We recommend scheduling between 28 and 34 weeks, when your bump is comfortably rounded. You are invited to wear any of our studio gowns and silk drapes, and partners and siblings are always warmly included. What month or date range works best for you?";
+  }
+  if (lower.includes('family') || lower.includes('kids') || lower.includes('children') || lower.includes('parents')) {
+    return "Our family sessions are relaxed and play-focused, lasting around 45 to 60 minutes. We create an encouraging, pressure-free atmosphere where children can laugh and be themselves, resulting in natural family portraits. Would you like to check Falguni's availability for an upcoming weekend or weekday session?";
+  }
+  if (lower.includes('cake') || lower.includes('smash') || lower.includes('birthday') || lower.includes('1st')) {
+    return "Cake smash sessions are a joyful way to honor baby's first birthday! We provide a custom balloon backdrop, a delicious smash cake, milestone portraits beforehand, and a warm splash bath setup afterwards, along with complete studio cleanup. What date is your little one turning one?";
+  }
+  if (lower.includes('where') || lower.includes('location') || lower.includes('address') || lower.includes('studio') || lower.includes('park')) {
+    return "Falguni's studio is located at 26 South Pkwy, Northfield SA 5085, Australia. It is a quiet, comfortable sanctuary with easy driveway parking and dedicated nursing nooks. May I ask your name and preferred session date so I can check our schedule for you?";
+  }
+  if (lower.includes('falguni') || lower.includes('photographer') || lower.includes('who') || lower.includes('experience')) {
+    return "Falguni is a specialized portrait photographer with over 3 years of experience and 56 five-star Google reviews. She is trained in newborn safety and gentle soothing techniques, creating a serene environment where parents can relax while she photographs your family. Would you like to reserve a date on Falguni's calendar?";
+  }
+  if (lower.includes('book') || lower.includes('reserve') || lower.includes('schedule') || lower.includes('date') || lower.includes('time')) {
+    return "I would be delighted to help reserve your date right here. To hold your spot on Falguni's calendar, could you share your Full Name, Phone Number, Email Address, and your preferred session date or due date?";
+  }
+  return "Thank you for reaching out to Falguni's Photography in Northfield. We specialize in calm, patient sessions tailored to your family's rhythm, starting at $250 AUD. Which photography session are you interested in, and what date or month works best for you?";
+}
+
 
 interface ChatHistoryItem {
   role: 'user' | 'model';
@@ -96,16 +145,31 @@ export async function processPoppyChat(message: string, history: ChatHistoryItem
       });
     }
 
-    const response = await ai.models.generateContent({
-      model: 'gemini-3.6-flash',
-      contents: formattedContents,
-      config: {
-        systemInstruction: SYSTEM_INSTRUCTION,
-        temperature: 0.7
-      }
-    });
+    let rawReply = '';
+    const ai = getAI();
 
-    let rawReply = response.text || "I would be delighted to book your session! Please let me know your name, email, phone number, and preferred date.";
+    if (ai) {
+      try {
+        const response = await ai.models.generateContent({
+          model: 'gemini-3.8-flash',
+          contents: formattedContents,
+          config: {
+            systemInstruction: SYSTEM_INSTRUCTION,
+            temperature: 0.7
+          }
+        });
+        rawReply = response.text || '';
+      } catch (geminiError) {
+        console.warn('Gemini API call unsuccessful, applying intelligent receptionist response:', geminiError);
+        rawReply = getSmartFallbackReply(message);
+      }
+    } else {
+      rawReply = getSmartFallbackReply(message);
+    }
+
+    if (!rawReply) {
+      rawReply = getSmartFallbackReply(message);
+    }
 
     // Extract thinking process if present for server logging
     const thinkingMatch = rawReply.match(/<thinking>([\s\S]*?)<\/thinking>/i);
@@ -120,7 +184,7 @@ export async function processPoppyChat(message: string, history: ChatHistoryItem
       .trim();
 
     if (!cleanReply) {
-      cleanReply = "I would be delighted to assist you with booking your portrait session at Falguni's studio. Which session type are you interested in, or what date do you prefer?";
+      cleanReply = "I would be delighted to assist you with booking your portrait session at Falguni's studio in Northfield. Which session type are you interested in, or what date do you prefer?";
     }
 
     // Strip all emojis, em-dashes, and en-dashes strictly
