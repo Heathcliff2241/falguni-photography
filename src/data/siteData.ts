@@ -18,7 +18,8 @@ export const LOCAL_NAP = {
   service_area: "Northfield, Lightsview, Klemzig, and greater Adelaide northern suburbs",
   rating: "5.0",
   review_count: 56,
-  starting_price: "$250"
+  experience: "3+ Years",
+  inclusions: "All wraps, props, and wardrobe styling included"
 };
 
 export const SITE_PAGES: Record<string, PageData> = {
@@ -27,15 +28,15 @@ export const SITE_PAGES: Record<string, PageData> = {
     url: "/",
     purpose: "Introduce the studio, establish the patient and gentle positioning, and route visitors directly to session details or booking.",
     meta_title: "Newborn & Maternity Photographer Northfield | Falguni's Photography",
-    meta_description: "Gentle, unhurried newborn, maternity, family, and cake smash photography in Northfield, Adelaide SA. 56 five-star Google reviews. Sessions from $250. Book online.",
+    meta_description: "Gentle, unhurried newborn, maternity, family, and cake smash photography in Northfield, Adelaide SA. 56 five-star Google reviews. Full prop styling and wardrobe provided. Book online.",
     sections: [
       {
         section_name: "hero",
         heading_tag: "h1",
         headline: "Newborn, Maternity and Family Photography in Northfield",
         subheadline: "Unhurried portrait sessions paced around your baby, never a ticking timer.",
-        body_copy: "Sessions start at $250 AUD in our warm Northfield studio. We provide all wraps, headbands, backdrops, and maternity gowns so you never have to prepare props or feel rushed.",
-        cta_text: "Book Your Session ($250+)",
+        body_copy: "Hosted in our warm, dedicated Northfield studio, every session is personalized to your family's pace. We provide all wraps, headbands, backdrops, and maternity gowns so you never have to prepare props or feel rushed.",
+        cta_text: "Book Your Session",
         cta_path: "/contact",
         image_source: newbornWreath,
         image_alt_text: "Newborn baby asleep on a green floral wreath backdrop with white roses, Northfield photography studio",
@@ -46,7 +47,7 @@ export const SITE_PAGES: Record<string, PageData> = {
         heading_tag: "h2",
         headline: "Four Sessions, One Patient Photographer",
         subheadline: "Every shoot is paced around your family, never a tight timer.",
-        body_copy: "Newborn, maternity, family, and cake smash sessions, each photographed at our Northfield studio with the same unhurried approach. Packages start at $250 AUD and include a private online gallery.",
+        body_copy: "Newborn, maternity, family, and cake smash sessions, each photographed at our Northfield studio with the same unhurried approach. Every session includes dedicated styling and a private online gallery.",
         cta_text: "View All Services",
         cta_path: "/services",
         image_source: newbornBlue,
@@ -83,14 +84,14 @@ export const SITE_PAGES: Record<string, PageData> = {
     url: "/services",
     purpose: "Route visitors to specific session pages based on what they need.",
     meta_title: "Photography Services in Northfield, Adelaide | Falguni's Photography",
-    meta_description: "Explore newborn, maternity, family, and cake smash photography sessions in Northfield, Adelaide. Starting at $250 with full styling and props provided.",
+    meta_description: "Explore newborn, maternity, family, and cake smash photography sessions in Northfield, Adelaide. Comprehensive packages with full styling and props provided.",
     sections: [
       {
         section_name: "hero",
         heading_tag: "h1",
         headline: "Newborn, Maternity & Family Photography Services in Northfield",
         subheadline: "Dedicated sessions designed around comfort, patience, and authentic family connection.",
-        body_copy: "Falguni's Photography offers four specialized studio sessions: newborn, maternity, family, and cake smash. All sessions are held at our private Northfield studio, serving families across Lightsview, Klemzig, and northern Adelaide. Packages start at $250 AUD and include full prop styling and private gallery delivery.",
+        body_copy: "Falguni's Photography offers four specialized studio sessions: newborn, maternity, family, and cake smash. All sessions are held at our private Northfield studio, serving families across Lightsview, Klemzig, and northern Adelaide. Every session includes full prop styling, unhurried shooting time, and private gallery delivery.",
         cta_text: "",
         image_source: maternityPurple,
         image_alt_text: "Maternity photography session in flowing purple gown, Northfield studio",
@@ -104,7 +105,7 @@ export const SITE_PAGES: Record<string, PageData> = {
     url: "/services/newborn-photography",
     purpose: "Convert expecting parents into booked newborn sessions.",
     meta_title: "Newborn Photography Northfield Adelaide | Gentle & Unhurried Sessions",
-    meta_description: "Specialist newborn photography in Northfield SA. Gentle 2 to 3 hour sessions timed to baby's rhythm. All wraps, wreaths, and props provided. From $250.",
+    meta_description: "Specialist newborn photography in Northfield SA. Gentle 2 to 3 hour sessions timed to baby's rhythm. All wraps, wreaths, and props provided. Book online.",
     sections: [
       {
         section_name: "hero",
@@ -129,8 +130,8 @@ export const SITE_PAGES: Record<string, PageData> = {
         answer: "That is completely normal, and every session is planned with extra time for feeding, burping, soothing, and cuddles. Falguni works at your baby's pace without any rushed timers."
       },
       {
-        question: "How much does a newborn session cost?",
-        answer: "Newborn sessions start at $250 AUD, which covers styling, props, studio time, and a private proofing gallery. Print and album packages are also available."
+        question: "What is included in a newborn photography session?",
+        answer: "Every newborn session covers full prop styling, curated wraps, floral wreaths, studio time in our warm 26°C environment, and a private proofing gallery. Wall art, heirloom print boxes, and full digital collections are available."
       }
     ]
   },
@@ -139,7 +140,7 @@ export const SITE_PAGES: Record<string, PageData> = {
     url: "/services/maternity-photography",
     purpose: "Convert expecting mothers into booked maternity sessions.",
     meta_title: "Maternity Photography Adelaide | Studio Bump Shoots Northfield",
-    meta_description: "Celebrate pregnancy with elegant maternity photography in Northfield, Adelaide. Studio wardrobe gowns provided. Best booked at 28-34 weeks. Sessions from $250.",
+    meta_description: "Celebrate pregnancy with elegant maternity photography in Northfield, Adelaide. Studio wardrobe gowns provided. Best booked at 28-34 weeks. Book online.",
     sections: [
       {
         section_name: "hero",
@@ -174,7 +175,7 @@ export const SITE_PAGES: Record<string, PageData> = {
     url: "/services/family-photography",
     purpose: "Convert families looking for portrait sessions into bookings.",
     meta_title: "Family Photography Northfield Adelaide | Relaxed Studio Sessions",
-    meta_description: "Relaxed, genuine family portraits in Northfield and northern Adelaide suburbs. No forced smiles or rushed timers. Sessions starting at $250.",
+    meta_description: "Relaxed, genuine family portraits in Northfield and northern Adelaide suburbs. No forced smiles or rushed timers. Full styling guidance included.",
     sections: [
       {
         section_name: "hero",
@@ -205,7 +206,7 @@ export const SITE_PAGES: Record<string, PageData> = {
     url: "/services/cake-smash-photography",
     purpose: "Convert parents planning a first birthday into cake smash bookings.",
     meta_title: "Cake Smash Photography Adelaide | First Birthday Studio Sessions",
-    meta_description: "Fun, mess-free 1st birthday cake smash photography in Northfield, Adelaide. Includes themed backdrop, smash cake, and splash bath photos. Sessions from $250.",
+    meta_description: "Fun, mess-free 1st birthday cake smash photography in Northfield, Adelaide. Includes themed backdrop, smash cake, and splash bath photos.",
     sections: [
       {
         section_name: "hero",
@@ -285,7 +286,7 @@ export const SITE_PAGES: Record<string, PageData> = {
     url: "/contact",
     purpose: "Give visitors a direct path to booking via form, phone, or direct studio visit.",
     meta_title: "Book Photography Session Northfield | Contact Falguni's Studio",
-    meta_description: "Contact Falguni's Photography at 26 South Pkwy, Northfield SA 5085. Call +61 469 753 238 or submit an online booking inquiry. Sessions from $250.",
+    meta_description: "Contact Falguni's Photography at 26 South Pkwy, Northfield SA 5085. Call +61 469 753 238 or submit an online booking inquiry. Studio visits by appointment.",
     sections: [
       {
         section_name: "hero",

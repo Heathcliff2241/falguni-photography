@@ -56,7 +56,7 @@ export default function AboutPage() {
             </div>
 
             <div className="pt-2 flex flex-col sm:flex-row items-center gap-4 font-body">
-              <BookSessionButton label="Book Your Session ($250+)" className="w-full sm:w-auto" />
+              <BookSessionButton label="Book Your Session" className="w-full sm:w-auto" />
               <a
                 href={`tel:${LOCAL_NAP.phone_clean}`}
                 className="w-full sm:w-auto bg-white border border-[#EFD4CE] text-[#423341] font-medium text-base px-6 py-4 rounded-full hover:bg-[#EFD4CE]/30 transition-colors flex items-center justify-center gap-2"

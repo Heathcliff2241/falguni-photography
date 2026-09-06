@@ -183,7 +183,7 @@ export const FloatingFilmstripGallery: React.FC<FloatingFilmstripGalleryProps> =
                     className="w-full sm:w-auto flex-1 bg-[#A7B596] text-[#423341] font-semibold text-sm px-5 py-3 rounded-full hover:bg-[#96a585] transition-colors flex items-center justify-center gap-2 cursor-pointer"
                   >
                     <CalendarCheck size={18} />
-                    Book This Style ($250+)
+                    Book This Style
                   </button>
                   <button
                     onClick={() => setSelectedImage(null)}

@@ -45,7 +45,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ onOpenBooking }) => {
                   className="bg-[#A7B596] hover:bg-[#95a384] text-[#423341] font-semibold text-base px-7 py-3.5 rounded-full shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2"
                 >
                   <CalendarCheck size={20} />
-                  Book Your Session ($250+)
+                  Book Your Session
                 </button>
                 <a
                   href={`tel:${LOCAL_NAP.phone_clean}`}
@@ -130,28 +130,28 @@ export const HomeView: React.FC<HomeViewProps> = ({ onOpenBooking }) => {
                 title: 'Newborn Photography',
                 path: '/services/newborn-photography',
                 desc: 'Best booked for 5-14 days after birth. Unhurried sessions with soft organic wraps, baskets, and floral wreaths.',
-                price: 'From $250',
+                highlight: 'All Wraps & Wreaths Provided',
                 tag: '5-14 Days'
               },
               {
                 title: 'Maternity Photography',
                 path: '/services/maternity-photography',
                 desc: 'Best booked 28-34 weeks. Flowing studio gowns and flattering lighting designed to celebrate your bump.',
-                price: 'From $250',
+                highlight: 'Studio Wardrobe Access',
                 tag: '28-34 Weeks'
               },
               {
                 title: 'Family Photography',
                 path: '/services/family-photography',
                 desc: 'Relaxed 45-60 minute sessions where kids play naturally instead of forcing stiff poses.',
-                price: 'From $250',
+                highlight: 'Unhurried Family Pacing',
                 tag: 'All Ages'
               },
               {
                 title: 'Cake Smash Photography',
                 path: '/services/cake-smash-photography',
                 desc: 'Celebrate your baby\'s first birthday with themed backdrops, smash cake, and full cleanup included.',
-                price: 'From $250',
+                highlight: 'Cake & Splash Bath Included',
                 tag: '1st Birthday'
               }
             ].map((s, idx) => (
@@ -172,7 +172,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ onOpenBooking }) => {
                 </div>
 
                 <div className="pt-4 border-t border-[#EFD4CE]/50 flex items-center justify-between">
-                  <span className="font-semibold text-sm text-[#423341]">{s.price}</span>
+                  <span className="font-semibold text-xs text-[#52796F]">{s.highlight}</span>
                   <a
                     href={s.path}
                     className="text-xs font-semibold text-[#423341] hover:text-[#A7B596] transition-colors"

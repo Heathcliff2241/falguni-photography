@@ -8,7 +8,7 @@ import { BookSessionButton } from '../components/BookSessionButton';
 
 export const metadata: Metadata = {
   title: "Photography Services in Northfield | Falguni's Photography",
-  description: "Newborn, maternity, family, and cake smash photography in Northfield, Adelaide. Sessions from $250, styling and props included. See all sessions.",
+  description: "Newborn, maternity, family, and cake smash photography in Northfield, Adelaide. Comprehensive boutique packages with styling and props included.",
 };
 
 export default function ServicesPage() {
@@ -22,7 +22,7 @@ export default function ServicesPage() {
       url: '/services/newborn-photography',
       sub: '5-14 Days After Birth • 2-3 Hours',
       desc: 'Gentle, unhurried sessions with full access to Falguni\'s Northfield studio wraps, headbands, baskets, and eucalyptus wreath backdrops.',
-      price: 'From $250'
+      feature: 'All wraps, bonnets & wreaths provided'
     },
     {
       id: 'maternity',
@@ -30,7 +30,7 @@ export default function ServicesPage() {
       url: '/services/maternity-photography',
       sub: '28-34 Weeks Pregnant • 60 Minutes',
       desc: 'Flowing gowns and draped fabrics designed to make a third-trimester body feel celebrated. Partners and older siblings welcome.',
-      price: 'From $250'
+      feature: 'Full studio wardrobe & silk drapes'
     },
     {
       id: 'family',
@@ -38,7 +38,7 @@ export default function ServicesPage() {
       url: '/services/family-photography',
       sub: '45-60 Minutes • All Ages',
       desc: 'Relaxed sessions with games and short breaks so kids smile naturally without forced poses or tight studio clocks.',
-      price: 'From $250'
+      feature: 'Play-led posing & unhurried atmosphere'
     },
     {
       id: 'cake-smash',
@@ -46,7 +46,7 @@ export default function ServicesPage() {
       url: '/services/cake-smash-photography',
       sub: 'First Birthday Milestone • 45 Minutes',
       desc: 'Celebratory first birthday sessions with themed backdrop, smash cake, portrait setups, and full studio cleanup included.',
-      price: 'From $250'
+      feature: 'Themed setup, cake & splash bath'
     }
   ];
 
@@ -98,7 +98,7 @@ export default function ServicesPage() {
               </div>
 
               <div className="pt-6 mt-6 border-t border-[#EFD4CE]/60 flex items-center justify-between font-body">
-                <span className="font-semibold text-base text-[#423341]">{s.price}</span>
+                <span className="font-semibold text-xs text-[#52796F]">{s.feature}</span>
                 <div className="flex items-center gap-3">
                   <BookSessionButton service={s.id} label="Book" className="px-4 py-2 text-xs" />
                   <Link

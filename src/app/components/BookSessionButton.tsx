@@ -12,7 +12,7 @@ interface BookSessionButtonProps {
 
 export const BookSessionButton: React.FC<BookSessionButtonProps> = ({
   service = 'newborn',
-  label = 'Book Your Session ($250+)',
+  label = 'Book Your Session',
   className = ''
 }) => {
   const { openBookingModal } = useBooking();

@@ -14,7 +14,7 @@ export const CENTRAL_SEO_CONFIG = {
   siteName: "Falguni's Photography",
   defaultTitle: "Newborn & Maternity Photographer Northfield | Falguni's Photography",
   titleTemplate: "%s | Falguni's Photography Northfield Adelaide",
-  defaultDescription: "Gentle, unhurried newborn, maternity, family, and cake smash photography in Northfield, Adelaide SA. 56 five-star Google reviews. Sessions from $250.",
+  defaultDescription: "Gentle, unhurried newborn, maternity, family, and cake smash photography in Northfield, Adelaide SA. 56 five-star Google reviews. Full prop styling and wardrobe provided.",
   siteUrl: "https://falgunicreativephotography.com.au",
   defaultImage: "/assets/newborn_floral_wreath.jpg",
   
@@ -62,7 +62,7 @@ export const CENTRAL_SEO_CONFIG = {
   routeMetadata: {
     '/': {
       title: "Newborn & Maternity Photographer Northfield | Falguni's Photography",
-      description: "Gentle, unhurried newborn, maternity, family, and cake smash photography in Northfield, Adelaide SA. 56 five-star Google reviews. Sessions from $250.",
+      description: "Gentle, unhurried newborn, maternity, family, and cake smash photography in Northfield, Adelaide SA. 56 five-star Google reviews. Full prop styling and wardrobe provided.",
       keywords: [
         "newborn photography Northfield",
         "maternity photography Adelaide",
@@ -75,7 +75,7 @@ export const CENTRAL_SEO_CONFIG = {
     },
     '/services': {
       title: "Photography Services in Northfield, Adelaide | Falguni's Photography",
-      description: "Explore newborn, maternity, family, and cake smash photography sessions in Northfield, Adelaide. Starting at $250 with full styling and props provided.",
+      description: "Explore newborn, maternity, family, and cake smash photography sessions in Northfield, Adelaide. Comprehensive packages with full styling and props provided.",
       keywords: [
         "photography services Northfield",
         "baby photo packages Adelaide",
@@ -87,7 +87,7 @@ export const CENTRAL_SEO_CONFIG = {
     },
     '/services/newborn-photography': {
       title: "Newborn Photography Northfield Adelaide | Gentle & Unhurried Sessions",
-      description: "Specialist newborn photography in Northfield SA. Gentle 2-3 hour sessions timed to baby's rhythm. All wraps, wreaths, and props provided. From $250.",
+      description: "Specialist newborn photography in Northfield SA. Gentle 2-3 hour sessions timed to baby's rhythm. All wraps, wreaths, and props provided. Book online.",
       keywords: [
         "newborn photography Northfield",
         "baby photographer Northfield SA",
@@ -111,7 +111,7 @@ export const CENTRAL_SEO_CONFIG = {
     },
     '/services/family-photography': {
       title: "Family Photography Northfield Adelaide | Relaxed Outdoor & Studio Sessions",
-      description: "Relaxed, genuine family portraits in Northfield and northern Adelaide suburbs. No forced smiles or rushed timers. Sessions starting at $250.",
+      description: "Relaxed, genuine family portraits in Northfield and northern Adelaide suburbs. No forced smiles or rushed timers. Full styling guidance included.",
       keywords: [
         "family photography Northfield",
         "family photographer Adelaide",

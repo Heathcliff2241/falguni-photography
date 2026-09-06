@@ -8,7 +8,7 @@ import { BookSessionButton } from '../../components/BookSessionButton';
 
 export const metadata: Metadata = {
   title: "Newborn Photography Northfield, Adelaide | Falguni's Photography",
-  description: "Gentle newborn photography in Northfield, Adelaide. Sessions booked for the first 5-14 days. Wraps and props included, from $250. Book while pregnant.",
+  description: "Gentle newborn photography in Northfield, Adelaide. Sessions booked for the first 5-14 days. Wraps, props, and styling included. Book while pregnant.",
 };
 
 export default function NewbornPage() {
@@ -43,7 +43,7 @@ export default function NewbornPage() {
 
             <div className="bg-white p-5 rounded-2xl border border-[#EFD4CE] space-y-3 font-body text-xs text-[#423341]">
               <h3 className="font-display text-lg font-medium text-[#423341] border-b border-[#EFD4CE]/60 pb-2">
-                What's Included in Your $250+ Newborn Session
+                What's Included in Your Newborn Session
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <p className="flex items-center gap-2"><CheckCircle size={16} className="text-[#A7B596]" /> Full access to hand-knit wraps & headbands</p>

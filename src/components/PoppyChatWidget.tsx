@@ -122,7 +122,7 @@ export const PoppyChatWidget: React.FC<PoppyChatWidgetProps> = ({ onOpenBooking 
     if (messages.length <= 1) {
       return [
         { label: 'How do I reserve a date?', prompt: 'I would like to reserve a session date with Falguni. What details do you need?' },
-        { label: 'Package Rates ($250+)', prompt: 'How much do photography packages cost?' },
+        { label: 'What is included in sessions?', prompt: 'What styling and props are included in the studio sessions?' },
         { label: 'Newborn Session Info', prompt: 'What is included in a newborn shoot?' },
         { label: 'Maternity Gowns Provided?', prompt: 'What gowns and styling wardrobe do you provide for maternity?' },
         { label: 'Studio Location in Northfield', prompt: 'Where is your studio located and is parking available?' }
@@ -168,10 +168,10 @@ export const PoppyChatWidget: React.FC<PoppyChatWidgetProps> = ({ onOpenBooking 
       ];
     }
 
-    if (textLower.includes('price') || textLower.includes('cost') || textLower.includes('rate') || textLower.includes('$250')) {
+    if (textLower.includes('price') || textLower.includes('cost') || textLower.includes('rate') || textLower.includes('package')) {
       return [
-        { label: 'Book Session starting $250', prompt: 'I would like to reserve a session date. What details do you need?' },
-        { label: 'What is included in $250 rate?', prompt: 'What is included in the $250 base package?' },
+        { label: 'Reserve Studio Session', prompt: 'I would like to reserve a session date. What details do you need?' },
+        { label: 'What is included in sessions?', prompt: 'What styling and props are included in the studio sessions?' },
         { label: 'Gallery delivery turnaround time?', prompt: 'How long does it take to get our edited photo gallery?' },
         { label: 'Do you offer gift vouchers?', prompt: 'Can I purchase a photography gift voucher for an expecting mom?' }
       ];
@@ -256,9 +256,9 @@ export const PoppyChatWidget: React.FC<PoppyChatWidgetProps> = ({ onOpenBooking 
           lower.includes('what do you') ||
           lower.includes('types')
         ) {
-          replyText = "We offer four boutique portrait sessions at Falguni's studio, each starting at $250 AUD:\n\n1. Newborn Photography: Peaceful 2 to 3 hour baby-led sessions in our warm 26°C studio, ideal in the first 5 to 14 days. Includes all wraps, bonnets, floral wreaths, handcrafted props, and family posing.\n2. Maternity Photography: Celebrates your pregnancy journey between 28 and 34 weeks, with full access to our luxury studio gown wardrobe and silk drapes. Partners and siblings are warmly included.\n3. Family Portraits: Relaxed 45 to 60 minute play-focused sessions capturing genuine smiles, warm hugs, and connection.\n4. Cake Smash & 1st Birthday: Milestone portraits, custom balloon decor, a delicious smash cake, and a warm splash bath in a vintage tub with full studio cleanup included.\n\nWhich of these sessions catches your heart, or would you like me to check Falguni's calendar for an upcoming date?";
+          replyText = "We offer four boutique portrait sessions at Falguni's studio:\n\n1. Newborn Photography: Peaceful 2 to 3 hour baby-led sessions in our warm 26°C studio, ideal in the first 5 to 14 days. Includes all wraps, bonnets, floral wreaths, handcrafted props, and family posing.\n2. Maternity Photography: Celebrates your pregnancy journey between 28 and 34 weeks, with full access to our luxury studio gown wardrobe and silk drapes. Partners and siblings are warmly included.\n3. Family Portraits: Relaxed 45 to 60 minute play-focused sessions capturing genuine smiles, warm hugs, and connection.\n4. Cake Smash & 1st Birthday: Milestone portraits, custom balloon decor, a delicious smash cake, and a warm splash bath in a vintage tub with full studio cleanup included.\n\nWhich of these sessions catches your heart, or would you like me to check Falguni's calendar for an upcoming date?";
         } else if (lower.includes('price') || lower.includes('cost') || lower.includes('how much') || lower.includes('rate') || lower.includes('package') || lower.includes('fee')) {
-          replyText = "Every session at Falguni's Photography, whether newborn, maternity, family, or cake smash, starts gently at $250 AUD. This includes our peaceful studio time, complete access to our curated newborn wraps, floral wreaths, hand-crafted props, and luxury maternity gown wardrobe, followed by a private gallery of beautifully edited portraits. Which type of session are you thinking about booking?";
+          replyText = "Every session at Falguni's Photography, whether newborn, maternity, family, or cake smash, is a complete boutique experience. This includes dedicated, unhurried studio time, complete access to our curated newborn wraps, floral wreaths, hand-crafted props, and luxury maternity gown wardrobe, followed by a private proofing gallery of beautifully edited portraits with bespoke print, album, and digital collections available. Which type of session are you thinking about booking?";
         } else if (lower.includes('newborn') || lower.includes('baby') || lower.includes('infant')) {
           replyText = "Our newborn sessions are completely baby-led and unhurried, lasting 2 to 3 hours in our cozy, temperature-controlled studio with unlimited feeding and soothing breaks. We love capturing your little one in their first 5 to 14 days of life. All wraps, bonnets, and floral styling are lovingly provided! What is your estimated due date or baby's birth date?";
         } else if (lower.includes('maternity') || lower.includes('pregnant') || lower.includes('bump') || lower.includes('gown') || lower.includes('dress')) {
@@ -277,7 +277,7 @@ export const PoppyChatWidget: React.FC<PoppyChatWidgetProps> = ({ onOpenBooking 
           // Dynamic conversational fallback so Poppy never repeats identical responses
           const userMsgCount = updatedMessages.filter(m => m.sender === 'user').length;
           if (userMsgCount > 2) {
-            replyText = "I want to make sure I give you the exact details you need! Falguni offers Newborn, Maternity, Family, and Cake Smash sessions starting at $250 AUD. What specific session or date can I help you explore today?";
+            replyText = "I want to make sure I give you the exact details you need! Falguni offers Newborn, Maternity, Family, and Cake Smash sessions with full wardrobe styling and prop curation. What specific session or date can I help you explore today?";
           } else {
             replyText = "Thank you for reaching out to Falguni's Photography studio! Falguni specializes in calm, patient sessions tailored to your family's rhythm. Which photography session are you interested in, and what date or month works best for you?";
           }

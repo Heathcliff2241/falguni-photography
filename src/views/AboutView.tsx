@@ -56,7 +56,7 @@ export const AboutView: React.FC<AboutViewProps> = ({ onOpenBooking }) => {
                 className="w-full sm:w-auto bg-[#A7B596] hover:bg-[#96a585] text-[#423341] font-semibold text-base px-8 py-4 rounded-full shadow-md transition-all flex items-center justify-center gap-2"
               >
                 <CalendarCheck size={20} />
-                Book Your Session ($250+)
+                Book Your Session
               </button>
               <a
                 href={`tel:${LOCAL_NAP.phone_clean}`}

@@ -9,7 +9,7 @@ import { BookingProvider } from '../context/BookingContext';
 
 export const metadata: Metadata = {
   title: "Falguni's Photography | Newborn & Maternity Photographer Northfield Adelaide",
-  description: "Gentle, unhurried newborn, maternity, family, and cake smash photography in Northfield, Adelaide. 56 five-star Google reviews. Sessions from $250.",
+  description: "Gentle, unhurried newborn, maternity, family, and cake smash photography in Northfield, Adelaide. 56 five-star Google reviews. Full prop styling and wardrobe provided.",
 };
 
 export default function RootLayout({

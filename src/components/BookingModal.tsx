@@ -92,7 +92,7 @@ export const BookingModal: React.FC = () => {
               </h2>
             </div>
             <p className="font-body text-xs text-[#423341]/80 mb-6">
-              Falguni's Photography • 26 South Pkwy, Northfield SA. Sessions start at $250.
+              Falguni's Photography • 26 South Pkwy, Northfield SA • Dedicated, unhurried portrait sessions
             </p>
 
             {errorMsg && (

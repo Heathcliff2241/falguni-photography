@@ -10,7 +10,7 @@ import { BookSessionButton } from './components/BookSessionButton';
 
 export const metadata: Metadata = {
   title: "Newborn & Maternity Photographer Northfield | Falguni's Photography",
-  description: "Gentle, unhurried newborn, maternity, family, and cake smash photography in Northfield, Adelaide. 56 five-star Google reviews. Sessions from $250.",
+  description: "Gentle, unhurried newborn, maternity, family, and cake smash photography in Northfield, Adelaide. 56 five-star Google reviews. Full prop styling and wardrobe provided.",
 };
 
 export default function HomePage() {
@@ -66,7 +66,7 @@ export default function HomePage() {
 
               {/* Hero CTAs */}
               <div className="pt-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-4 font-body">
-                <BookSessionButton label="Book Your Session ($250+)" />
+                <BookSessionButton label="Book Your Session" />
                 <a
                   href={`tel:${LOCAL_NAP.phone_clean}`}
                   className="bg-white border border-[#EFD4CE] text-[#423341] font-medium text-base px-6 py-4 rounded-full hover:bg-[#EFD4CE]/30 transition-colors flex items-center justify-center gap-2"
@@ -131,28 +131,28 @@ export default function HomePage() {
                 title: 'Newborn Photography',
                 path: '/services/newborn-photography',
                 desc: 'Best booked for 5-14 days after birth. Unhurried sessions with soft organic wraps, baskets, and floral wreaths.',
-                price: 'From $250',
+                highlight: 'All Wraps & Wreaths Provided',
                 tag: '5-14 Days'
               },
               {
                 title: 'Maternity Photography',
                 path: '/services/maternity-photography',
                 desc: 'Best booked 28-34 weeks. Flowing studio gowns and flattering lighting designed to celebrate your bump.',
-                price: 'From $250',
+                highlight: 'Studio Wardrobe Access',
                 tag: '28-34 Weeks'
               },
               {
                 title: 'Family Photography',
                 path: '/services/family-photography',
                 desc: 'Relaxed 45-60 minute sessions where kids play naturally instead of forcing stiff poses.',
-                price: 'From $250',
+                highlight: 'Unhurried Family Pacing',
                 tag: 'All Ages'
               },
               {
                 title: 'Cake Smash Photography',
                 path: '/services/cake-smash-photography',
                 desc: 'Celebrate your baby\'s first birthday with themed backdrops, smash cake, and full cleanup included.',
-                price: 'From $250',
+                highlight: 'Cake & Splash Bath Included',
                 tag: '1st Birthday'
               }
             ].map((s, idx) => (
@@ -173,7 +173,7 @@ export default function HomePage() {
                 </div>
 
                 <div className="pt-4 border-t border-[#EFD4CE]/50 flex items-center justify-between">
-                  <span className="font-semibold text-sm text-[#423341]">{s.price}</span>
+                  <span className="font-semibold text-xs text-[#52796F]">{s.highlight}</span>
                   <Link
                     href={s.path}
                     className="text-xs font-semibold text-[#423341] hover:text-[#A7B596] transition-colors"

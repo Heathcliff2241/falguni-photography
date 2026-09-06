@@ -82,7 +82,7 @@ export const SEOHead: React.FC<SEOHeadProps> = ({
       "description": description,
       "url": CENTRAL_SEO_CONFIG.siteUrl,
       "telephone": LOCAL_NAP.phone,
-      "priceRange": "$250 - $800",
+      "priceRange": "$$",
       "currenciesAccepted": "AUD",
       "address": {
         "@type": "PostalAddress",

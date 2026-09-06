@@ -43,7 +43,7 @@ export const MaternityView: React.FC<MaternityViewProps> = ({ onOpenBooking }) =
 
             <div className="bg-white p-5 rounded-2xl border border-[#EFD4CE] space-y-3 font-body text-xs text-[#423341]">
               <h3 className="font-display text-lg font-medium text-[#423341] border-b border-[#EFD4CE]/60 pb-2">
-                Included in Your $250+ Maternity Session
+                What's Included in Your Maternity Session
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <p className="flex items-center gap-2"><CheckCircle size={16} className="text-[#A7B596]" /> Full studio wardrobe of flowing gowns & silks</p>
