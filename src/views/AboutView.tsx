@@ -36,7 +36,7 @@ export const AboutView: React.FC<AboutViewProps> = ({ onOpenBooking }) => {
               {hero.body_copy}
             </p>
 
-            <div className="bg-white p-6 rounded-3xl border border-[#EFD4CE] space-y-3 font-body text-sm text-[#423341]">
+            <div className="bg-white p-6 rounded-3xl border border-[#EFD4CE] space-y-4 font-body text-sm text-[#423341]">
               <div className="flex items-center gap-1.5 text-[#A7B596]">
                 {[...Array(5)].map((_, i) => (
                   <Star key={i} size={18} weight="fill" />
@@ -45,9 +45,15 @@ export const AboutView: React.FC<AboutViewProps> = ({ onOpenBooking }) => {
                   56 Five-Star Google Reviews
                 </span>
               </div>
-              <p className="text-xs text-[#423341]/80 leading-relaxed">
-                Rather than rotating staff or rushing through back-to-back studio slots, Falguni personally shoots and styles every session. She takes pride in giving new parents a peaceful, warm environment where feeding breaks are welcomed and no baby is ever pressured to pose.
+              <p className="text-xs text-[#423341]/85 leading-relaxed">
+                Rather than rushing through commercial time-slots, Falguni dedicates herself fully to one family at a time. With dedicated training in newborn physiology, certified infant safety, gentle settling rhythms, and flattering maternal lighting, she ensures every portrait reflects museum-grade artistry and heartfelt care.
               </p>
+              <div className="pt-2 border-t border-[#EFD4CE]/60 grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-[#52796F]">
+                <p>• Certified infant handling & airway safety</p>
+                <p>• Baby-led, pressure-free gentle posing</p>
+                <p>• Sculptural directional maternity lighting</p>
+                <p>• Archival heirloom prints & luxury wardrobe</p>
+              </div>
             </div>
 
             <div className="pt-2 flex flex-col sm:flex-row items-center gap-4 font-body">

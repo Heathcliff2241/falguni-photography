@@ -18,8 +18,8 @@ export const LOCAL_NAP = {
   service_area: "Northfield, Lightsview, Klemzig, and greater Adelaide northern suburbs",
   rating: "5.0",
   review_count: 56,
-  experience: "3+ Years",
-  inclusions: "All wraps, props, and wardrobe styling included"
+  experience: "3+ Years Specialized Experience",
+  inclusions: "Certified newborn handling safety, baby-led gentle posing, sculptural maternity lighting, and full studio wardrobe included"
 };
 
 export const SITE_PAGES: Record<string, PageData> = {
@@ -28,26 +28,26 @@ export const SITE_PAGES: Record<string, PageData> = {
     url: "/",
     purpose: "Introduce the studio, establish the patient and gentle positioning, and route visitors directly to session details or booking.",
     meta_title: "Newborn & Maternity Photographer Northfield | Falguni's Photography",
-    meta_description: "Gentle, unhurried newborn, maternity, family, and cake smash photography in Northfield, Adelaide SA. 56 five-star Google reviews. Full prop styling and wardrobe provided. Book online.",
+    meta_description: "Gentle, unhurried newborn, maternity, family, and cake smash photography in Northfield, Adelaide SA. 56 five-star Google reviews. Certified infant safety, baby-led posing, and sculpted lighting. Book online.",
     sections: [
       {
         section_name: "hero",
         heading_tag: "h1",
         headline: "Newborn, Maternity and Family Photography in Northfield",
-        subheadline: "Unhurried portrait sessions paced around your baby, never a ticking timer.",
-        body_copy: "Hosted in our warm, dedicated Northfield studio, every session is personalized to your family's pace. We provide all wraps, headbands, backdrops, and maternity gowns so you never have to prepare props or feel rushed.",
+        subheadline: "Artful, unhurried portraiture guided by certified newborn handling, gentle posing, and sculpted studio light.",
+        body_copy: "Hosted in our warm 26°C Northfield sanctuary, every session is crafted around your baby's comfort and your family's rhythm. Falguni brings specialized expertise in delicate infant soothing, physiological safety, and flattering maternity lighting, with a curated wardrobe of organic wraps and couture gowns so you never have to prepare props or feel rushed.",
         cta_text: "Book Your Session",
         cta_path: "/contact",
         image_source: newbornWreath,
-        image_alt_text: "Newborn baby asleep on a green floral wreath backdrop with white roses, Northfield photography studio",
+        image_alt_text: "Newborn baby safely asleep on a green floral wreath backdrop with white roses, Northfield photography studio",
         seo_notes: "Target keywords newborn photography Northfield and maternity photographer Adelaide featured naturally."
       },
       {
         section_name: "services_overview",
         heading_tag: "h2",
-        headline: "Four Sessions, One Patient Photographer",
-        subheadline: "Every shoot is paced around your family, never a tight timer.",
-        body_copy: "Newborn, maternity, family, and cake smash sessions, each photographed at our Northfield studio with the same unhurried approach. Every session includes dedicated styling and a private online gallery.",
+        headline: "Boutique Artistry, One Patient Specialist",
+        subheadline: "Paced around your family with dedicated safety, gentle posing, and studio lighting expertise.",
+        body_copy: "From delicate 5-day-old infant posing to luminous maternity portraits, every session at our Northfield studio reflects Falguni's mastery of physiological baby safety, gentle calming techniques, and flattering lighting design.",
         cta_text: "View All Services",
         cta_path: "/services",
         image_source: newbornBlue,
@@ -84,14 +84,14 @@ export const SITE_PAGES: Record<string, PageData> = {
     url: "/services",
     purpose: "Route visitors to specific session pages based on what they need.",
     meta_title: "Photography Services in Northfield, Adelaide | Falguni's Photography",
-    meta_description: "Explore newborn, maternity, family, and cake smash photography sessions in Northfield, Adelaide. Comprehensive packages with full styling and props provided.",
+    meta_description: "Explore boutique newborn, maternity, family, and cake smash photography in Northfield, Adelaide. Certified newborn safety, baby-led posing, and fine-art maternity lighting.",
     sections: [
       {
         section_name: "hero",
         heading_tag: "h1",
-        headline: "Newborn, Maternity & Family Photography Services in Northfield",
-        subheadline: "Dedicated sessions designed around comfort, patience, and authentic family connection.",
-        body_copy: "Falguni's Photography offers four specialized studio sessions: newborn, maternity, family, and cake smash. All sessions are held at our private Northfield studio, serving families across Lightsview, Klemzig, and northern Adelaide. Every session includes full prop styling, unhurried shooting time, and private gallery delivery.",
+        headline: "Boutique Newborn, Maternity & Family Photography in Northfield",
+        subheadline: "Mastery in newborn handling, baby-led gentle posing, and sculpted studio lighting.",
+        body_copy: "Falguni's Photography offers dedicated studio sessions designed around comfort, patience, and authentic family connection. Serving families across Northfield, Lightsview, Klemzig, and northern Adelaide, Falguni pairs certified newborn handling and gentle soothing methods with artful directional lighting that flatters every expectant mother. Every session includes curated prop styling, unhurried studio time, and fine-art gallery delivery.",
         cta_text: "",
         image_source: maternityPurple,
         image_alt_text: "Maternity photography session in flowing purple gown, Northfield studio",
@@ -105,14 +105,14 @@ export const SITE_PAGES: Record<string, PageData> = {
     url: "/services/newborn-photography",
     purpose: "Convert expecting parents into booked newborn sessions.",
     meta_title: "Newborn Photography Northfield Adelaide | Gentle & Unhurried Sessions",
-    meta_description: "Specialist newborn photography in Northfield SA. Gentle 2 to 3 hour sessions timed to baby's rhythm. All wraps, wreaths, and props provided. Book online.",
+    meta_description: "Specialist newborn photography in Northfield SA. Certified gentle infant handling, baby-led posing, and warm 26°C sanctuary. All wraps and props provided. Book online.",
     sections: [
       {
         section_name: "hero",
         heading_tag: "h1",
         headline: "Newborn Photography in Northfield, Adelaide",
-        subheadline: "Calm, baby-led sessions during your little one's first two weeks.",
-        body_copy: "Newborn sessions are best scheduled between 5 and 14 days after birth, while babies still sleep soundly and curl up naturally. Our studio is heated to a comfortable 26°C, with built-in time for nursing, bottle breaks, and rocking to sleep. Sessions run 2 to 3 hours, so your baby sets the pace, not the clock.",
+        subheadline: "Certified gentle infant handling, soothing care, and natural baby-led posing in a heated sanctuary.",
+        body_copy: "Newborn sessions are best scheduled between 5 and 14 days after birth, while babies naturally curl into peaceful womb-like positions. Trained in physiological infant safety, Falguni employs calm soothing rhythms, gentle head-and-neck support, and breathable organic wraps to ensure baby remains content and deeply relaxed. Our dedicated Northfield studio is heated to an optimal 26°C with built-in pauses for feeding and snuggles, spanning 2 to 3 unhurried hours so your baby dictates the tempo.",
         cta_text: "Book Your Newborn Session",
         cta_path: "/contact",
         image_source: newbornBlue,
@@ -122,16 +122,20 @@ export const SITE_PAGES: Record<string, PageData> = {
     ],
     faq_block: [
       {
+        question: "How does Falguni ensure baby safety and gentle handling during the session?",
+        answer: "Baby safety and physiological comfort are Falguni's highest priorities. Every pose is completely baby-led and anatomically supported, never forcing limbs or straining joints. Falguni is experienced in certified infant handling, temperature regulation, and soothing reflex techniques. Our studio is maintained at 26°C, and a parent or assistant is always within arm's reach."
+      },
+      {
         question: "When should I book my newborn photoshoot?",
         answer: "Book while you are still pregnant, ideally in your second or third trimester. Newborn sessions happen 5 to 14 days after birth. Reserving early means Falguni reserves time around your estimated due date, then confirms the exact day once baby arrives."
       },
       {
-        question: "What if my baby cries or will not sleep during the shoot?",
-        answer: "That is completely normal, and every session is planned with extra time for feeding, burping, soothing, and cuddles. Falguni works at your baby's pace without any rushed timers."
+        question: "What if my baby is fussy, cluster-feeding, or won't settle?",
+        answer: "That is completely natural and warmly accommodated. Every session is planned with generous buffers for nursing, bottle breaks, burping, and gentle rocking. Falguni never rushes a session; your baby's calm comfort always leads the way."
       },
       {
         question: "What is included in a newborn photography session?",
-        answer: "Every newborn session covers full prop styling, curated wraps, floral wreaths, studio time in our warm 26°C environment, and a private proofing gallery. Wall art, heirloom print boxes, and full digital collections are available."
+        answer: "Every newborn session covers complete prop styling, organic hand-knitted wraps, floral wreaths, 2-3 hours in our heated 26°C studio, parent and sibling poses, and a private online proofing gallery. Archival heirloom print boxes, museum-grade canvas, and full digital collections are available."
       }
     ]
   },
@@ -140,14 +144,14 @@ export const SITE_PAGES: Record<string, PageData> = {
     url: "/services/maternity-photography",
     purpose: "Convert expecting mothers into booked maternity sessions.",
     meta_title: "Maternity Photography Adelaide | Studio Bump Shoots Northfield",
-    meta_description: "Celebrate pregnancy with elegant maternity photography in Northfield, Adelaide. Studio wardrobe gowns provided. Best booked at 28-34 weeks. Book online.",
+    meta_description: "Celebrate pregnancy with fine-art maternity photography in Northfield, Adelaide. Directional studio lighting, couture gowns, and flattering gentle posing. Book online.",
     sections: [
       {
         section_name: "hero",
         heading_tag: "h1",
         headline: "Maternity Photography in Northfield, Adelaide",
-        subheadline: "Celebrating your pregnancy with soft drapery and flattering studio light.",
-        body_copy: "Maternity sessions are scheduled between 28 and 34 weeks, when your bump is beautifully rounded and you can still move comfortably. You have full access to our studio wardrobe of chiffon gowns, lace dresses, and silk drapes. Partners and older siblings are warmly included.",
+        subheadline: "Celebrating motherhood with sculptural studio lighting, fluid couture silks, and gentle guided posing.",
+        body_copy: "Maternity sessions are scheduled between 28 and 34 weeks, when your bump is beautifully rounded and you can move with comfort. Falguni specializes in delicate directional lighting crafted to sculpt maternal contours and flatter skin tones with painterly elegance. You enjoy complete access to our luxury studio wardrobe of chiffon gowns, lace dresses, and silk drapery, paired with gentle posing guidance that feels natural and empowering. Partners and older siblings are warmly included.",
         cta_text: "Book Your Maternity Session",
         cta_path: "/contact",
         image_source: maternityPurple,
@@ -157,16 +161,20 @@ export const SITE_PAGES: Record<string, PageData> = {
     ],
     faq_block: [
       {
+        question: "How does Falguni's studio lighting flatter the maternal form?",
+        answer: "Falguni uses specialized directional and feathered studio lighting techniques designed specifically for maternity photography. This softly sculpts the bump silhouette, highlights natural contours, and casts a luminous, gentle glow over skin, creating timeless fine-art portraits."
+      },
+      {
         question: "What should I wear for my maternity shoot?",
-        answer: "Falguni provides a studio wardrobe of flowing gowns and wraps at no extra charge. If you prefer your own clothes, form-fitting solid colors photograph best."
+        answer: "Falguni provides an extensive studio wardrobe of couture flowing gowns, lace wraps, and silk drapes at no extra charge. If you prefer to bring personal outfits, form-fitting solid neutrals and textured knits photograph beautifully."
       },
       {
         question: "Can my partner and children join the photos?",
-        answer: "Yes. Partner and sibling portraits are included in every maternity session at no extra charge."
+        answer: "Yes, warmly. Partner connection and sibling moments are integral to celebrating your growing family and are seamlessly included in every maternity session."
       },
       {
         question: "When should I schedule my maternity shoot?",
-        answer: "Between 28 and 34 weeks is the ideal window. Your bump is well defined, but you are still comfortable moving and standing."
+        answer: "Between 28 and 34 weeks is the ideal window. Your bump is gorgeously defined, while you still feel energized and comfortable moving through gentle poses."
       }
     ]
   },

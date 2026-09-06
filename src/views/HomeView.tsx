@@ -129,29 +129,29 @@ export const HomeView: React.FC<HomeViewProps> = ({ onOpenBooking }) => {
               {
                 title: 'Newborn Photography',
                 path: '/services/newborn-photography',
-                desc: 'Best booked for 5-14 days after birth. Unhurried sessions with soft organic wraps, baskets, and floral wreaths.',
-                highlight: 'All Wraps & Wreaths Provided',
+                desc: 'Best booked for 5-14 days after birth. Certified infant handling, soothing care, and baby-led gentle posing in our heated 26°C sanctuary.',
+                highlight: 'Safe Infant Handling & Posing',
                 tag: '5-14 Days'
               },
               {
                 title: 'Maternity Photography',
                 path: '/services/maternity-photography',
-                desc: 'Best booked 28-34 weeks. Flowing studio gowns and flattering lighting designed to celebrate your bump.',
-                highlight: 'Studio Wardrobe Access',
+                desc: 'Best booked 28-34 weeks. Sculptural directional lighting and couture gowns tailored to celebrate your maternal silhouette.',
+                highlight: 'Sculptural Lighting & Wardrobe',
                 tag: '28-34 Weeks'
               },
               {
                 title: 'Family Photography',
                 path: '/services/family-photography',
-                desc: 'Relaxed 45-60 minute sessions where kids play naturally instead of forcing stiff poses.',
-                highlight: 'Unhurried Family Pacing',
+                desc: 'Relaxed 45-60 minute sessions where kids play naturally instead of forcing stiff poses, capturing genuine connection.',
+                highlight: 'Play-Led Natural Connection',
                 tag: 'All Ages'
               },
               {
                 title: 'Cake Smash Photography',
                 path: '/services/cake-smash-photography',
-                desc: 'Celebrate your baby\'s first birthday with themed backdrops, smash cake, and full cleanup included.',
-                highlight: 'Cake & Splash Bath Included',
+                desc: 'Celebrate your baby\'s first birthday with bespoke themed sets, smash cake, warm splash bath, and full studio cleanup.',
+                highlight: 'Bespoke Theme & Splash Bath',
                 tag: '1st Birthday'
               }
             ].map((s, idx) => (

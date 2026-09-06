@@ -20,33 +20,33 @@ export default function ServicesPage() {
       id: 'newborn',
       title: 'Newborn Photography',
       url: '/services/newborn-photography',
-      sub: '5-14 Days After Birth • 2-3 Hours',
-      desc: 'Gentle, unhurried sessions with full access to Falguni\'s Northfield studio wraps, headbands, baskets, and eucalyptus wreath backdrops.',
-      feature: 'All wraps, bonnets & wreaths provided'
+      sub: '5-14 Days After Birth • 2-3 Hours • 26°C Sanctuary',
+      desc: 'Certified infant handling safety, deep soothing rhythms, and baby-led gentle posing with full access to organic wraps, bonnets, and floral wreaths.',
+      feature: 'Certified Infant Handling & Baby-Led Posing'
     },
     {
       id: 'maternity',
       title: 'Maternity Photography',
       url: '/services/maternity-photography',
-      sub: '28-34 Weeks Pregnant • 60 Minutes',
-      desc: 'Flowing gowns and draped fabrics designed to make a third-trimester body feel celebrated. Partners and older siblings welcome.',
-      feature: 'Full studio wardrobe & silk drapes'
+      sub: '28-34 Weeks Pregnant • 60 Minutes • Fine-Art Lighting',
+      desc: 'Masterful sculptural studio lighting and fluid couture gowns designed to celebrate the maternal curve. Partner and sibling portraits included.',
+      feature: 'Sculptural Lighting & Couture Studio Wardrobe'
     },
     {
       id: 'family',
       title: 'Family Photography',
       url: '/services/family-photography',
-      sub: '45-60 Minutes • All Ages',
-      desc: 'Relaxed sessions with games and short breaks so kids smile naturally without forced poses or tight studio clocks.',
-      feature: 'Play-led posing & unhurried atmosphere'
+      sub: '45-60 Minutes • All Ages • Natural Connection',
+      desc: 'Unhurried, joyful sessions with playful guidance and breaks so children smile naturally without rigid posing or ticking timers.',
+      feature: 'Play-Led Posing & Authentic Connection'
     },
     {
       id: 'cake-smash',
       title: 'Cake Smash Photography',
       url: '/services/cake-smash-photography',
-      sub: 'First Birthday Milestone • 45 Minutes',
-      desc: 'Celebratory first birthday sessions with themed backdrop, smash cake, portrait setups, and full studio cleanup included.',
-      feature: 'Themed setup, cake & splash bath'
+      sub: 'First Birthday Milestone • 45 Minutes • Pure Joy',
+      desc: 'Bespoke first birthday celebrations with themed backdrops, custom smash cake, celebratory portraits, warm splash bath, and full studio cleanup.',
+      feature: 'Bespoke Styling, Smash Cake & Splash Bath'
     }
   ];
 
@@ -58,7 +58,7 @@ export default function ServicesPage() {
           <div className="flex items-center justify-center gap-2">
             <BotanicalRose color="sage" size={32} />
             <span className="font-body text-xs font-semibold uppercase tracking-widest text-[#A7B596]">
-              Northfield Studio Packages
+              Boutique Northfield Studio
             </span>
             <BotanicalRose color="blush" size={32} />
           </div>
@@ -74,6 +74,38 @@ export default function ServicesPage() {
           <p className="font-body text-base text-[#423341]/80 leading-relaxed">
             {hero.body_copy}
           </p>
+        </div>
+
+        {/* Quality & Expertise Pillar Bar */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-8 pt-4">
+          <div className="bg-white/80 backdrop-blur-sm p-5 rounded-2xl border border-[#EFD4CE] shadow-sm space-y-1.5 font-body">
+            <span className="text-xs font-semibold text-[#52796F] uppercase tracking-wider block">Safety & Care</span>
+            <h3 className="font-display text-lg font-medium text-[#423341]">Certified Infant Handling</h3>
+            <p className="text-xs text-[#423341]/75 leading-relaxed">
+              Trained in newborn physiology, airway safety, and calming reflex techniques in a warm 26°C sanctuary.
+            </p>
+          </div>
+          <div className="bg-white/80 backdrop-blur-sm p-5 rounded-2xl border border-[#EFD4CE] shadow-sm space-y-1.5 font-body">
+            <span className="text-xs font-semibold text-[#52796F] uppercase tracking-wider block">Artful Anatomy</span>
+            <h3 className="font-display text-lg font-medium text-[#423341]">Gentle, Baby-Led Posing</h3>
+            <p className="text-xs text-[#423341]/75 leading-relaxed">
+              Poses follow your baby’s natural flexibility and comfort, never forcing awkward positions.
+            </p>
+          </div>
+          <div className="bg-white/80 backdrop-blur-sm p-5 rounded-2xl border border-[#EFD4CE] shadow-sm space-y-1.5 font-body">
+            <span className="text-xs font-semibold text-[#52796F] uppercase tracking-wider block">Fine-Art Aesthetics</span>
+            <h3 className="font-display text-lg font-medium text-[#423341]">Sculptural Studio Lighting</h3>
+            <p className="text-xs text-[#423341]/75 leading-relaxed">
+              Soft feathered lighting designed to celebrate maternal curves and produce painterly skin tones.
+            </p>
+          </div>
+          <div className="bg-white/80 backdrop-blur-sm p-5 rounded-2xl border border-[#EFD4CE] shadow-sm space-y-1.5 font-body">
+            <span className="text-xs font-semibold text-[#52796F] uppercase tracking-wider block">Heirloom Standard</span>
+            <h3 className="font-display text-lg font-medium text-[#423341]">Museum-Grade Keepsakes</h3>
+            <p className="text-xs text-[#423341]/75 leading-relaxed">
+              Unhurried sessions paired with archival print finishes and bespoke heirloom box collections.
+            </p>
+          </div>
         </div>
 
         <BotanicalVineDivider />

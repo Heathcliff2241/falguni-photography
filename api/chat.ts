@@ -2,6 +2,10 @@ import { GoogleGenAI } from '@google/genai';
 import nodemailer from 'nodemailer';
 import fs from 'fs';
 import path from 'path';
+import {
+  renderClientBookingEmail,
+  renderStudioLeadEmail
+} from '../server/emailTemplates';
 
 // --- Types ---
 interface ChatHistoryItem {
@@ -29,7 +33,6 @@ interface ClientNotificationResult {
   recipientPhone: string;
   subject: string;
   htmlBody: string;
-  smsBody: string;
   referenceNumber: string;
   timestamp: string;
 }
@@ -72,8 +75,11 @@ Inside <thinking>, explicitly analyze:
 
 STUDIO KNOWLEDGE & DIRECTIVES:
 - ALWAYS ANSWER THE USER'S QUESTION DIRECTLY FIRST!
+- Falguni's Signature Expertise: Emphasize certified newborn handling safety, physiological soothing techniques, baby-led gentle posing, and sculptural fine-art maternity lighting.
 - We offer four boutique portrait sessions: Newborn Photography (2-3 hour baby-led in warm 26°C studio, wraps/bonnets/props provided), Maternity Photography (28-34 weeks, luxury gowns/silk drapes included, partners welcome), Family Portraits (45-60 min relaxed play-led), and Cake Smash & 1st Birthday (themed decor, smash cake, and warm splash bath included).
 - All sessions are complete boutique experiences with private proofing galleries and bespoke print/album/digital collections.
+- We never rush sessions: newborn sessions are 2-3 unhurried hours in a warm 26°C sanctuary with unlimited nursing/feeding pauses.
+- Maternity sessions use sculptural directional lighting to celebrate the maternal silhouette, paired with access to a couture gown and silk wardrobe.
 - NEVER repeat a generic greeting or re-ask for details already provided in context.
 - Keep the tone deeply gentle, caring, and professional.
 - ABSOLUTELY NO EMOJIS AND NO EM DASHES (— OR – OR --) in the final response.
@@ -91,16 +97,16 @@ function getSmartFallbackReply(message: string): string {
     lower.includes('what do you') ||
     lower.includes('types')
   ) {
-    return "We offer four boutique portrait sessions at Falguni's studio:\n\n1. Newborn Photography: Peaceful 2 to 3 hour baby-led sessions in our warm 26°C studio, ideal in the first 5 to 14 days. Includes all wraps, bonnets, floral wreaths, handcrafted props, and family posing.\n2. Maternity Photography: Celebrates your pregnancy journey between 28 and 34 weeks, with full access to our studio gown wardrobe and silk drapes. Partners and siblings are warmly included.\n3. Family Portraits: Relaxed 45 to 60 minute play-focused sessions capturing genuine smiles and connection.\n4. Cake Smash & 1st Birthday: Milestone portraits, custom balloon decor, a delicious smash cake, and a warm splash bath in a vintage tub with full studio cleanup included.\n\nWhich session type interests you, or would you like me to check Falguni's calendar for an upcoming date?";
+    return "We offer four boutique portrait sessions at Falguni's studio:\n\n1. Newborn Photography: Certified safe infant handling and gentle, baby-led posing in our warm 26°C sanctuary (best booked 5 to 14 days after birth). Includes organic wraps, bonnets, floral wreaths, and family connection portraits.\n2. Maternity Photography: Sculptural studio lighting and couture gowns celebrating your pregnancy journey between 28 and 34 weeks. Partners and siblings are warmly included.\n3. Family Portraits: Relaxed 45 to 60 minute play-focused sessions capturing natural laughter and authentic connection.\n4. Cake Smash & 1st Birthday: Custom themed decor, delicious smash cake, milestone portraits, and a warm splash bath with full studio cleanup included.\n\nWhich session type interests you, or would you like me to check Falguni's calendar for an upcoming date?";
   }
   if (lower.includes('price') || lower.includes('cost') || lower.includes('how much') || lower.includes('rate') || lower.includes('package') || lower.includes('fee')) {
-    return "Every session at Falguni's Photography, whether newborn, maternity, family, or cake smash, is a complete boutique experience. This includes dedicated, unhurried studio time, complete access to our curated newborn wraps, floral wreaths, hand-crafted props, and luxury maternity gown wardrobe, followed by a private proofing gallery of beautifully edited portraits with bespoke print, album, and digital collections available. Which type of session are you thinking about booking?";
+    return "Every session at Falguni's Photography is an unhurried, boutique experience focused on quality, safety, and artistry rather than rushed commercial time slots. Falguni is certified in newborn handling and specializes in gentle, baby-led posing and sculptural maternity lighting. Each session includes dedicated studio time, curated styling, and a private proofing gallery with bespoke archival print, album, and digital collection options. Which type of session are you planning?";
   }
   if (lower.includes('newborn') || lower.includes('baby') || lower.includes('infant')) {
-    return "Our newborn sessions are completely baby-led and unhurried, lasting 2 to 3 hours in our cozy, temperature-controlled studio with unlimited feeding and soothing breaks. We love capturing your little one in their first 5 to 14 days of life. All wraps, bonnets, and floral styling are lovingly provided. What is your estimated due date or baby's birth date?";
+    return "Our newborn sessions emphasize certified infant handling safety, gentle baby-led posing, and unhurried soothing care, lasting 2 to 3 hours in our heated 26°C sanctuary with unlimited nursing pauses. All organic wraps, bonnets, and floral wreaths are lovingly provided. What is your estimated due date or baby's birth date?";
   }
   if (lower.includes('maternity') || lower.includes('pregnant') || lower.includes('bump') || lower.includes('gown') || lower.includes('dress')) {
-    return "Maternity sessions are a beautiful celebration of your journey! We recommend scheduling between 28 and 34 weeks, when your bump is comfortably rounded. You are invited to wear any of our studio gowns and silk drapes, and partners and siblings are always warmly included. What month or date range works best for you?";
+    return "Maternity sessions celebrate your pregnancy with Falguni's signature sculptural studio lighting, delicately flattering maternal contours, alongside access to our couture gown and silk wardrobe. Partners and siblings are always warmly included (best booked 28 to 34 weeks). What month or date range works best for you?";
   }
   if (lower.includes('family') || lower.includes('kids') || lower.includes('children') || lower.includes('parents')) {
     return "Our family sessions are relaxed and play-focused, lasting around 45 to 60 minutes. We create an encouraging, pressure-free atmosphere where children can laugh and be themselves, resulting in natural family portraits. Would you like to check Falguni's availability for an upcoming weekend or weekday session?";
@@ -112,7 +118,7 @@ function getSmartFallbackReply(message: string): string {
     return "Falguni's studio is located at 26 South Pkwy, Northfield SA 5085, Australia. It is a quiet, comfortable sanctuary with easy driveway parking and dedicated nursing nooks. May I ask your name and preferred session date so I can check our schedule for you?";
   }
   if (lower.includes('falguni') || lower.includes('photographer') || lower.includes('who') || lower.includes('experience')) {
-    return "Falguni is a specialized portrait photographer with over 3 years of experience and 56 five-star Google reviews. She is trained in newborn safety and gentle soothing techniques, creating a serene environment where parents can relax while she photographs your family. Would you like to reserve a date on Falguni's calendar?";
+    return "Falguni is a specialized portrait photographer with over 3 years of experience and 56 five-star Google reviews. She holds dedicated training in certified newborn handling, infant airway safety, gentle baby-led posing, and sculptural maternity lighting. Would you like to reserve a date on Falguni's calendar?";
   }
   if (lower.includes('book') || lower.includes('reserve') || lower.includes('schedule') || lower.includes('date') || lower.includes('time')) {
     return "I would be delighted to help reserve your date right here. To hold your spot on Falguni's calendar, could you share your Full Name, Phone Number, Email Address, and your preferred session date or due date?";
@@ -157,14 +163,18 @@ function saveLeadSafe(lead: Partial<BookingLead>): BookingLead {
   return fullLead;
 }
 
-// --- Safe Email Dispatch ---
-async function dispatchLeadNotification(lead: BookingLead): Promise<void> {
+// --- Safe Styled Email Dispatch ---
+async function dispatchLeadNotification(lead: BookingLead, refNum: string, nowStr: string): Promise<void> {
   const smtpUser = process.env.SMTP_USER;
   const smtpPass = process.env.SMTP_PASS;
   if (!smtpUser || !smtpPass) {
-    console.log('[LEAD CAPTURED] Details:', lead.fullName, lead.phone, lead.email);
+    console.log('[LEAD CAPTURED] Notification logged (SMTP_USER/PASS not set):', lead.fullName, lead.phone, lead.email);
     return;
   }
+
+  const studioEmail = renderStudioLeadEmail(lead, refNum, nowStr);
+  const clientEmail = renderClientBookingEmail(lead, refNum, nowStr);
+  const smtpFrom = process.env.SMTP_FROM || `"Falguni's Photography" <noreply@falgunisphotography.com.au>`;
 
   try {
     const transporter = nodemailer.createTransport({
@@ -172,16 +182,37 @@ async function dispatchLeadNotification(lead: BookingLead): Promise<void> {
       port: 587,
       secure: false,
       auth: { user: smtpUser, pass: smtpPass },
-      connectionTimeout: 5000,
-      greetingTimeout: 5000
+      connectionTimeout: 8000,
+      greetingTimeout: 8000
     });
 
-    await transporter.sendMail({
-      from: process.env.SMTP_FROM || `"Falguni's Photography" <noreply@falgunisphotography.com.au>`,
-      to: 'cesaresmero2@gmail.com',
-      subject: `New Lead: ${lead.fullName} (${lead.serviceRequested}) - Falguni's Photography`,
-      text: `Name: ${lead.fullName}\nPhone: ${lead.phone}\nEmail: ${lead.email}\nService: ${lead.serviceRequested}\nDate: ${lead.preferredDate}\nNotes: ${lead.notes}`
-    });
+    const sendPromises: Promise<any>[] = [
+      // 1. Studio notification to Falguni / owner
+      transporter.sendMail({
+        from: smtpFrom,
+        to: 'cesaresmero2@gmail.com',
+        subject: studioEmail.subject,
+        html: studioEmail.html,
+        text: studioEmail.text
+      }).then(() => console.log('[EMAIL] Successfully sent styled lead notification to studio (cesaresmero2@gmail.com)'))
+        .catch(err => console.error('[EMAIL ERROR] Failed sending to studio:', err))
+    ];
+
+    // 2. Client confirmation email sent directly to client
+    if (lead.email && lead.email.includes('@')) {
+      sendPromises.push(
+        transporter.sendMail({
+          from: smtpFrom,
+          to: lead.email,
+          subject: clientEmail.subject,
+          html: clientEmail.html,
+          text: clientEmail.text
+        }).then(() => console.log(`[EMAIL] Successfully sent styled confirmation email to client (${lead.email})`))
+          .catch(err => console.error(`[EMAIL ERROR] Failed sending to client (${lead.email}):`, err))
+      );
+    }
+
+    await Promise.allSettled(sendPromises);
   } catch (err) {
     console.warn('[EMAIL NOTIFICATION SKIPPED/ERROR]:', err);
   }
@@ -325,19 +356,21 @@ async function processPoppy(message: string, history: ChatHistoryItem[] = []) {
         transcript: transcriptFormatted
       });
 
-      // Non-blocking email dispatch
-      dispatchLeadNotification(leadRecord).catch(() => {});
-
       const refNum = `FALGUNI-BK-${Math.floor(1000 + Math.random() * 9000)}`;
       const nowStr = new Date().toLocaleString('en-AU', { timeZone: 'Australia/Adelaide', dateStyle: 'full', timeStyle: 'short' });
+      const clientEmailData = renderClientBookingEmail(leadRecord, refNum, nowStr);
+
+      // Non-blocking styled email dispatch to BOTH studio and client
+      dispatchLeadNotification(leadRecord, refNum, nowStr).catch(err => {
+        console.warn('Background email dispatch error:', err);
+      });
 
       clientNotification = {
         sent: true,
         recipientEmail: leadRecord.email,
         recipientPhone: leadRecord.phone,
-        subject: `Booking Request Received: Falguni's Photography (Ref #${refNum})`,
-        htmlBody: `Thank you ${leadRecord.fullName}! Your session request for ${leadRecord.serviceRequested} has been received. Falguni will contact you within 24 hours.`,
-        smsBody: `Hi ${leadRecord.fullName}! Your session request for ${leadRecord.serviceRequested} is received (Ref #${refNum}). Falguni will call or email you within 24 hours.`,
+        subject: clientEmailData.subject,
+        htmlBody: clientEmailData.html,
         referenceNumber: refNum,
         timestamp: nowStr
       };

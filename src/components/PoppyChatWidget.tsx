@@ -466,10 +466,10 @@ export const PoppyChatWidget: React.FC<PoppyChatWidgetProps> = ({ onOpenBooking 
                     </div>
 
                     <div className="bg-[#FBF6EF] p-2.5 rounded-2xl border border-[#EFD4CE] text-[11px] text-[#423341]/80 space-y-1">
-                      <div className="flex items-center gap-1.5 font-semibold text-[#A7B596]">
-                        <EnvelopeSimple size={14} /> Notifications Dispatched!
+                      <div className="flex items-center gap-1.5 font-semibold text-[#52796F]">
+                        <EnvelopeSimple size={14} /> Email Confirmation Dispatched!
                       </div>
-                      <p>Formal booking receipt & session styling guide sent to <strong>{m.bookingExtracted.email || 'client email'}</strong> and phone SMS notification.</p>
+                      <p>Boutique booking confirmation & session styling guide sent directly to <strong>{m.bookingExtracted.email || 'your email'}</strong> (Email notification only).</p>
                     </div>
 
                     <div className="pt-1 flex flex-col gap-2 text-xs">
@@ -478,7 +478,7 @@ export const PoppyChatWidget: React.FC<PoppyChatWidgetProps> = ({ onOpenBooking 
                           onClick={() => setActiveNotificationModal(m.bookingExtracted.notification)}
                           className="w-full bg-[#EFD4CE] hover:bg-[#ebd0ca] text-[#423341] font-semibold py-2.5 px-4 rounded-2xl rounded-bl-xs transition-all flex items-center justify-center gap-2 cursor-pointer shadow-2xs border border-[#e0beba]"
                         >
-                          <Eye size={16} /> View Email & SMS Notification Sent
+                          <Eye size={16} /> View Styled Confirmation Email Sent
                         </button>
                       )}
 
@@ -598,38 +598,49 @@ export const PoppyChatWidget: React.FC<PoppyChatWidgetProps> = ({ onOpenBooking 
 
             {/* Email Preview Section */}
             <div className="space-y-2">
-              <div className="flex items-center justify-between text-xs font-semibold text-[#423341]/80">
-                <span>Email Notification Sent To:</span>
-                <span className="text-[#A7B596] font-mono">{activeNotificationModal.recipientEmail}</span>
+              <div className="flex flex-wrap items-center justify-between gap-1 text-xs font-semibold text-[#423341]/80">
+                <span className="flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse inline-block"></span>
+                  Email Dispatched Directly To Client:
+                </span>
+                <span className="text-[#52796F] font-mono bg-[#A7B596]/20 px-2 py-0.5 rounded-full">{activeNotificationModal.recipientEmail}</span>
               </div>
-              <div className="bg-white p-4 rounded-2xl border border-[#EFD4CE] text-xs text-[#423341] shadow-inner space-y-2">
-                <p className="font-bold border-b border-neutral-100 pb-2 text-sm text-[#423341]">
-                  Subject: {activeNotificationModal.subject}
-                </p>
-                <div
-                  className="prose prose-sm max-w-none text-xs"
-                  dangerouslySetInnerHTML={{ __html: activeNotificationModal.htmlBody }}
-                />
+
+              {/* Styled Email Client Frame */}
+              <div className="bg-white rounded-2xl border border-[#EFD4CE] text-xs text-[#423341] shadow-md overflow-hidden">
+                <div className="bg-[#423341] text-[#FBF6EF] px-4 py-3 text-xs space-y-1">
+                  <div className="flex justify-between items-center text-[11px] text-[#EFD4CE]/80">
+                    <span>From: Falguni's Photography &lt;noreply@falgunisphotography.com.au&gt;</span>
+                    <span>Ref #{activeNotificationModal.referenceNumber}</span>
+                  </div>
+                  <p className="font-semibold text-sm text-[#FBF6EF] pt-0.5">
+                    {activeNotificationModal.subject}
+                  </p>
+                </div>
+                <div className="p-4 max-h-[45vh] overflow-y-auto bg-neutral-50/50">
+                  <div
+                    className="prose prose-sm max-w-none text-xs"
+                    dangerouslySetInnerHTML={{ __html: activeNotificationModal.htmlBody }}
+                  />
+                </div>
               </div>
             </div>
 
-            {/* SMS Preview Section */}
-            <div className="space-y-2 pt-2 border-t border-[#EFD4CE]">
-              <div className="flex items-center justify-between text-xs font-semibold text-[#423341]/80">
-                <span>SMS Notification Text Sent To:</span>
-                <span className="text-[#A7B596] font-mono">{activeNotificationModal.recipientPhone}</span>
-              </div>
-              <div className="bg-[#423341] text-[#FBF6EF] p-3.5 rounded-2xl text-xs font-mono leading-relaxed shadow-xs">
-                {activeNotificationModal.smsBody}
+            {/* Email Only Policy Banner (No SMS) */}
+            <div className="p-3 bg-[#A7B596]/15 rounded-2xl border border-[#A7B596]/40 flex items-start gap-2.5 text-[11px] text-[#423341]/80 leading-relaxed">
+              <EnvelopeSimple size={18} className="text-[#52796F] shrink-0 mt-0.5" />
+              <div>
+                <strong className="text-[#423341] block">Email-Only Notification Policy</strong>
+                Falguni's Photography sends booking confirmations, styling preparations, and proofing portals exclusively via email. No marketing SMS or automated text messages are sent to your phone.
               </div>
             </div>
 
             <div className="pt-2 text-center">
               <button
                 onClick={() => setActiveNotificationModal(null)}
-                className="bg-[#A7B596] text-[#423341] font-semibold text-sm px-6 py-2.5 rounded-full hover:bg-[#96a585] transition-colors cursor-pointer min-h-[44px]"
+                className="bg-[#A7B596] hover:bg-[#96a585] text-[#423341] font-semibold text-sm px-6 py-2.5 rounded-full transition-colors cursor-pointer min-h-[44px] shadow-sm"
               >
-                Close Notification Preview
+                Close Email Preview
               </button>
             </div>
           </div>

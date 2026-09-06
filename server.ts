@@ -4,7 +4,11 @@ import fs from 'fs';
 import { createServer as createViteServer } from 'vite';
 import { processPoppyChat } from './server/poppyAgent';
 import { saveLead, getAllLeads } from './server/db';
-import { sendLeadNotificationEmail } from './server/email';
+import {
+  sendLeadNotificationEmail,
+  sendClientConfirmationNotification,
+  sendClientContactNotification
+} from './server/email';
 
 const PORT = 3000;
 
@@ -46,11 +50,15 @@ async function startServer() {
         source: source || 'direct_form'
       });
 
-      await sendLeadNotificationEmail(lead);
+      // Dispatch styled notification emails to both Studio and Client
+      await Promise.allSettled([
+        sendLeadNotificationEmail(lead),
+        sendClientConfirmationNotification(lead)
+      ]);
 
       res.json({
         status: 'ok',
-        message: "Got it, thank you! I've passed your details along to Falguni. She'll confirm your session by phone or email within 24 hours. If your dates are flexible, mention that and she'll do her best to work around them.",
+        message: "Got it, thank you! I've passed your details along to Falguni. A styled booking confirmation has been sent to your email, and Falguni will confirm your session within 24 hours.",
         leadId: lead.id
       });
     } catch (err) {
@@ -76,11 +84,15 @@ async function startServer() {
         source: 'contact_page'
       });
 
-      await sendLeadNotificationEmail(lead);
+      // Dispatch styled notification emails to both Studio and Client
+      await Promise.allSettled([
+        sendLeadNotificationEmail(lead),
+        sendClientContactNotification(lead)
+      ]);
 
       res.json({
         status: 'ok',
-        message: "Got it, thank you! I've passed your details along to Falguni. She'll confirm your session by phone or email within 24 hours.",
+        message: "Got it, thank you! Your message has been sent to Falguni, and a confirmation copy has been sent to your email.",
         leadId: lead.id
       });
     } catch (err) {
@@ -154,19 +166,19 @@ ${urls.map(u => `  <url>
   const pageMeta: Record<string, { title: string; desc: string }> = {
     '/': {
       title: "Newborn & Maternity Photographer Northfield | Falguni's",
-      desc: "Gentle, unhurried newborn, maternity, and family photography in Northfield, Adelaide. 56 five-star reviews. Full prop styling and wardrobe provided."
+      desc: "Gentle, unhurried newborn, maternity, and family photography in Northfield, Adelaide. 56 five-star reviews. Certified infant safety, baby-led posing, and fine-art maternity lighting."
     },
     '/services': {
       title: "Photography Services in Northfield | Falguni's Photography",
-      desc: "Newborn, maternity, family, and cake smash photography in Northfield, Adelaide. Full prop styling and wardrobe provided. See all sessions."
+      desc: "Boutique newborn, maternity, family, and cake smash photography in Northfield, Adelaide. Certified newborn safety, baby-led posing, and sculptural studio lighting."
     },
     '/services/newborn-photography': {
       title: "Newborn Photography Northfield, Adelaide | Falguni's",
-      desc: "Gentle newborn photography in Northfield, Adelaide. Sessions booked for the first 5-14 days. Wraps, headbands, and floral wreaths included. Book while pregnant."
+      desc: "Specialist newborn photography in Northfield, Adelaide. Certified infant handling safety, gentle baby-led posing, and heated 26°C sanctuary. Book while pregnant."
     },
     '/services/maternity-photography': {
       title: "Maternity Photography Northfield, Adelaide | Falguni's",
-      desc: "Maternity photography in Northfield, Adelaide. Best booked 28-34 weeks. Gowns and backdrops included, unhurried studio pacing. Partners welcome."
+      desc: "Fine-art maternity photography in Northfield, Adelaide. Sculptural studio lighting, couture gowns, and gentle guided posing celebrating motherhood."
     },
     '/services/family-photography': {
       title: "Family Photography Northfield, Adelaide | Falguni's",
@@ -243,12 +255,12 @@ ${urls.map(u => `  <url>
         { "@type": "City", "name": "Adelaide" }
       ],
       "knowsAbout": [
-        "Newborn Photography",
-        "Maternity Photography",
-        "Family Portraits",
-        "Cake Smash Photography",
-        "Baby Props & Wardrobe",
-        "Infant Soothing"
+        "Newborn Handling Safety",
+        "Gentle Baby-Led Infant Posing",
+        "Maternity Sculptural Studio Lighting",
+        "Infant Soothing & Settling Techniques",
+        "Fine-Art Maternity Portraiture",
+        "Heirloom Archival Photography"
       ],
       "hasOfferCatalog": {
         "@type": "OfferCatalog",
@@ -259,7 +271,7 @@ ${urls.map(u => `  <url>
             "itemOffered": {
               "@type": "Service",
               "name": "Newborn Photography Session",
-              "description": "2-3 hour gentle newborn shoot with full props, wraps, and parent poses."
+              "description": "2-3 hour gentle newborn shoot with certified infant handling, baby-led posing, wraps, heated 26°C sanctuary, and parent poses."
             }
           },
           {
@@ -267,7 +279,7 @@ ${urls.map(u => `  <url>
             "itemOffered": {
               "@type": "Service",
               "name": "Maternity Photography Session",
-              "description": "Studio maternity session with gown wardrobe and partner inclusion."
+              "description": "Studio maternity session with sculptural directional lighting, luxury couture gown wardrobe, and partner inclusion."
             }
           },
           {

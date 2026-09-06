@@ -14,7 +14,7 @@ export const CENTRAL_SEO_CONFIG = {
   siteName: "Falguni's Photography",
   defaultTitle: "Newborn & Maternity Photographer Northfield | Falguni's Photography",
   titleTemplate: "%s | Falguni's Photography Northfield Adelaide",
-  defaultDescription: "Gentle, unhurried newborn, maternity, family, and cake smash photography in Northfield, Adelaide SA. 56 five-star Google reviews. Full prop styling and wardrobe provided.",
+  defaultDescription: "Gentle, unhurried newborn, maternity, family, and cake smash photography in Northfield, Adelaide SA. 56 five-star Google reviews. Certified infant safety, baby-led gentle posing, and sculptural maternity lighting.",
   siteUrl: "https://falgunicreativephotography.com.au",
   defaultImage: "/assets/newborn_floral_wreath.jpg",
   
@@ -55,14 +55,15 @@ export const CENTRAL_SEO_CONFIG = {
     "Falguni photography Northfield",
     "Adelaide newborn photo studio",
     "gentle baby photography Adelaide",
-    "affordable newborn photoshoot Adelaide"
+    "certified newborn safety photographer Adelaide",
+    "fine art maternity lighting Adelaide"
   ],
 
   // Route-Specific Centralized Metadata Engine
   routeMetadata: {
     '/': {
       title: "Newborn & Maternity Photographer Northfield | Falguni's Photography",
-      description: "Gentle, unhurried newborn, maternity, family, and cake smash photography in Northfield, Adelaide SA. 56 five-star Google reviews. Full prop styling and wardrobe provided.",
+      description: "Gentle, unhurried newborn, maternity, family, and cake smash photography in Northfield, Adelaide SA. 56 five-star Google reviews. Certified infant handling safety, baby-led posing, and fine-art maternity lighting.",
       keywords: [
         "newborn photography Northfield",
         "maternity photography Adelaide",
@@ -75,36 +76,38 @@ export const CENTRAL_SEO_CONFIG = {
     },
     '/services': {
       title: "Photography Services in Northfield, Adelaide | Falguni's Photography",
-      description: "Explore newborn, maternity, family, and cake smash photography sessions in Northfield, Adelaide. Comprehensive packages with full styling and props provided.",
+      description: "Explore boutique newborn, maternity, family, and cake smash photography in Northfield, Adelaide. Certified newborn safety, baby-led posing, and sculptural studio lighting.",
       keywords: [
         "photography services Northfield",
-        "baby photo packages Adelaide",
-        "newborn photoshoot rates SA",
-        "maternity packages Northfield"
+        "boutique baby photoshoot Adelaide",
+        "fine art newborn photographer SA",
+        "maternity studio lighting Northfield"
       ],
-      h1: "Newborn, Maternity & Family Photography Services in Northfield",
+      h1: "Boutique Newborn, Maternity & Family Photography in Northfield",
       canonicalPath: "/services"
     },
     '/services/newborn-photography': {
       title: "Newborn Photography Northfield Adelaide | Gentle & Unhurried Sessions",
-      description: "Specialist newborn photography in Northfield SA. Gentle 2-3 hour sessions timed to baby's rhythm. All wraps, wreaths, and props provided. Book online.",
+      description: "Specialist newborn photography in Northfield SA. Certified gentle infant handling, baby-led posing, and warm 26°C sanctuary. All wraps and props provided. Book online.",
       keywords: [
         "newborn photography Northfield",
         "baby photographer Northfield SA",
         "newborn photoshoot Lightsview",
-        "unhurried infant photography Adelaide"
+        "unhurried infant photography Adelaide",
+        "certified newborn safety photographer"
       ],
       h1: "Newborn Photography Northfield, Adelaide",
       canonicalPath: "/services/newborn-photography"
     },
     '/services/maternity-photography': {
       title: "Maternity Photography Adelaide | Studio & Sunset Bump Shoots Northfield",
-      description: "Celebrate pregnancy with elegant maternity photography in Northfield, Adelaide. Studio wardrobe gowns provided. Best booked at 28-34 weeks.",
+      description: "Celebrate pregnancy with fine-art maternity photography in Northfield, Adelaide. Sculptural studio lighting, couture gowns, and gentle guided posing.",
       keywords: [
         "maternity photography Adelaide",
         "pregnancy photographer Northfield",
         "maternity shoot wardrobe Adelaide",
-        "bump photoshoot SA"
+        "maternity studio lighting Adelaide",
+        "fine art bump photography SA"
       ],
       h1: "Maternity Photography in Northfield, Adelaide",
       canonicalPath: "/services/maternity-photography"

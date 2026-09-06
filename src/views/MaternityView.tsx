@@ -41,16 +41,24 @@ export const MaternityView: React.FC<MaternityViewProps> = ({ onOpenBooking }) =
               {hero.body_copy}
             </p>
 
-            <div className="bg-white p-5 rounded-2xl border border-[#EFD4CE] space-y-3 font-body text-xs text-[#423341]">
-              <h3 className="font-display text-lg font-medium text-[#423341] border-b border-[#EFD4CE]/60 pb-2">
-                What's Included in Your Maternity Session
-              </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                <p className="flex items-center gap-2"><CheckCircle size={16} className="text-[#A7B596]" /> Full studio wardrobe of flowing gowns & silks</p>
-                <p className="flex items-center gap-2"><CheckCircle size={16} className="text-[#A7B596]" /> Choice of solid or draped studio backdrops</p>
-                <p className="flex items-center gap-2"><CheckCircle size={16} className="text-[#A7B596]" /> Partner & older siblings included at no extra cost</p>
-                <p className="flex items-center gap-2"><CheckCircle size={16} className="text-[#A7B596]" /> Professional body-flattering lighting techniques</p>
-                <p className="flex items-center gap-2"><CheckCircle size={16} className="text-[#A7B596]" /> Private online proofing gallery</p>
+            <div className="bg-white p-5 sm:p-6 rounded-2xl border border-[#EFD4CE] space-y-4 font-body text-xs text-[#423341]">
+              <div className="border-b border-[#EFD4CE]/60 pb-2 flex items-center justify-between">
+                <h3 className="font-display text-lg font-medium text-[#423341]">
+                  The Falguni Quality Standard & Inclusions
+                </h3>
+                <span className="text-[11px] font-semibold text-[#52796F] uppercase tracking-wider bg-[#A7B596]/15 px-2.5 py-0.5 rounded-full">
+                  Fine-Art Lighting
+                </span>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                <p className="flex items-center gap-2"><CheckCircle size={16} className="text-[#A7B596] shrink-0" /> Sculptural directional studio lighting celebrating your maternal form</p>
+                <p className="flex items-center gap-2"><CheckCircle size={16} className="text-[#A7B596] shrink-0" /> Gentle, guided posing designed for comfort & physical ease</p>
+                <p className="flex items-center gap-2"><CheckCircle size={16} className="text-[#A7B596] shrink-0" /> Full couture studio wardrobe of flowing gowns, silks & lace wraps</p>
+                <p className="flex items-center gap-2"><CheckCircle size={16} className="text-[#A7B596] shrink-0" /> Choice of luminous high-key, painterly, or dramatic dark backdrops</p>
+                <p className="flex items-center gap-2"><CheckCircle size={16} className="text-[#A7B596] shrink-0" /> Partner & sibling connection moments seamlessly included</p>
+                <p className="flex items-center gap-2"><CheckCircle size={16} className="text-[#A7B596] shrink-0" /> Unhurried 60-minute session paced around your energy and rest</p>
+                <p className="flex items-center gap-2"><CheckCircle size={16} className="text-[#A7B596] shrink-0" /> Private proofing gallery with archival print options</p>
+                <p className="flex items-center gap-2"><CheckCircle size={16} className="text-[#A7B596] shrink-0" /> Private changing suite & personal styling assistance</p>
               </div>
             </div>
 

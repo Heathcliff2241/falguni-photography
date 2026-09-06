@@ -41,17 +41,24 @@ export default function NewbornPage() {
               {hero.body_copy}
             </p>
 
-            <div className="bg-white p-5 rounded-2xl border border-[#EFD4CE] space-y-3 font-body text-xs text-[#423341]">
-              <h3 className="font-display text-lg font-medium text-[#423341] border-b border-[#EFD4CE]/60 pb-2">
-                What's Included in Your Newborn Session
-              </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                <p className="flex items-center gap-2"><CheckCircle size={16} className="text-[#A7B596]" /> Full access to hand-knit wraps & headbands</p>
-                <p className="flex items-center gap-2"><CheckCircle size={16} className="text-[#A7B596]" /> Eucalyptus wreaths & wooden props</p>
-                <p className="flex items-center gap-2"><CheckCircle size={16} className="text-[#A7B596]" /> 2-3 hours unhurried studio time</p>
-                <p className="flex items-center gap-2"><CheckCircle size={16} className="text-[#A7B596]" /> Parent & sibling poses welcome</p>
-                <p className="flex items-center gap-2"><CheckCircle size={16} className="text-[#A7B596]" /> Private online proofing gallery</p>
-                <p className="flex items-center gap-2"><CheckCircle size={16} className="text-[#A7B596]" /> Heated & sanitized studio space</p>
+            <div className="bg-white p-5 sm:p-6 rounded-2xl border border-[#EFD4CE] space-y-4 font-body text-xs text-[#423341]">
+              <div className="border-b border-[#EFD4CE]/60 pb-2 flex items-center justify-between">
+                <h3 className="font-display text-lg font-medium text-[#423341]">
+                  The Falguni Quality Standard & Inclusions
+                </h3>
+                <span className="text-[11px] font-semibold text-[#52796F] uppercase tracking-wider bg-[#A7B596]/15 px-2.5 py-0.5 rounded-full">
+                  Safety Certified
+                </span>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                <p className="flex items-center gap-2"><CheckCircle size={16} className="text-[#A7B596] shrink-0" /> Certified infant handling & physiological safety</p>
+                <p className="flex items-center gap-2"><CheckCircle size={16} className="text-[#A7B596] shrink-0" /> Gentle, baby-led posing honoring natural flexibility</p>
+                <p className="flex items-center gap-2"><CheckCircle size={16} className="text-[#A7B596] shrink-0" /> Heated 26°C sanitized sanctuary with calming soundscapes</p>
+                <p className="flex items-center gap-2"><CheckCircle size={16} className="text-[#A7B596] shrink-0" /> Curated organic wraps, bonnets & eucalyptus wreaths</p>
+                <p className="flex items-center gap-2"><CheckCircle size={16} className="text-[#A7B596] shrink-0" /> 2-3 unhurried hours with unlimited feeding & cuddle pauses</p>
+                <p className="flex items-center gap-2"><CheckCircle size={16} className="text-[#A7B596] shrink-0" /> Parent & sibling connection portraits included</p>
+                <p className="flex items-center gap-2"><CheckCircle size={16} className="text-[#A7B596] shrink-0" /> Private proofing gallery with archival print options</p>
+                <p className="flex items-center gap-2"><CheckCircle size={16} className="text-[#A7B596] shrink-0" /> Dedicated nursing nook & pristine sanitized equipment</p>
               </div>
             </div>
 
