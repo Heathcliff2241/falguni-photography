@@ -37,14 +37,15 @@ Example format:
 <thinking>
 1. User asked: "tell me about the sessions"
 2. Context: No details provided yet.
-3. Direct Answer: Describe Newborn, Maternity, Family, and Cake Smash sessions with pricing ($250+).
+3. Direct Answer: Describe Newborn, Maternity, Family, and Cake Smash boutique sessions.
 4. Next Step: Ask which session catches their interest and what month they prefer.
 5. Sanity: No emojis, no em-dashes.
 </thinking>
-Hello! Falguni offers four boutique portrait sessions starting at $250 AUD...
+Hello! Falguni offers four boutique portrait sessions: Newborn, Maternity, Family, and Cake Smash...
 
 STUDIO KNOWLEDGE & DIRECTIVES:
-- ALWAYS ANSWER THE USER'S QUESTION DIRECTLY FIRST! If asked about sessions, list Newborn, Maternity, Family, and Cake Smash in detail with prices ($250+).
+- ALWAYS ANSWER THE USER'S QUESTION DIRECTLY FIRST! If asked about sessions, list Newborn, Maternity, Family, and Cake Smash in detail.
+- All sessions are complete boutique experiences with private proofing galleries and bespoke print, album, and digital collections.
 - NEVER repeat a generic greeting or re-ask for details already provided in context.
 - Keep the tone deeply gentle, caring, and professional.
 - ABSOLUTELY NO EMOJIS AND NO EM DASHES (— OR – OR --) in the final response.
@@ -62,10 +63,10 @@ function getSmartFallbackReply(message: string): string {
     lower.includes('what do you') ||
     lower.includes('types')
   ) {
-    return "We offer four boutique portrait sessions at Falguni's studio, each starting at $250 AUD:\n\n1. Newborn Photography: Peaceful 2 to 3 hour baby-led sessions in our warm 26°C studio, ideal in the first 5 to 14 days. Includes all wraps, bonnets, floral wreaths, handcrafted props, and family posing.\n2. Maternity Photography: Celebrates your pregnancy journey between 28 and 34 weeks, with full access to our studio gown wardrobe and silk drapes. Partners and siblings are warmly included.\n3. Family Portraits: Relaxed 45 to 60 minute play-focused sessions capturing genuine smiles and connection.\n4. Cake Smash & 1st Birthday: Milestone portraits, custom balloon decor, a delicious smash cake, and a warm splash bath in a vintage tub with full studio cleanup included.\n\nWhich session type interests you, or would you like to check Falguni's calendar for an upcoming date?";
+    return "We offer four boutique portrait sessions at Falguni's studio:\n\n1. Newborn Photography: Peaceful 2 to 3 hour baby-led sessions in our warm 26°C studio, ideal in the first 5 to 14 days. Includes all wraps, bonnets, floral wreaths, handcrafted props, and family posing.\n2. Maternity Photography: Celebrates your pregnancy journey between 28 and 34 weeks, with full access to our studio gown wardrobe and silk drapes. Partners and siblings are warmly included.\n3. Family Portraits: Relaxed 45 to 60 minute play-focused sessions capturing genuine smiles and connection.\n4. Cake Smash & 1st Birthday: Milestone portraits, custom balloon decor, a delicious smash cake, and a warm splash bath in a vintage tub with full studio cleanup included.\n\nWhich session type interests you, or would you like to check Falguni's calendar for an upcoming date?";
   }
   if (lower.includes('price') || lower.includes('cost') || lower.includes('how much') || lower.includes('rate') || lower.includes('package') || lower.includes('fee')) {
-    return "Every session at Falguni's Photography starts at $250 AUD. This includes our peaceful Northfield studio time, complete access to our curated newborn wraps, floral wreaths, hand-crafted props, and luxury maternity gown wardrobe, followed by a private gallery of beautifully edited portraits. Which type of session are you thinking about booking?";
+    return "Every session at Falguni's Photography, whether newborn, maternity, family, or cake smash, is a complete boutique experience. This includes dedicated, unhurried studio time, complete access to our curated newborn wraps, floral wreaths, hand-crafted props, and luxury maternity gown wardrobe, followed by a private proofing gallery of beautifully edited portraits with bespoke print, album, and digital collections available. Which type of session are you thinking about booking?";
   }
   if (lower.includes('newborn') || lower.includes('baby') || lower.includes('infant')) {
     return "Our newborn sessions are completely baby-led and unhurried, lasting 2 to 3 hours in our cozy, temperature-controlled studio with unlimited feeding and soothing breaks. We love capturing your little one in their first 5 to 14 days of life. All wraps, bonnets, and floral styling are provided. What is your estimated due date or baby's birth date?";
@@ -88,7 +89,7 @@ function getSmartFallbackReply(message: string): string {
   if (lower.includes('book') || lower.includes('reserve') || lower.includes('schedule') || lower.includes('date') || lower.includes('time')) {
     return "I would be delighted to help reserve your date right here. To hold your spot on Falguni's calendar, could you share your Full Name, Phone Number, Email Address, and your preferred session date or due date?";
   }
-  return "Thank you for reaching out to Falguni's Photography in Northfield. We specialize in calm, patient sessions tailored to your family's rhythm, starting at $250 AUD. Which photography session are you interested in, and what date or month works best for you?";
+  return "Thank you for reaching out to Falguni's Photography in Northfield. We specialize in calm, patient sessions tailored to your family's rhythm. Which photography session are you interested in, and what date or month works best for you?";
 }
 
 

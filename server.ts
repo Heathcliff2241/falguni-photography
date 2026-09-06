@@ -13,6 +13,10 @@ async function startServer() {
   app.use(express.json());
 
   // API Routes
+  app.get('/api/health', (req, res) => {
+    res.json({ status: 'ok', timestamp: new Date().toISOString() });
+  });
+
   app.post('/api/chat', async (req, res) => {
     const { message, history } = req.body;
     if (!message) {
@@ -150,27 +154,27 @@ ${urls.map(u => `  <url>
   const pageMeta: Record<string, { title: string; desc: string }> = {
     '/': {
       title: "Newborn & Maternity Photographer Northfield | Falguni's",
-      desc: "Gentle, unhurried newborn, maternity, and family photography in Northfield, Adelaide. 56 five-star reviews. Sessions from $250. Book online today."
+      desc: "Gentle, unhurried newborn, maternity, and family photography in Northfield, Adelaide. 56 five-star reviews. Full prop styling and wardrobe provided."
     },
     '/services': {
       title: "Photography Services in Northfield | Falguni's Photography",
-      desc: "Newborn, maternity, family, and cake smash photography in Northfield, Adelaide. Sessions from $250, styling and props included. See all sessions."
+      desc: "Newborn, maternity, family, and cake smash photography in Northfield, Adelaide. Full prop styling and wardrobe provided. See all sessions."
     },
     '/services/newborn-photography': {
       title: "Newborn Photography Northfield, Adelaide | Falguni's",
-      desc: "Gentle newborn photography in Northfield, Adelaide. Sessions booked for the first 5-14 days. Wraps and props included, from $250. Book while pregnant."
+      desc: "Gentle newborn photography in Northfield, Adelaide. Sessions booked for the first 5-14 days. Wraps, headbands, and floral wreaths included. Book while pregnant."
     },
     '/services/maternity-photography': {
       title: "Maternity Photography Northfield, Adelaide | Falguni's",
-      desc: "Maternity photography in Northfield, Adelaide. Best booked 28-34 weeks. Gowns and backdrops included, sessions from $250. Partners welcome."
+      desc: "Maternity photography in Northfield, Adelaide. Best booked 28-34 weeks. Gowns and backdrops included, unhurried studio pacing. Partners welcome."
     },
     '/services/family-photography': {
       title: "Family Photography Northfield, Adelaide | Falguni's",
-      desc: "Relaxed family photography in Northfield, Adelaide. 45-60 minute sessions from $250, works with kids of all ages. Book your family session today."
+      desc: "Relaxed family photography in Northfield, Adelaide. 45-60 minute sessions designed around connection, works with kids of all ages. Book your family session today."
     },
     '/services/cake-smash-photography': {
       title: "Cake Smash Photography Northfield, Adelaide | Falguni's",
-      desc: "Cake smash and first birthday photography in Northfield, Adelaide. Themed backdrops, cleanup included, sessions from $250. Book your date now."
+      desc: "Cake smash and first birthday photography in Northfield, Adelaide. Themed backdrops, custom smash cake, and cleanup included. Book your date now."
     },
     '/gallery': {
       title: "Photography Gallery Northfield, Adelaide | Falguni's",
@@ -199,7 +203,7 @@ ${urls.map(u => `  <url>
       "legalName": "Falguni's Photography Studio",
       "url": baseUrl,
       "telephone": "+61 469 753 238",
-      "priceRange": "$250 - $800",
+      "priceRange": "$$",
       "currenciesAccepted": "AUD",
       "paymentAccepted": "Cash, Credit Card, Bank Transfer, Afterpay",
       "address": {
@@ -256,9 +260,7 @@ ${urls.map(u => `  <url>
               "@type": "Service",
               "name": "Newborn Photography Session",
               "description": "2-3 hour gentle newborn shoot with full props, wraps, and parent poses."
-            },
-            "price": "250.00",
-            "priceCurrency": "AUD"
+            }
           },
           {
             "@type": "Offer",
@@ -266,9 +268,7 @@ ${urls.map(u => `  <url>
               "@type": "Service",
               "name": "Maternity Photography Session",
               "description": "Studio maternity session with gown wardrobe and partner inclusion."
-            },
-            "price": "250.00",
-            "priceCurrency": "AUD"
+            }
           },
           {
             "@type": "Offer",
@@ -276,9 +276,7 @@ ${urls.map(u => `  <url>
               "@type": "Service",
               "name": "Family Photography Session",
               "description": "45-60 minute relaxed family portrait session in studio."
-            },
-            "price": "250.00",
-            "priceCurrency": "AUD"
+            }
           },
           {
             "@type": "Offer",
@@ -286,9 +284,7 @@ ${urls.map(u => `  <url>
               "@type": "Service",
               "name": "Cake Smash First Birthday Session",
               "description": "First birthday portrait, cake smash, and full cleanup included."
-            },
-            "price": "250.00",
-            "priceCurrency": "AUD"
+            }
           }
         ]
       }
