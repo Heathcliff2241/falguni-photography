@@ -1,4 +1,4 @@
-import { BookingLead } from '../src/types';
+import type { BookingLead } from '../src/types';
 
 export interface EmailTemplateData {
   lead: BookingLead;

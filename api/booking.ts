@@ -4,7 +4,7 @@ import path from 'path';
 import {
   renderClientBookingEmail,
   renderStudioLeadEmail
-} from '../server/emailTemplates';
+} from './_emailTemplates';
 
 export default async function handler(req: any, res: any) {
   res.setHeader('Access-Control-Allow-Credentials', 'true');

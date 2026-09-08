@@ -1,0 +1,50 @@
+[
+  {
+    "id": "lead-1788847178149",
+    "timestamp": "2026-09-08T05:59:38.149Z",
+    "fullName": "Thirdy Esmero III",
+    "phone": "Not provided (Email only)",
+    "email": "Thirdyheathcliff@gmail.com",
+    "serviceRequested": "Cake Smash & 1st Birthday",
+    "preferredDate": "September 10",
+    "notes": "Thirdyheathcliff@gmail.com",
+    "source": "ai_poppy",
+    "transcript": [
+      {
+        "sender": "user",
+        "text": "I want cake smash",
+        "time": "05:59 AM"
+      },
+      {
+        "sender": "poppy",
+        "text": "What date is your little one turning one?",
+        "time": "05:59 AM"
+      },
+      {
+        "sender": "user",
+        "text": "September 10",
+        "time": "05:59 AM"
+      },
+      {
+        "sender": "poppy",
+        "text": "May I please have your full name so I can note this on Falguni's calendar?",
+        "time": "05:59 AM"
+      },
+      {
+        "sender": "user",
+        "text": "Thirdy Esmero III",
+        "time": "05:59 AM"
+      },
+      {
+        "sender": "poppy",
+        "text": "Wonderful, Thirdy Esmero III! What is the best phone number and email address to send your booking confirmation?",
+        "time": "05:59 AM"
+      },
+      {
+        "sender": "user",
+        "text": "Thirdyheathcliff@gmail.com",
+        "time": "05:59 AM"
+      }
+    ]
+  }
+]

@@ -120,47 +120,63 @@ export async function processPoppyChat(message: string, history: ChatHistoryItem
     }));
     const convState = extractConversationState(chatTurns, message);
 
+    // Calculate the precise, single goal for the current turn based on state
+    let turnDirective = '';
+    if (convState.missingFields.includes('service')) {
+      turnDirective = `The client has not yet chosen a session type. Help them choose between Newborn, Maternity, Family, or Cake Smash with boutique warmth.`;
+    } else if (convState.missingFields.includes('date')) {
+      turnDirective = `The client selected ${convState.serviceLabel}, but has not specified a date. Acknowledge their choice warmly and ask for their preferred date or baby's due date.`;
+    } else if (convState.missingFields.includes('name')) {
+      turnDirective = `The client selected ${convState.serviceLabel} for ${convState.preferredDate}. Acknowledge this date with excitement for their milestone, and kindly ask for their Full Name to note on Falguni's studio calendar. DO NOT ask what session or date they want!`;
+    } else if (convState.missingFields.includes('contact')) {
+      turnDirective = `The client is ${convState.fullName} booking ${convState.serviceLabel} for ${convState.preferredDate}. Warmly address them by name and ask for their email address and phone number so Falguni can send the confirmation and styling guide. DO NOT ask for their name again!`;
+    } else {
+      turnDirective = `All key details (Session: ${convState.serviceLabel}, Date: ${convState.preferredDate}, Name: ${convState.fullName}, Contact: ${convState.email || convState.phone}) are collected! Celebrate their reservation warmly and let them know Falguni will confirm within 24 hours.`;
+    }
+
     const dynamicSystemInstruction = `${SYSTEM_INSTRUCTION}
 
-CURRENT CONVERSATIONAL DOSSIER (MIND THIS STATE AT ALL COSTS):
+CURRENT CONVERSATIONAL DOSSIER:
 - Selected Session: ${convState.serviceLabel || '[Not yet chosen]'}
 - Milestone / Preferred Date: ${convState.preferredDate || '[Not yet specified]'}
 - Client Full Name: ${convState.fullName || '[Not yet provided]'}
 - Phone: ${convState.phone || '[Not yet provided]'}
 - Email: ${convState.email || '[Not yet provided]'}
 - Missing Information to Finalize: ${convState.missingFields.join(', ') || 'All details collected!'}
-- Last Poppy Question: ${convState.lastPoppyQuestion || 'General greeting'}
 
-STRICT RECEPTIONIST BEHAVIORAL DIRECTIVES:
-1. ALWAYS DIRECTLY ANSWER THE CLIENT'S QUESTION FIRST!
-   - If the client asks "What details do you need?", explain: (1) Session type (Newborn, Maternity, Family, or Cake Smash), (2) Preferred date or baby's due date / birth date, (3) Full name, (4) Phone and email for confirmation.
-2. REMEMBER AND BUILD ON PREVIOUS ANSWERS:
-   - If the client chose Cake Smash, and then says "september 11", CELEBRATE the date ("September 11 is such a wonderful milestone to celebrate your little one turning one! We will have the balloon decor, cake, and splash bath ready.") and ask for their Full Name to note on the studio calendar.
-   - NEVER ask what session they want if they already stated Cake Smash!
-   - If client provides their name, warmly welcome them and ask for their phone and email to complete the booking.
-3. NEVER REPEAT CANNED INTRODUCTIONS OR REVERT TO GENERIC QUESTIONS.
-4. ZERO EMOJIS, ZERO EM DASHES (— OR – OR --).`;
+CRITICAL TURN INSTRUCTIONS:
+1. CLIENT'S LATEST MESSAGE: "${message}"
+2. YOUR IMMEDIATE OBJECTIVE THIS TURN: ${turnDirective}
+3. ONLY RESPOND TO THE LATEST MESSAGE: Do NOT re-answer questions or re-introduce session descriptions from earlier in the chat history. Never revert to generic intros.
+4. ZERO EMOJIS, ZERO EM DASHES (use commas or standard periods instead).`;
 
     let rawReply = '';
     const ai = getAI();
 
     if (ai) {
-      try {
-        const response = await ai.models.generateContent({
-          model: 'gemini-3.8-flash',
-          contents: formattedContents,
-          config: {
-            systemInstruction: dynamicSystemInstruction,
-            temperature: 0.7
+      // Cascade: try gemini-3.1-flash-lite, fallback to gemini-flash-latest, then contextual fallback
+      const candidateModels = ['gemini-3.1-flash-lite', 'gemini-flash-latest'];
+      for (const modelName of candidateModels) {
+        try {
+          const response = await ai.models.generateContent({
+            model: modelName,
+            contents: formattedContents,
+            config: {
+              systemInstruction: dynamicSystemInstruction,
+              temperature: 0.7
+            }
+          });
+          if (response && response.text) {
+            rawReply = response.text;
+            break;
           }
-        });
-        rawReply = response.text || '';
-      } catch (geminiError) {
-        console.warn('Gemini API call unsuccessful, applying intelligent contextual receptionist response:', geminiError);
-        const fallbackRes = generateContextualResponse(chatTurns, message);
-        rawReply = fallbackRes.text;
+        } catch (geminiError) {
+          console.warn(`Gemini model ${modelName} call unsuccessful:`, geminiError);
+        }
       }
-    } else {
+    }
+
+    if (!rawReply) {
       const fallbackRes = generateContextualResponse(chatTurns, message);
       rawReply = fallbackRes.text;
     }
@@ -209,12 +225,13 @@ STRICT RECEPTIONIST BEHAVIORAL DIRECTIVES:
     let bookingExtracted: any = null;
     let clientNotification: ClientNotificationResult | null = null;
 
-    // Trigger booking & notifications if we have email or phone and booking intent
-    if (emailMatch || phoneMatch || (convState.email || convState.phone)) {
+    // Trigger booking & notifications if we have name, and at least email or phone
+    const hasContact = !!(emailMatch || phoneMatch || convState.email || convState.phone);
+    if (convState.fullName && hasContact && convState.service && convState.preferredDate) {
       const effectiveEmail = convState.email || (emailMatch ? emailMatch[0] : '');
-      const effectivePhone = convState.phone || (phoneMatch ? phoneMatch[0] : '');
-      const effectiveName = convState.fullName || 'Valued Client';
-      const effectiveService = convState.serviceLabel || 'Newborn Photography';
+      const effectivePhone = convState.phone || (phoneMatch ? phoneMatch[0] : (effectiveEmail ? 'Not provided (Email only)' : ''));
+      const effectiveName = convState.fullName;
+      const effectiveService = convState.serviceLabel || 'Studio Photography';
       const effectiveDate = convState.preferredDate || 'Upcoming Session';
 
       const transcriptFormatted = formattedContents.map(c => ({

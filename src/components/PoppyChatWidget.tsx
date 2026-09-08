@@ -456,7 +456,7 @@ export const PoppyChatWidget: React.FC<PoppyChatWidgetProps> = ({ onOpenBooking 
 
                     <div className="text-xs text-[#423341] space-y-1.5">
                       <p><strong>Client:</strong> {m.bookingExtracted.fullName || 'Valued Client'}</p>
-                      <p><strong>Phone:</strong> {m.bookingExtracted.phone || 'Recorded'}</p>
+                      <p><strong>Phone:</strong> {m.bookingExtracted.phone && m.bookingExtracted.phone !== 'Not provided (Email only)' ? m.bookingExtracted.phone : 'Not provided (Email only)'}</p>
                       <p><strong>Email:</strong> {m.bookingExtracted.email || 'Recorded'}</p>
                       <p><strong>Service:</strong> {m.bookingExtracted.serviceRequested || 'Photography Session'}</p>
                       <p><strong>Date & Time:</strong> {m.bookingExtracted.preferredDate || 'Upcoming Session'}</p>
