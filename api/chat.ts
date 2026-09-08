@@ -45,14 +45,10 @@ function getAI(): GoogleGenAI | null {
   if (!key) return null;
   if (!aiClient) {
     try {
-      aiClient = new GoogleGenAI({
-        apiKey: key,
-        httpOptions: {
-          headers: {
-            'User-Agent': 'aistudio-build'
-          }
-        }
-      });
+      // Note: httpOptions is not supported in @google/genai v2.x constructor.
+      // The SDK automatically picks up GEMINI_API_KEY from env, but we pass
+      // it explicitly here so it works regardless of env var naming.
+      aiClient = new GoogleGenAI({ apiKey: key });
     } catch (e) {
       console.warn('Could not initialize GoogleGenAI client:', e);
       return null;
@@ -236,7 +232,7 @@ async function processPoppy(message: string, history: ChatHistoryItem[] = []) {
     } else if (convState.missingFields.includes('contact')) {
       turnDirective = `The client is ${convState.fullName} booking ${convState.serviceLabel} for ${convState.preferredDate}. Warmly address them by name and ask for their email address and phone number so Falguni can send the confirmation and styling guide. DO NOT ask for their name again!`;
     } else {
-      turnDirective = `All key details (Session: ${convState.serviceLabel}, Date: ${convState.preferredDate}, Name: ${convState.fullName}, Contact: ${convState.email || convState.phone}) are collected! Celebrate their reservation warmly and let them know Falguni will confirm within 24 hours.`;
+      turnDirective = `All booking details are already confirmed (Session: ${convState.serviceLabel}, Date: ${convState.preferredDate}, Name: ${convState.fullName}, Contact: ${convState.email || convState.phone}). The client is now asking a NEW follow-up question: "${message}". Answer this question directly and helpfully as a warm studio receptionist would. Do NOT re-introduce session types, re-confirm the booking, or repeat the booking summary. Simply answer their question and offer any additional help they may need.`;
     }
 
     const dynamicSystemInstruction = `${SYSTEM_INSTRUCTION}
@@ -259,7 +255,7 @@ CRITICAL TURN INSTRUCTIONS:
     const ai = getAI();
 
     if (ai) {
-      const candidateModels = ['gemini-3.1-flash-lite', 'gemini-flash-latest'];
+      const candidateModels = ['gemini-2.0-flash-lite', 'gemini-2.0-flash'];
       for (const modelName of candidateModels) {
         try {
           const response = await ai.models.generateContent({
@@ -315,7 +311,15 @@ CRITICAL TURN INSTRUCTIONS:
     let clientNotification: ClientNotificationResult | null = null;
 
     const hasContact = !!(emailMatch || phoneMatch || convState.email || convState.phone);
-    if (convState.fullName && hasContact && convState.service && convState.preferredDate) {
+
+    // Only trigger booking confirmation on the FIRST turn all 4 fields become known.
+    // Guard: if Poppy has already said "I have recorded your" in a previous model turn,
+    // the booking was already confirmed and we must NOT re-fire save/email/card.
+    const bookingAlreadyConfirmed = formattedContents.some(
+      c => c.role === 'model' && c.parts[0]?.text?.toLowerCase().includes('i have recorded your')
+    );
+
+    if (!bookingAlreadyConfirmed && convState.fullName && hasContact && convState.service && convState.preferredDate) {
       const effectiveEmail = convState.email || (emailMatch ? emailMatch[0] : '');
       const effectivePhone = convState.phone || (phoneMatch ? phoneMatch[0] : (effectiveEmail ? 'Not provided (Email only)' : ''));
       const effectiveName = convState.fullName;
