@@ -1,23 +1,45 @@
-import { GoogleGenAI } from '@google/genai';
 import { saveLead } from './db';
 import { sendLeadNotificationEmail, sendClientConfirmationNotification, ClientNotificationResult } from './email';
 import { BookingLead } from '../src/types';
 
 // ---------------------------------------------------------------------------
-// Lazy Gemini client
+// Zero-dependency pure fetch Gemini caller
 // ---------------------------------------------------------------------------
-let _ai: GoogleGenAI | null = null;
-function getAI(): GoogleGenAI | null {
-  const key = process.env.GEMINI_API_KEY;
-  if (!key) return null;
-  if (!_ai) {
+async function callGeminiApi(contents: { role: 'user' | 'model'; parts: { text: string }[] }[]): Promise<string> {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) return '';
+
+  const models = ['gemini-2.0-flash', 'gemini-1.5-flash'];
+  for (const model of models) {
     try {
-      _ai = new GoogleGenAI({ apiKey: key });
-    } catch {
-      return null;
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          system_instruction: {
+            parts: [{ text: SYSTEM_PROMPT }]
+          },
+          contents,
+          generationConfig: {
+            temperature: 0.65
+          }
+        })
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (text) return text;
+      } else {
+        const errBody = await res.text();
+        console.warn(`[Receptionist] ${model} responded with HTTP ${res.status}:`, errBody);
+      }
+    } catch (err) {
+      console.warn(`[Receptionist] ${model} fetch failed:`, err);
     }
   }
-  return _ai;
+  return '';
 }
 
 // ---------------------------------------------------------------------------
@@ -167,23 +189,8 @@ export async function processReceptionistChat(
       contents.push({ role: 'user', parts: [{ text: message }] });
     }
 
-    // Call Gemini
-    let replyText = '';
-    const ai = getAI();
-    if (ai) {
-      for (const modelId of ['gemini-2.0-flash', 'gemini-2.0-flash-lite']) {
-        try {
-          const resp = await ai.models.generateContent({
-            model: modelId,
-            contents,
-            config: { systemInstruction: SYSTEM_PROMPT, temperature: 0.65 }
-          });
-          if (resp?.text) { replyText = resp.text; break; }
-        } catch (err) {
-          console.warn(`[Receptionist] Model ${modelId} failed:`, err);
-        }
-      }
-    }
+    // Call Gemini with pure fetch
+    let replyText = await callGeminiApi(contents);
 
     if (!replyText) {
       replyText = "Thank you for reaching out to Falguni's Photography! We'd love to help you book a newborn, maternity, family, or cake smash session. Which session interests you?";
@@ -230,7 +237,7 @@ export async function processReceptionistChat(
         serviceRequested: state.serviceLabel || state.service,
         preferredDate: state.preferredDate,
         notes: message,
-        source: 'ai_poppy',
+        source: 'ai_receptionist',
         transcript: transcriptFormatted
       });
 

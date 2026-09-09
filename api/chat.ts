@@ -1,8 +1,7 @@
-import { GoogleGenAI } from '@google/genai';
 import nodemailer from 'nodemailer';
 import fs from 'fs';
 import path from 'path';
-import { renderClientBookingEmail, renderStudioLeadEmail } from './_emailTemplates';
+import { renderClientBookingEmail, renderStudioLeadEmail } from './_emailTemplates.ts';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -26,20 +25,7 @@ interface BookingLead {
 }
 
 // ---------------------------------------------------------------------------
-// Lazy Gemini client
-// ---------------------------------------------------------------------------
-let _ai: GoogleGenAI | null = null;
-function getAI(): GoogleGenAI | null {
-  const key = process.env.GEMINI_API_KEY;
-  if (!key) return null;
-  if (!_ai) {
-    try { _ai = new GoogleGenAI({ apiKey: key }); } catch { return null; }
-  }
-  return _ai;
-}
-
-// ---------------------------------------------------------------------------
-// System prompt — fresh, clean, no legacy brain references
+// System prompt
 // ---------------------------------------------------------------------------
 const SYSTEM_PROMPT = `
 You are Aria, the warm, professional AI studio receptionist for Falguni's Photography — a premier boutique portrait studio at 26 South Pkwy, Northfield SA 5085, Adelaide, Australia. Studio phone: +61 469 753 238.
@@ -78,6 +64,46 @@ RULES
 - If asked about pricing, mention the 100-dollar deposit and note that full collection pricing is shared after the session during the private gallery viewing.
 - If asked something outside studio scope, politely redirect to Falguni's contact number: +61 469 753 238.
 `;
+
+// ---------------------------------------------------------------------------
+// Zero-dependency, pure fetch Gemini caller (serverless safe, no child_process)
+// ---------------------------------------------------------------------------
+async function callGeminiApi(contents: ChatHistoryItem[]): Promise<string> {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) return '';
+
+  const models = ['gemini-2.0-flash', 'gemini-1.5-flash'];
+  for (const model of models) {
+    try {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          system_instruction: {
+            parts: [{ text: SYSTEM_PROMPT }]
+          },
+          contents,
+          generationConfig: {
+            temperature: 0.65
+          }
+        })
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (text) return text;
+      } else {
+        const errBody = await res.text();
+        console.warn(`[Gemini API] ${model} responded with HTTP ${res.status}:`, errBody);
+      }
+    } catch (err) {
+      console.warn(`[Gemini API] ${model} fetch failed:`, err);
+    }
+  }
+  return '';
+}
 
 // ---------------------------------------------------------------------------
 // Lightweight booking state extraction
@@ -206,17 +232,28 @@ export default async function handler(req: any, res: any) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,POST,PUT,PATCH,DELETE');
   res.setHeader('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version');
+  res.setHeader('Content-Type', 'application/json');
 
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   try {
     let body = req.body;
-    if (typeof body === 'string') { try { body = JSON.parse(body); } catch { body = {}; } }
+    if (typeof body === 'string') {
+      try { body = JSON.parse(body); } catch { body = {}; }
+    } else if (Buffer.isBuffer(body)) {
+      try { body = JSON.parse(body.toString('utf-8')); } catch { body = {}; }
+    }
     body = body || {};
 
     const { message, history } = body;
-    if (!message || typeof message !== 'string') return res.status(400).json({ error: 'message is required' });
+    if (!message || typeof message !== 'string') {
+      return res.status(200).json({
+        text: "Good day! I am Aria, the studio receptionist for Falguni's Photography. How can I assist you with your booking or inquiries today?",
+        extracted: null,
+        clientNotification: null
+      });
+    }
 
     // Build clean turn list
     const rawItems: ChatHistoryItem[] = [];
@@ -241,25 +278,11 @@ export default async function handler(req: any, res: any) {
       contents.push({ role: 'user', parts: [{ text: message }] });
     }
 
-    // Call Gemini
-    let replyText = '';
-    const ai = getAI();
-    if (ai) {
-      for (const modelId of ['gemini-2.0-flash', 'gemini-2.0-flash-lite']) {
-        try {
-          const resp = await ai.models.generateContent({
-            model: modelId, contents,
-            config: { systemInstruction: SYSTEM_PROMPT, temperature: 0.65 }
-          });
-          if (resp?.text) { replyText = resp.text; break; }
-        } catch (e) {
-          console.warn(`[API/chat] Model ${modelId} failed:`, e);
-        }
-      }
-    }
+    // Call Gemini with pure fetch
+    let replyText = await callGeminiApi(contents);
 
     if (!replyText) {
-      replyText = "Welcome to Falguni's Photography! We specialize in newborn, maternity, family, and cake smash sessions. How can I help you today?";
+      replyText = "Welcome to Falguni's Photography! We specialize in gentle newborn, fine-art maternity, family, and cake smash sessions. How can I help you today?";
     }
 
     // Clean output
@@ -332,9 +355,9 @@ export default async function handler(req: any, res: any) {
 
     return res.status(200).json({ text: replyText, extracted: bookingExtracted, clientNotification });
   } catch (err) {
-    console.error('[API/chat] Unhandled error:', err);
+    console.error('[API/chat] Unhandled error caught gracefully:', err);
     return res.status(200).json({
-      text: "Thank you for getting in touch with Falguni's Photography! Please call us at +61 469 753 238 or try again in a moment.",
+      text: "Thank you for getting in touch with Falguni's Photography! We would love to assist you with booking a newborn, maternity, family, or cake smash session. Please call us at +61 469 753 238 or click 'Book Your Session'.",
       extracted: null,
       clientNotification: null
     });

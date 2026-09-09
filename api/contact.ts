@@ -4,7 +4,7 @@ import path from 'path';
 import {
   renderClientContactEmail,
   renderStudioLeadEmail
-} from '../server/emailTemplates';
+} from './_emailTemplates.ts';
 
 export default async function handler(req: any, res: any) {
   res.setHeader('Access-Control-Allow-Credentials', 'true');

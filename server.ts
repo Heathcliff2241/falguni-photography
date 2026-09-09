@@ -22,13 +22,27 @@ async function startServer() {
   });
 
   app.post('/api/chat', async (req, res) => {
-    const { message, history } = req.body;
-    if (!message) {
-      return res.status(400).json({ error: 'Message is required' });
-    }
+    try {
+      const body = req.body || {};
+      const { message, history } = body;
+      if (!message || typeof message !== 'string') {
+        return res.json({
+          text: "Good day! I am Aria, the studio receptionist for Falguni's Photography. How can I assist you with your booking or inquiries today?",
+          extracted: null,
+          clientNotification: null
+        });
+      }
 
-    const result = await processReceptionistChat(message, history || []);
-    res.json(result);
+      const result = await processReceptionistChat(message, history || []);
+      res.json(result);
+    } catch (err) {
+      console.error('[SERVER /api/chat error caught]:', err);
+      res.json({
+        text: "Thank you for reaching out to Falguni's Photography! We would love to help you book a newborn, maternity, family, or cake smash session. Please call us at +61 469 753 238 or click 'Book Your Session'.",
+        extracted: null,
+        clientNotification: null
+      });
+    }
   });
 
   app.post('/api/booking', async (req, res) => {
