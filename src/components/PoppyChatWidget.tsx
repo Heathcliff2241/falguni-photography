@@ -1,211 +1,330 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { ChatMessage } from '../types';
 import {
-  ChatTeardropText, X, PaperPlaneRight, EnvelopeSimple, CheckCircle,
-  Calendar, Eye, ChatCircleText, Heart
+  X, PaperPlaneRight, EnvelopeSimple, CheckCircle,
+  Calendar, Eye, Sparkle, ArrowRight,
+  Camera, Leaf, Star, Phone
 } from '@phosphor-icons/react';
-import { BotanicalRose } from './BotanicalAccents';
-import { extractConversationState, generateContextualResponse, ChatTurn } from '../data/poppyBrain';
 
+// ---------------------------------------------------------------------------
+// Props
+// ---------------------------------------------------------------------------
 interface PoppyChatWidgetProps {
   onOpenBooking: (service?: string) => void;
 }
 
+// ---------------------------------------------------------------------------
+// Booking progress helper
+// ---------------------------------------------------------------------------
+type BookingStep = 'service' | 'date' | 'name' | 'contact';
+
+interface ProgressState {
+  service: boolean;
+  date: boolean;
+  name: boolean;
+  contact: boolean;
+}
+
+function deriveProgress(messages: ChatMessage[]): ProgressState {
+  const userText = messages.filter(m => m.sender === 'user').map(m => m.text).join(' \n ');
+  const allText = messages.map(m => m.text).join(' \n ');
+
+  const service = !!(
+    /newborn|maternity|family|cake.smash|first birthday|birthday session/i.test(userText)
+  );
+  const dateRe = /\b(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec|\d{1,2}[\/\-.]\d{1,2}[\/\-.]\d{2,4}|next\s+(?:week|month|saturday|sunday)|this\s+(?:weekend|friday|saturday|sunday)|tomorrow)/i;
+  const date = dateRe.test(userText);
+  const nameRe = /(?:my name is|i(?:'m| am)|this is|name:\s*)\s*[A-Z][a-z]+/i;
+  const name = nameRe.test(allText) || messages.some(m => m.bookingExtracted?.fullName);
+  const contact = !!(
+    /[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}/.test(userText) ||
+    /(?:\+?61\s?4\d{2}|04\d{2})[\s.\-]?\d{3}[\s.\-]?\d{3}/.test(userText) ||
+    messages.some(m => m.bookingExtracted?.email || m.bookingExtracted?.phone)
+  );
+
+  return { service, date, name, contact };
+}
+
+// ---------------------------------------------------------------------------
+// Context-aware quick suggestions
+// ---------------------------------------------------------------------------
+interface Suggestion {
+  label: string;
+  icon: React.ReactNode;
+  prompt?: string;
+  isAction?: boolean;
+  action?: () => void;
+}
+
+// ---------------------------------------------------------------------------
+// ICS calendar download
+// ---------------------------------------------------------------------------
+function downloadIcs(booking: any) {
+  const title = `Falguni's Photography — ${booking.serviceRequested || 'Studio Session'}`;
+  const desc = `Session at Falguni's Photography\\nClient: ${booking.fullName}\\nPhone: ${booking.phone}\\nEmail: ${booking.email}\\nAddress: 26 South Pkwy, Northfield SA 5085\\nPhone: +61 469 753 238`;
+  const start = new Date(); start.setDate(start.getDate() + 3); start.setHours(10, 0, 0, 0);
+  const end = new Date(start.getTime() + 2 * 60 * 60 * 1000);
+  const fmt = (d: Date) => d.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+  const ics = [
+    'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Falgunis Photography//Booking//EN',
+    'BEGIN:VEVENT',
+    `SUMMARY:${title}`, `DESCRIPTION:${desc}`, 'LOCATION:26 South Pkwy, Northfield SA 5085',
+    `DTSTART:${fmt(start)}`, `DTEND:${fmt(end)}`, 'STATUS:CONFIRMED',
+    'END:VEVENT', 'END:VCALENDAR'
+  ].join('\r\n');
+  const url = URL.createObjectURL(new Blob([ics], { type: 'text/calendar;charset=utf-8;' }));
+  const a = document.createElement('a');
+  a.href = url; a.download = `Falguni-${booking.fullName?.replace(/\s+/g, '_') || 'Session'}.ics`;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+}
+
+// ---------------------------------------------------------------------------
+// Typewriter hook
+// ---------------------------------------------------------------------------
+function useTypewriter(text: string, speed = 16, enabled = true) {
+  const [displayed, setDisplayed] = useState('');
+  const [done, setDone] = useState(false);
+
+  useEffect(() => {
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (!enabled || prefersReduced) { setDisplayed(text); setDone(true); return; }
+    setDisplayed(''); setDone(false);
+    let i = 0;
+    const id = setInterval(() => {
+      i++;
+      setDisplayed(text.slice(0, i));
+      if (i >= text.length) { clearInterval(id); setDone(true); }
+    }, speed);
+    return () => clearInterval(id);
+  }, [text, speed, enabled]);
+
+  return { displayed, done };
+}
+
+// ---------------------------------------------------------------------------
+// Single message bubble with typewriter for last Aria message
+// ---------------------------------------------------------------------------
+interface BubbleProps {
+  m: ChatMessage;
+  isLatestAria: boolean;
+  onViewNotification: (n: any) => void;
+  onDownloadIcs: (b: any) => void;
+}
+
+const MessageBubble: React.FC<BubbleProps> = ({ m, isLatestAria, onViewNotification, onDownloadIcs }) => {
+  const { displayed, done } = useTypewriter(m.text, 14, isLatestAria && m.sender === 'aria');
+  const content = isLatestAria && m.sender === 'aria' ? displayed : m.text;
+  const isUser = m.sender === 'user';
+
+  return (
+    <div
+      className={`flex flex-col ${isUser ? 'items-end' : 'items-start'} msg-entrance`}
+      style={{ animationFillMode: 'both' }}
+    >
+      {/* Bubble */}
+      <div className={`max-w-[88%] px-4 py-3 text-sm leading-relaxed shadow-sm relative ${
+        isUser
+          ? 'bg-[#423341] text-[#FBF6EF] rounded-3xl rounded-tr-sm'
+          : 'bg-white text-[#423341] border border-[#EFD4CE] rounded-3xl rounded-tl-sm'
+      }`}>
+        <p className="whitespace-pre-line">{content}</p>
+        {/* Cursor blink on last Aria message while typing */}
+        {isLatestAria && m.sender === 'aria' && !done && (
+          <span className="inline-block w-0.5 h-4 bg-[#A7B596] ml-0.5 align-middle animate-pulse" />
+        )}
+      </div>
+
+      {/* Booking Confirmation Card */}
+      {m.bookingExtracted && (
+        <div className="mt-3 max-w-[96%] w-full bg-white rounded-3xl border-2 border-[#A7B596] shadow-lg overflow-hidden booking-card-entrance">
+          {/* Success header */}
+          <div className="bg-gradient-to-r from-[#A7B596] to-[#8fa27a] p-4 flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
+              <svg viewBox="0 0 36 36" className="w-7 h-7 checkmark-draw">
+                <circle cx="18" cy="18" r="16" fill="none" stroke="white" strokeWidth="2.5" className="checkmark-circle" />
+                <path d="M10 18 L16 24 L26 12" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="checkmark-path" />
+              </svg>
+            </div>
+            <div>
+              <p className="text-white font-semibold text-sm">Session Reserved</p>
+              <p className="text-white/80 text-xs">{m.bookingExtracted.id || 'Booking confirmed'}</p>
+            </div>
+          </div>
+
+          {/* Details */}
+          <div className="p-4 space-y-2.5">
+            <div className="grid grid-cols-2 gap-2 text-xs text-[#423341]">
+              <div>
+                <p className="text-[#A7B596] font-semibold uppercase tracking-wider text-[10px] mb-0.5">Client</p>
+                <p className="font-medium">{m.bookingExtracted.fullName || 'Valued Client'}</p>
+              </div>
+              <div>
+                <p className="text-[#A7B596] font-semibold uppercase tracking-wider text-[10px] mb-0.5">Session</p>
+                <p className="font-medium">{m.bookingExtracted.serviceRequested || 'Photography Session'}</p>
+              </div>
+              <div>
+                <p className="text-[#A7B596] font-semibold uppercase tracking-wider text-[10px] mb-0.5">Preferred Date</p>
+                <p className="font-medium">{m.bookingExtracted.preferredDate || 'To be confirmed'}</p>
+              </div>
+              <div>
+                <p className="text-[#A7B596] font-semibold uppercase tracking-wider text-[10px] mb-0.5">Contact</p>
+                <p className="font-medium truncate">{m.bookingExtracted.email || m.bookingExtracted.phone || 'On file'}</p>
+              </div>
+            </div>
+
+            {/* Email notice */}
+            {m.bookingExtracted.email && (
+              <div className="flex items-start gap-2 bg-[#A7B596]/10 rounded-2xl p-2.5 text-[11px] text-[#423341]/80 border border-[#A7B596]/20">
+                <EnvelopeSimple size={15} className="text-[#A7B596] shrink-0 mt-0.5" />
+                <span>Styled confirmation sent to <strong>{m.bookingExtracted.email}</strong>. Falguni will confirm within 24 hours.</span>
+              </div>
+            )}
+
+            {/* Action buttons */}
+            <div className="flex flex-col gap-2 pt-1">
+              {m.bookingExtracted.notification && (
+                <button
+                  onClick={() => onViewNotification(m.bookingExtracted!.notification)}
+                  className="w-full flex items-center justify-center gap-2 bg-[#EFD4CE] hover:bg-[#e5c9c2] text-[#423341] text-xs font-semibold py-2.5 px-4 rounded-2xl transition-all cursor-pointer border border-[#dbb9b1]"
+                >
+                  <Eye size={15} /> View Confirmation Email
+                </button>
+              )}
+              <button
+                onClick={() => onDownloadIcs(m.bookingExtracted)}
+                className="w-full flex items-center justify-center gap-2 bg-[#A7B596] hover:bg-[#96a585] text-[#423341] text-xs font-semibold py-2.5 px-4 rounded-2xl transition-all cursor-pointer border border-[#8fa27a]"
+              >
+                <Calendar size={15} /> Save to Calendar (.ics)
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <span className="text-[10px] text-[#423341]/40 mt-1.5 px-1">{m.timestamp}</span>
+    </div>
+  );
+};
+
+// ---------------------------------------------------------------------------
+// Main widget
+// ---------------------------------------------------------------------------
 export const PoppyChatWidget: React.FC<PoppyChatWidgetProps> = ({ onOpenBooking }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
-  const [thinkingStage, setThinkingStage] = useState<string>('Poppy is thinking...');
-  const [activeNotificationModal, setActiveNotificationModal] = useState<any | null>(null);
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [thinkingStage, setThinkingStage] = useState('Aria is thinking...');
+  const [activeModal, setActiveModal] = useState<any | null>(null);
+  const [toast, setToast] = useState<string | null>(null);
+  const [showLauncher, setShowLauncher] = useState(false);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const [messages, setMessages] = useState<ChatMessage[]>(() => {
     try {
-      const saved = sessionStorage.getItem('poppy_chat_history');
+      const saved = sessionStorage.getItem('aria_chat_v2');
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          return parsed;
-        }
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
       }
-    } catch (e) {
-      console.warn('Could not restore chat history from sessionStorage:', e);
-    }
-    return [
-      {
-        id: 'init-1',
-        sender: 'poppy',
-        text: "Hello! I'm Poppy, Falguni's studio coordinator. I am here to gently guide you through our newborn, maternity, family, and cake smash sessions, answer any questions about our warm studio and luxury wardrobe, or lovingly reserve your date directly right here in chat. How may I care for you today?",
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-      }
-    ];
+    } catch { /* ignore */ }
+    return [{
+      id: 'init-1',
+      sender: 'aria',
+      text: "Good day! I'm Aria, the studio receptionist for Falguni's Photography. I'm here to answer your questions or help you reserve a session date. How can I assist you today?",
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    }];
   });
 
+  // Persist chat
   useEffect(() => {
-    try {
-      sessionStorage.setItem('poppy_chat_history', JSON.stringify(messages));
-    } catch (e) {
-      console.warn('Could not save chat history to sessionStorage:', e);
-    }
+    try { sessionStorage.setItem('aria_chat_v2', JSON.stringify(messages)); } catch { /* ignore */ }
   }, [messages]);
 
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
-
+  // Launcher entrance
   useEffect(() => {
-    if (isOpen) {
-      scrollToBottom();
-      // Lock scroll on body for mobile screens when chat is open
-      if (window.innerWidth < 640) {
-        document.body.style.overflow = 'hidden';
-      }
+    const t = setTimeout(() => setShowLauncher(true), 800);
+    return () => clearTimeout(t);
+  }, []);
+
+  // Scroll on new messages
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages, loading]);
+
+  // Body scroll lock on mobile
+  useEffect(() => {
+    if (isOpen && window.innerWidth < 640) {
+      document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = '';
     }
-    return () => {
-      document.body.style.overflow = '';
-    };
-  }, [messages, isOpen, loading]);
+    return () => { document.body.style.overflow = ''; };
+  }, [isOpen]);
+
+  // Auto-resize textarea
+  const handleTextareaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setInput(e.target.value);
+    const el = e.target;
+    el.style.height = 'auto';
+    el.style.height = Math.min(el.scrollHeight, 96) + 'px';
+  };
 
   const showToast = (msg: string) => {
-    setToastMessage(msg);
-    setTimeout(() => setToastMessage(null), 5000);
+    setToast(msg);
+    setTimeout(() => setToast(null), 4500);
   };
 
-  const downloadIcsCalendarEvent = (booking: any) => {
-    const title = `Falguni's Photography Session - ${booking.serviceRequested || 'Studio Session'}`;
-    const desc = `Photography session at Falguni's Photography Studio.\\nClient: ${booking.fullName}\\nPhone: ${booking.phone}\\nEmail: ${booking.email}\\nAddress: 26 South Pkwy, Northfield SA 5085\\nStudio Phone: +61 469 753 238`;
-    const loc = `26 South Pkwy, Northfield SA 5085, Australia`;
-    
-    // Default to a 10:00 AM session 3 days from now if fuzzy date
-    const startDate = new Date();
-    startDate.setDate(startDate.getDate() + 3);
-    startDate.setHours(10, 0, 0, 0);
-
-    const endDate = new Date(startDate.getTime() + 2 * 60 * 60 * 1000);
-
-    const formatDateToIcs = (d: Date) => {
-      return d.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
-    };
-
-    const icsContent = [
-      'BEGIN:VCALENDAR',
-      'VERSION:2.0',
-      'PRODID:-//Falgunis Photography//Booking Assistant//EN',
-      'BEGIN:VEVENT',
-      `SUMMARY:${title}`,
-      `DESCRIPTION:${desc}`,
-      `LOCATION:${loc}`,
-      `DTSTART:${formatDateToIcs(startDate)}`,
-      `DTEND:${formatDateToIcs(endDate)}`,
-      'STATUS:CONFIRMED',
-      'END:VEVENT',
-      'END:VCALENDAR'
-    ].join('\r\n');
-
-    const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.setAttribute('download', `Falguni-Photography-Booking-${booking.fullName.replace(/\s+/g, '_')}.ics`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-
-    showToast('iCal Calendar File Downloaded!');
-  };
-
-  // Dynamic context-aware suggestion generator formatted as message speech bubbles
-  const getDynamicSuggestions = () => {
-    if (messages.length <= 1) {
-      return [
-        { label: 'How do I reserve a date?', prompt: 'I would like to reserve a session date with Falguni. What details do you need?' },
-        { label: 'What is included in sessions?', prompt: 'What styling and props are included in the studio sessions?' },
-        { label: 'Newborn Session Info', prompt: 'What is included in a newborn shoot?' },
-        { label: 'Maternity Gowns Provided?', prompt: 'What gowns and styling wardrobe do you provide for maternity?' },
-        { label: 'Studio Location in Northfield', prompt: 'Where is your studio located and is parking available?' }
-      ];
-    }
-
-    const chatTurns: ChatTurn[] = messages.map(m => ({
-      sender: m.sender,
-      text: m.text
-    }));
-    const convState = extractConversationState(chatTurns);
+  // Suggestions
+  const progress = deriveProgress(messages);
+  const getSuggestions = useCallback((): Suggestion[] => {
     const lastMsg = messages[messages.length - 1];
-
-    if (lastMsg?.bookingExtracted || convState.isBookingComplete) {
+    if (lastMsg?.bookingExtracted) {
       return [
-        { label: 'Download iCal Event', isAction: true, action: () => downloadIcsCalendarEvent(lastMsg?.bookingExtracted || convState) },
-        { label: 'What should we bring?', prompt: 'What should we bring with us to the studio session?' },
-        { label: 'Where is the studio located?', prompt: 'Where is your studio located in Northfield?' },
-        { label: 'Book another portrait session', prompt: 'I would also like to explore booking another session for my family.' }
+        { label: 'Download Calendar Event', icon: <Calendar size={13} />, isAction: true, action: () => downloadIcs(lastMsg.bookingExtracted) },
+        { label: 'What to bring?', icon: <Sparkle size={13} />, prompt: 'What should I bring to the studio session?' },
+        { label: 'Studio address', icon: <ArrowRight size={13} />, prompt: 'Where is Falguni\'s studio located?' },
+        { label: 'Book another session', icon: <Camera size={13} />, prompt: 'I\'d like to book another session.' },
       ];
     }
-
-    // If session chosen and date is missing, offer quick date options
-    if (convState.service && !convState.preferredDate) {
-      if (convState.service === 'cake_smash') {
-        return [
-          { label: 'Around baby\'s 1st birthday', prompt: 'Our preferred date is around our baby\'s 1st birthday next month.' },
-          { label: 'Weekend morning slot', prompt: 'Do you have weekend morning availability?' },
-          { label: 'Is the smash cake provided?', prompt: 'Do you provide the smash cake or do we bring one?' },
-          { label: 'Studio address & parking', prompt: 'Where is your studio located in Northfield?' }
-        ];
-      }
-      if (convState.service === 'newborn') {
-        return [
-          { label: 'Due in upcoming weeks', prompt: 'My baby is due in the coming weeks and I would like to reserve a tentative date.' },
-          { label: 'Baby is 1 week old', prompt: 'Baby is already here and 1 week old.' },
-          { label: 'Are parent photos included?', prompt: 'Can parents and siblings be included in newborn portraits?' },
-          { label: 'What wraps and props provided?', prompt: 'What wraps, bonnets, and props do you provide?' }
-        ];
-      }
-      if (convState.service === 'maternity') {
-        return [
-          { label: 'Between 28 and 34 weeks', prompt: 'I am looking to book around week 30 of my pregnancy.' },
-          { label: 'Upcoming weekend date', prompt: 'Do you have availability for an upcoming Saturday or Sunday?' },
-          { label: 'Studio gowns provided?', prompt: 'Do you provide studio dresses and drapes for maternity sessions?' },
-          { label: 'Can partner and kids join?', prompt: 'Can my partner and older children join the session?' }
-        ];
-      }
-      if (convState.service === 'family') {
-        return [
-          { label: 'Upcoming Saturday morning', prompt: 'We are hoping for an upcoming Saturday morning.' },
-          { label: 'Weekday late afternoon', prompt: 'Do you have weekday late afternoon availability?' },
-          { label: 'What styling do you recommend?', prompt: 'What clothing colors do you recommend for family portraits?' },
-          { label: 'Where is the studio?', prompt: 'Where is your studio located in Northfield?' }
-        ];
-      }
-    }
-
-    // If date is provided but name is missing
-    if (convState.preferredDate && !convState.fullName) {
+    if (!progress.service) {
       return [
-        { label: 'Share my contact details', prompt: 'I would like to share my details to finalize this booking.' },
-        { label: 'What is included in this session?', prompt: 'What is included in this session package?' },
-        { label: 'Studio location & parking', prompt: 'Where is Falguni\'s studio located?' },
-        { label: 'How long until photos are ready?', prompt: 'How long does gallery delivery take after the session?' }
+        { label: 'Newborn session', icon: <Leaf size={13} />, prompt: 'Tell me about your newborn photography session.' },
+        { label: 'Maternity session', icon: <Sparkle size={13} />, prompt: 'I\'m pregnant and interested in a maternity session.' },
+        { label: 'Family portraits', icon: <Camera size={13} />, prompt: 'Tell me about family portrait sessions.' },
+        { label: 'Cake Smash', icon: <Star size={13} />, prompt: 'My baby is turning one. Tell me about cake smash sessions.' },
       ];
     }
-
-    // Default suggestions
+    if (!progress.date) {
+      return [
+        { label: 'Next available weekend', icon: <Calendar size={13} />, prompt: 'Do you have any available weekend slots coming up?' },
+        { label: 'Flexible on dates', icon: <ArrowRight size={13} />, prompt: 'I\'m flexible on dates. What works for the studio?' },
+        { label: 'What\'s included?', icon: <Sparkle size={13} />, prompt: 'What is included in the session?' },
+        { label: 'Gowns and props?', icon: <Leaf size={13} />, prompt: 'What styling items and props are provided?' },
+      ];
+    }
+    if (!progress.contact) {
+      return [
+        { label: 'What details are needed?', icon: <ArrowRight size={13} />, prompt: 'What contact details do you need to confirm my booking?' },
+        { label: 'Studio location', icon: <Camera size={13} />, prompt: 'Where exactly is the studio located and is parking available?' },
+        { label: 'How long are sessions?', icon: <Sparkle size={13} />, prompt: 'How long do sessions typically run?' },
+        { label: 'Call Falguni directly', icon: <Phone size={13} />, prompt: 'Can I have Falguni\'s direct phone number?' },
+      ];
+    }
     return [
-      { label: 'Reserve Session in Chat', prompt: 'I would like to reserve a session with Falguni.' },
-      { label: 'What details do you need to book?', prompt: 'What details do you need to reserve a date?' },
-      { label: 'Explore Session Packages', prompt: 'What photography sessions and packages do you offer?' },
-      { label: 'Studio Address & Directions', prompt: 'Where is Falguni\'s studio located in Northfield?' }
+      { label: 'Reserve a session', icon: <Calendar size={13} />, prompt: 'I\'d like to reserve a portrait session with Falguni.' },
+      { label: 'Session pricing', icon: <Sparkle size={13} />, prompt: 'What is the pricing for your sessions?' },
+      { label: 'Studio address', icon: <ArrowRight size={13} />, prompt: 'Where is the studio located in Northfield?' },
+      { label: 'About Falguni', icon: <Camera size={13} />, prompt: 'Tell me about Falguni and her experience.' },
     ];
-  };
+  }, [messages, progress]);
 
-  const sendMessageText = async (textToSend: string) => {
+  // Send message
+  const sendMessage = async (textToSend: string) => {
     if (!textToSend.trim() || loading) return;
-
     const userText = textToSend.trim();
     setInput('');
+    if (textareaRef.current) { textareaRef.current.style.height = 'auto'; }
 
     const userMsg: ChatMessage = {
       id: Date.now().toString(),
@@ -213,22 +332,19 @@ export const PoppyChatWidget: React.FC<PoppyChatWidgetProps> = ({ onOpenBooking 
       text: userText,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     };
-
-    const updatedMessages = [...messages, userMsg];
-    setMessages(updatedMessages);
+    const updated = [...messages, userMsg];
+    setMessages(updated);
     setLoading(true);
-    setThinkingStage('Poppy is carefully reviewing our conversation...');
 
+    const stages = [
+      'Aria is reviewing your message...',
+      'Checking Falguni\'s studio calendar...',
+      'Preparing a thoughtful response...',
+    ];
+    setThinkingStage(stages[0]);
+    const t1 = setTimeout(() => setThinkingStage(stages[1]), 1100);
+    const t2 = setTimeout(() => setThinkingStage(stages[2]), 2200);
     const startTime = Date.now();
-
-    // Multi-stage receptionist thinking updates for a thoughtful, reliable feel
-    const stageTimer1 = setTimeout(() => {
-      setThinkingStage('Poppy is checking Falguni\'s studio calendar and details...');
-    }, 900);
-
-    const stageTimer2 = setTimeout(() => {
-      setThinkingStage('Poppy is preparing a thoughtful response...');
-    }, 1900);
 
     try {
       let replyText = '';
@@ -236,409 +352,427 @@ export const PoppyChatWidget: React.FC<PoppyChatWidgetProps> = ({ onOpenBooking 
       let notification: any = null;
 
       try {
-        const response = await fetch('/api/chat', {
+        const resp = await fetch('/api/chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             message: userText,
-            history: updatedMessages.slice(0, -1).map(m => ({
+            history: updated.slice(0, -1).map(m => ({
               role: m.sender === 'user' ? 'user' : 'model',
               parts: [{ text: m.text }]
             }))
           })
         });
-
-        if (response.ok) {
-          const data = await response.json();
+        if (resp.ok) {
+          const data = await resp.json();
           replyText = data.text;
           extracted = data.extracted;
           notification = data.clientNotification;
         }
-      } catch (e) {
-        console.warn('Backend chat API request failed, using local Poppy brain fallback response.');
-      }
+      } catch { /* backend unreachable — use graceful fallback below */ }
 
-      // If backend was unreachable or returned empty, use state-aware Poppy brain
       if (!replyText) {
-        const chatHistoryTurns: ChatTurn[] = updatedMessages.slice(0, -1).map(m => ({
-          sender: m.sender,
-          text: m.text
-        }));
-        const contextualRes = generateContextualResponse(chatHistoryTurns, userText);
-        replyText = contextualRes.text;
-
-        if (contextualRes.extractedBooking) {
-          extracted = contextualRes.extractedBooking;
-          // Synchronize lead with backend database
-          fetch('/api/booking', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              ...contextualRes.extractedBooking,
-              source: 'ai_poppy'
-            })
-          }).catch(err => console.warn('Could not sync booking lead in fallback mode:', err));
-        }
+        replyText = "Thank you for getting in touch! Falguni's Photography offers newborn, maternity, family, and cake smash portrait sessions in our warm Northfield studio. Which session can I tell you more about?";
       }
 
-      // Strip any remaining emojis, em-dashes or en-dashes from replyText
-      replyText = replyText
-        .replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F700}-\u{1F77F}\u{1F780}-\u{1F7FF}\u{1F800}-\u{1F8FF}\u{1F900}-\u{1F9FF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, '')
-        .replace(/\s*—\s*/g, ', ')
-        .replace(/\s*–\s*/g, ', ')
-        .replace(/\s*--\s*/g, ', ')
-        .replace(/—/g, ', ')
-        .replace(/–/g, ', ');
-
-      // Enforce an unhurried, peaceful simulated delay (minimum 2200ms)
+      // Minimum perceived thinking time of 2.2s for a premium, unhurried feel
       const elapsed = Date.now() - startTime;
-      const minDelay = 2200;
-      if (elapsed < minDelay) {
-        await new Promise(res => setTimeout(res, minDelay - elapsed));
-      }
+      if (elapsed < 2200) await new Promise(r => setTimeout(r, 2200 - elapsed));
 
-      if (extracted && extracted.email) {
-        showToast(`Booking Confirmed! Confirmation email dispatched to ${extracted.email}`);
-      }
+      if (extracted?.email) showToast(`Booking confirmed! Confirmation sent to ${extracted.email}`);
 
-      const poppyMsg: ChatMessage = {
+      const ariaMsg: ChatMessage = {
         id: (Date.now() + 1).toString(),
-        sender: 'poppy',
+        sender: 'aria',
         text: replyText,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         bookingExtracted: extracted ? { ...extracted, notification } : undefined
       };
-      setMessages(prev => [...prev, poppyMsg]);
-    } catch (err) {
-      const fallbackMsg: ChatMessage = {
+      setMessages(prev => [...prev, ariaMsg]);
+    } catch {
+      setMessages(prev => [...prev, {
         id: (Date.now() + 1).toString(),
-        sender: 'poppy',
-        text: "I am always here to assist you! You can also call Falguni directly at +61 469 753 238 or click 'Book Session' to reserve your spot.",
+        sender: 'aria',
+        text: "I apologise for the interruption. Please call Falguni directly at +61 469 753 238 or click \"Book Session\" above.",
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-      };
-      setMessages(prev => [...prev, fallbackMsg]);
+      }]);
     } finally {
-      clearTimeout(stageTimer1);
-      clearTimeout(stageTimer2);
+      clearTimeout(t1); clearTimeout(t2);
       setLoading(false);
     }
   };
 
-  const handleSend = async (e: React.FormEvent) => {
-    e.preventDefault();
-    sendMessageText(input);
+  const handleSubmit = (e: React.FormEvent) => { e.preventDefault(); sendMessage(input); };
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(input); }
   };
+
+  // Which message is the latest Aria message (for typewriter)
+  const latestAriaId = [...messages].reverse().find(m => m.sender === 'aria')?.id;
+
+  const progress2 = deriveProgress(messages);
+  const steps: { key: BookingStep; label: string }[] = [
+    { key: 'service', label: 'Session' },
+    { key: 'date', label: 'Date' },
+    { key: 'name', label: 'Name' },
+    { key: 'contact', label: 'Contact' },
+  ];
+  const bookingComplete = messages.some(m => m.bookingExtracted);
 
   return (
     <>
-      {/* Toast Notification */}
-      {toastMessage && (
-        <div className="fixed top-5 right-5 z-50 bg-[#423341] text-[#FBF6EF] px-5 py-3.5 rounded-2xl shadow-2xl border border-[#A7B596] flex items-center gap-3 animate-fade-in font-body text-sm font-semibold">
-          <CheckCircle size={22} className="text-[#A7B596] shrink-0" />
-          <span>{toastMessage}</span>
+      {/* ---------------------------------------------------------------- */}
+      {/* Global CSS injected via style tag                                 */}
+      {/* ---------------------------------------------------------------- */}
+      <style>{`
+        @keyframes slideUp {
+          from { opacity: 0; transform: translateY(20px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes glow-ring {
+          0%, 100% { transform: scale(1); opacity: 0.6; }
+          50%       { transform: scale(1.35); opacity: 0; }
+        }
+        @keyframes glow-ring-2 {
+          0%, 100% { transform: scale(1); opacity: 0.4; }
+          50%       { transform: scale(1.6); opacity: 0; }
+        }
+        @keyframes msgIn {
+          from { opacity: 0; transform: translateY(10px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes panelIn {
+          from { opacity: 0; transform: translateY(24px) scale(0.97); }
+          to   { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        @keyframes stepFill {
+          from { width: 0; }
+          to   { width: 100%; }
+        }
+        @keyframes bookingIn {
+          from { opacity: 0; transform: scale(0.95) translateY(8px); }
+          to   { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        @keyframes checkCircle {
+          from { stroke-dashoffset: 110; }
+          to   { stroke-dashoffset: 0; }
+        }
+        @keyframes checkPath {
+          from { stroke-dashoffset: 40; }
+          to   { stroke-dashoffset: 0; }
+        }
+        @keyframes toastIn {
+          from { opacity: 0; transform: translateY(-10px) scale(0.96); }
+          to   { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .launcher-enter { animation: slideUp 0.5s cubic-bezier(0.34,1.56,0.64,1) both; }
+        .glow-ring-1 { animation: glow-ring 2.2s ease-out infinite; }
+        .glow-ring-2 { animation: glow-ring-2 2.2s ease-out infinite 0.4s; }
+        .msg-entrance { animation: msgIn 0.3s ease both; }
+        .panel-enter { animation: panelIn 0.35s cubic-bezier(0.34,1.4,0.64,1) both; }
+        .booking-card-entrance { animation: bookingIn 0.4s cubic-bezier(0.34,1.2,0.64,1) both 0.15s; }
+        .checkmark-circle {
+          stroke-dasharray: 110;
+          stroke-dashoffset: 110;
+          animation: checkCircle 0.6s ease-out 0.3s forwards;
+        }
+        .checkmark-path {
+          stroke-dasharray: 40;
+          stroke-dashoffset: 40;
+          animation: checkPath 0.4s ease-out 0.8s forwards;
+        }
+        .toast-enter { animation: toastIn 0.3s cubic-bezier(0.34,1.2,0.64,1) both; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        @media (prefers-reduced-motion: reduce) {
+          .launcher-enter, .glow-ring-1, .glow-ring-2, .msg-entrance,
+          .panel-enter, .booking-card-entrance, .checkmark-circle,
+          .checkmark-path, .toast-enter { animation: none !important; }
+        }
+      `}</style>
+
+      {/* ---------------------------------------------------------------- */}
+      {/* Toast                                                             */}
+      {/* ---------------------------------------------------------------- */}
+      {toast && (
+        <div className="fixed top-5 right-5 z-[60] bg-[#423341] text-[#FBF6EF] px-5 py-3.5 rounded-2xl shadow-2xl border border-[#A7B596] flex items-center gap-3 font-body text-sm font-semibold toast-enter">
+          <CheckCircle size={20} className="text-[#A7B596] shrink-0" weight="fill" />
+          <span>{toast}</span>
         </div>
       )}
 
-      {/* Floating Toggle Launcher Styled as a Message Speech Bubble */}
-      {!isOpen && (
-        <div className="fixed bottom-5 right-5 sm:bottom-6 sm:right-6 z-40 flex flex-col items-end group">
-          {/* Outer Speech Tail Indicator */}
-          <div className="relative">
+      {/* ---------------------------------------------------------------- */}
+      {/* Launcher Bubble                                                   */}
+      {/* ---------------------------------------------------------------- */}
+      {!isOpen && showLauncher && (
+        <div className="fixed bottom-6 right-6 z-40 flex flex-col items-end gap-2.5 launcher-enter">
+          {/* Peek message */}
+          <div className="bg-white text-[#423341] text-xs font-body font-medium px-3.5 py-2 rounded-2xl rounded-br-sm shadow-lg border border-[#EFD4CE] max-w-[180px] text-right leading-snug">
+            Need help booking? I'm here.
+            <div className="absolute -bottom-2 right-4 w-3 h-3 bg-white border-r border-b border-[#EFD4CE] rotate-45" />
+          </div>
+
+          {/* Button with glow rings */}
+          <div className="relative flex items-center justify-center">
+            {/* Glow ring 1 */}
+            <span className="absolute inset-0 rounded-full bg-[#EFD4CE] glow-ring-1" />
+            {/* Glow ring 2 */}
+            <span className="absolute inset-0 rounded-full bg-[#EFD4CE] glow-ring-2" />
+
             <button
               onClick={() => setIsOpen(true)}
-              className="bg-[#423341] text-[#FBF6EF] pl-4 pr-5 py-3 sm:py-3.5 rounded-3xl rounded-br-xs shadow-2xl hover:bg-[#A7B596] hover:text-[#423341] transition-all flex items-center gap-3 border-2 border-[#EFD4CE] cursor-pointer active:scale-95 group"
-              aria-label="Chat with Poppy"
+              aria-label="Open studio receptionist chat"
+              className="relative w-16 h-16 rounded-full bg-[#423341] shadow-2xl flex items-center justify-center border-2 border-[#EFD4CE] hover:scale-105 active:scale-95 transition-transform cursor-pointer group"
             >
-              <div className="relative w-9 h-9 rounded-full bg-[#EFD4CE]/30 flex items-center justify-center text-[#EFD4CE] group-hover:text-[#423341] shrink-0">
-                <ChatTeardropText size={22} weight="fill" />
-                <span className="absolute -top-0.5 -right-0.5 w-3 h-3 bg-[#A7B596] rounded-full border-2 border-[#423341] animate-pulse" />
+              {/* Avatar initials on a blush circle */}
+              <div className="w-11 h-11 rounded-full bg-[#EFD4CE]/20 border border-[#EFD4CE]/40 flex items-center justify-center">
+                <span className="font-display text-lg font-semibold text-[#EFD4CE] leading-none select-none">A</span>
               </div>
-              <div className="text-left leading-tight">
-                <span className="font-display text-sm font-medium block">Chat with Poppy</span>
-                <span className="text-[10px] opacity-80 font-body block">Ask questions or reserve a date</span>
-              </div>
+              {/* Online dot */}
+              <span className="absolute top-1 right-1 w-3.5 h-3.5 bg-[#A7B596] rounded-full border-2 border-[#423341] animate-pulse" />
             </button>
-            {/* Speech Bubble Tail Notch */}
-            <div className="absolute -bottom-2 right-4 w-4 h-4 bg-[#423341] border-r-2 border-b-2 border-[#EFD4CE] rotate-45 group-hover:bg-[#A7B596] transition-colors" />
           </div>
         </div>
       )}
 
-      {/* Mobile Backdrop overlay */}
+      {/* ---------------------------------------------------------------- */}
+      {/* Mobile Backdrop                                                   */}
+      {/* ---------------------------------------------------------------- */}
       {isOpen && (
-        <div 
-          className="fixed inset-0 bg-[#423341]/60 backdrop-blur-xs z-40 sm:hidden animate-fade-in"
+        <div
+          className="fixed inset-0 bg-[#423341]/50 backdrop-blur-sm z-40 sm:hidden"
           onClick={() => setIsOpen(false)}
         />
       )}
 
-      {/* Chat Drawer / Bottom Sheet Widget */}
+      {/* ---------------------------------------------------------------- */}
+      {/* Chat Panel                                                        */}
+      {/* ---------------------------------------------------------------- */}
       {isOpen && (
-        <div className="fixed inset-x-0 bottom-0 sm:inset-x-auto sm:bottom-6 sm:right-6 z-50 w-full sm:w-[440px] h-[88vh] sm:h-[620px] bg-[#FBF6EF] rounded-t-3xl sm:rounded-3xl shadow-2xl border border-[#EFD4CE] flex flex-col overflow-hidden animate-fade-in font-body transition-all">
-          
-          {/* Mobile Handle Drag Bar */}
-          <div className="w-12 h-1.5 bg-[#EFD4CE] rounded-full mx-auto my-2 sm:hidden shrink-0" />
+        <div className="fixed inset-x-0 bottom-0 sm:inset-x-auto sm:bottom-6 sm:right-6 z-50 w-full sm:w-[460px] h-[92vh] sm:h-[660px] bg-[#FBF6EF] rounded-t-3xl sm:rounded-3xl shadow-2xl flex flex-col overflow-hidden font-body panel-enter">
 
-          {/* Header */}
-          <div className="bg-[#423341] text-[#FBF6EF] p-3.5 sm:p-4 flex items-center justify-between border-b border-[#EFD4CE]/20 shrink-0">
+          {/* Drag handle (mobile only) */}
+          <div className="w-10 h-1 bg-[#D4C3C0] rounded-full mx-auto mt-2 mb-0.5 sm:hidden shrink-0" />
+
+          {/* ---- Header ---- */}
+          <div className="bg-gradient-to-br from-[#3a2d39] to-[#4e3e4d] text-[#FBF6EF] px-4 py-3.5 flex items-center justify-between shrink-0">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-[#EFD4CE]/30 flex items-center justify-center text-[#EFD4CE]">
-                <BotanicalRose color="blush" size={26} />
+              {/* Avatar */}
+              <div className="relative">
+                <div className="w-11 h-11 rounded-full bg-[#EFD4CE]/15 border border-[#EFD4CE]/30 flex items-center justify-center shrink-0">
+                  <span className="font-display text-xl font-semibold text-[#EFD4CE] leading-none">A</span>
+                </div>
+                <span className="absolute bottom-0 right-0 w-3 h-3 bg-[#A7B596] rounded-full border-2 border-[#3a2d39]" />
               </div>
               <div>
-                <h3 className="font-display text-lg font-medium text-[#EFD4CE] leading-none flex items-center gap-1.5">
-                  Poppy
-                  <span className="text-[10px] bg-[#A7B596]/30 text-[#A7B596] border border-[#A7B596]/50 px-2 py-0.5 rounded-full font-mono font-normal">
-                    AI Studio Coordinator
+                <div className="flex items-center gap-2">
+                  <h3 className="font-display text-base font-semibold text-[#EFD4CE] leading-tight">Aria</h3>
+                  <span className="text-[10px] bg-[#EFD4CE]/10 border border-[#EFD4CE]/20 text-[#EFD4CE]/70 px-2 py-0.5 rounded-full font-mono">
+                    AI Receptionist
                   </span>
-                </h3>
-                <span className="text-[11px] text-[#FBF6EF]/70 flex items-center gap-1 mt-1">
-                  <span className="w-2 h-2 rounded-full bg-[#A7B596] animate-pulse" />
-                  Online • Falguni's Photography
-                </span>
+                </div>
+                <p className="text-[11px] text-white/50 mt-0.5 flex items-center gap-1.5">
+                  <Sparkle size={10} className="text-[#A7B596]" />
+                  Powered by Gemini · Falguni's Photography
+                </p>
               </div>
             </div>
-            <button
-              onClick={() => setIsOpen(false)}
-              className="w-9 h-9 rounded-full bg-white/10 text-[#FBF6EF] flex items-center justify-center hover:bg-white/20 transition-colors cursor-pointer shrink-0"
-              aria-label="Close chat"
-            >
-              <X size={20} />
-            </button>
-          </div>
 
-          {/* Quick links header banner */}
-          <div className="bg-[#EFD4CE]/30 px-4 py-2 flex items-center justify-between text-xs text-[#423341] border-b border-[#EFD4CE]/50 shrink-0">
-            <span className="font-medium flex items-center gap-1.5">
-              <ChatCircleText size={15} className="text-[#A7B596]" />
-              Ask questions or reserve your date gently in chat
-            </span>
-            <button
-              onClick={() => {
-                setIsOpen(false);
-                onOpenBooking();
-              }}
-              className="bg-white/80 px-2.5 py-1 rounded-full text-[11px] font-semibold text-[#423341] border border-[#EFD4CE] hover:bg-[#A7B596] transition-colors cursor-pointer"
-            >
-              Direct Form →
-            </button>
-          </div>
-
-          {/* Message List */}
-          <div className="flex-1 p-3.5 sm:p-4 overflow-y-auto space-y-4 bg-[#FBF6EF]">
-            {messages.map(m => (
-              <div
-                key={m.id}
-                className={`flex flex-col ${m.sender === 'user' ? 'items-end' : 'items-start'}`}
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => { setIsOpen(false); onOpenBooking(); }}
+                className="hidden sm:flex items-center gap-1.5 text-[11px] bg-white/10 hover:bg-white/20 border border-white/20 text-white/80 px-2.5 py-1.5 rounded-xl transition-colors cursor-pointer"
               >
-                {/* Speech Message Bubble styling */}
-                <div
-                  className={`max-w-[88%] px-4 py-3 text-sm leading-relaxed shadow-xs relative ${
-                    m.sender === 'user'
-                      ? 'bg-[#423341] text-[#FBF6EF] rounded-3xl rounded-tr-xs'
-                      : 'bg-white text-[#423341] border border-[#EFD4CE] rounded-3xl rounded-tl-xs'
-                  }`}
-                >
-                  <p className="whitespace-pre-line">{m.text}</p>
-                </div>
+                Book form <ArrowRight size={11} />
+              </button>
+              <button
+                onClick={() => setIsOpen(false)}
+                className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors cursor-pointer"
+                aria-label="Close chat"
+              >
+                <X size={16} />
+              </button>
+            </div>
+          </div>
 
-                {/* Booking Confirmation Receipt Card when booking is created */}
-                {m.bookingExtracted && (
-                  <div className="mt-2.5 max-w-[92%] bg-white p-4 rounded-3xl border-2 border-[#A7B596] shadow-md space-y-3 font-body">
-                    <div className="flex items-center justify-between border-b border-[#EFD4CE]/60 pb-2">
-                      <span className="text-xs font-bold text-[#A7B596] uppercase tracking-wider flex items-center gap-1">
-                        <CheckCircle size={16} weight="fill" /> Session Reserved!
-                      </span>
-                      <span className="text-[10px] bg-[#EFD4CE]/40 text-[#423341] px-2 py-0.5 rounded-full font-mono">
-                        {m.bookingExtracted.id || 'BOOKING-OK'}
-                      </span>
-                    </div>
-
-                    <div className="text-xs text-[#423341] space-y-1.5">
-                      <p><strong>Client:</strong> {m.bookingExtracted.fullName || 'Valued Client'}</p>
-                      <p><strong>Phone:</strong> {m.bookingExtracted.phone && m.bookingExtracted.phone !== 'Not provided (Email only)' ? m.bookingExtracted.phone : 'Not provided (Email only)'}</p>
-                      <p><strong>Email:</strong> {m.bookingExtracted.email || 'Recorded'}</p>
-                      <p><strong>Service:</strong> {m.bookingExtracted.serviceRequested || 'Photography Session'}</p>
-                      <p><strong>Date & Time:</strong> {m.bookingExtracted.preferredDate || 'Upcoming Session'}</p>
-                    </div>
-
-                    <div className="bg-[#FBF6EF] p-2.5 rounded-2xl border border-[#EFD4CE] text-[11px] text-[#423341]/80 space-y-1">
-                      <div className="flex items-center gap-1.5 font-semibold text-[#52796F]">
-                        <EnvelopeSimple size={14} /> Email Confirmation Dispatched!
+          {/* ---- Booking Progress Stepper ---- */}
+          {!bookingComplete && (
+            <div className="bg-[#3a2d39]/95 px-4 py-2.5 flex items-center gap-0 shrink-0">
+              {steps.map((step, idx) => {
+                const done = progress2[step.key];
+                const isLast = idx === steps.length - 1;
+                return (
+                  <React.Fragment key={step.key}>
+                    <div className="flex flex-col items-center gap-1 min-w-0">
+                      <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold transition-all duration-500 ${
+                        done ? 'bg-[#A7B596] text-[#423341]' : 'bg-white/10 text-white/40'
+                      }`}>
+                        {done ? '✓' : idx + 1}
                       </div>
-                      <p>Boutique booking confirmation & session styling guide sent directly to <strong>{m.bookingExtracted.email || 'your email'}</strong> (Email notification only).</p>
+                      <span className={`text-[9px] font-medium transition-colors duration-500 ${done ? 'text-[#A7B596]' : 'text-white/30'}`}>
+                        {step.label}
+                      </span>
                     </div>
+                    {!isLast && (
+                      <div className="flex-1 h-px mx-1.5 bg-white/10 relative overflow-hidden">
+                        {done && <div className="absolute inset-y-0 left-0 bg-[#A7B596] transition-all duration-700" style={{ width: '100%' }} />}
+                      </div>
+                    )}
+                  </React.Fragment>
+                );
+              })}
+            </div>
+          )}
 
-                    <div className="pt-1 flex flex-col gap-2 text-xs">
-                      {m.bookingExtracted.notification && (
-                        <button
-                          onClick={() => setActiveNotificationModal(m.bookingExtracted.notification)}
-                          className="w-full bg-[#EFD4CE] hover:bg-[#ebd0ca] text-[#423341] font-semibold py-2.5 px-4 rounded-2xl rounded-bl-xs transition-all flex items-center justify-center gap-2 cursor-pointer shadow-2xs border border-[#e0beba]"
-                        >
-                          <Eye size={16} /> View Styled Confirmation Email Sent
-                        </button>
-                      )}
-
-                      <button
-                        onClick={() => downloadIcsCalendarEvent(m.bookingExtracted)}
-                        className="w-full bg-[#A7B596] hover:bg-[#96a585] text-[#423341] font-semibold py-2.5 px-4 rounded-2xl rounded-bl-xs transition-all flex items-center justify-center gap-2 cursor-pointer shadow-2xs border border-[#8f9f7e]"
-                      >
-                        <Calendar size={16} /> Save Session to Calendar (.ics)
-                      </button>
-                    </div>
-                  </div>
-                )}
-
-                <span className="text-[10px] text-[#423341]/50 mt-1 px-1">
-                  {m.timestamp}
-                </span>
-              </div>
+          {/* ---- Messages ---- */}
+          <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4 bg-[#FBF6EF]">
+            {messages.map((m) => (
+              <MessageBubble
+                key={m.id}
+                m={m}
+                isLatestAria={m.id === latestAriaId}
+                onViewNotification={setActiveModal}
+                onDownloadIcs={downloadIcs}
+              />
             ))}
 
-            {/* Subtle, Gentle 'Poppy is thinking...' Animation & Dot Indicator */}
+            {/* Thinking indicator */}
             {loading && (
-              <div className="flex items-center gap-3 text-xs text-[#423341] bg-white border border-[#EFD4CE] px-4 py-3 rounded-3xl rounded-tl-xs shadow-xs w-fit animate-fade-in">
-                {/* Gentle Pulsing & Bouncing Dot Indicator */}
-                <div className="flex items-center gap-1.5 text-[#A7B596]">
-                  <span className="w-2 h-2 rounded-full bg-[#A7B596] animate-bounce" style={{ animationDelay: '0ms', animationDuration: '1s' }} />
-                  <span className="w-2 h-2 rounded-full bg-[#A7B596] animate-bounce" style={{ animationDelay: '200ms', animationDuration: '1s' }} />
-                  <span className="w-2 h-2 rounded-full bg-[#A7B596] animate-bounce" style={{ animationDelay: '400ms', animationDuration: '1s' }} />
+              <div className="flex items-center gap-3 bg-white border border-[#EFD4CE] px-4 py-3 rounded-3xl rounded-tl-sm shadow-sm w-fit msg-entrance">
+                <div className="flex items-center gap-1">
+                  {[0, 160, 320].map(delay => (
+                    <span
+                      key={delay}
+                      className="w-2 h-2 rounded-full bg-[#A7B596] animate-bounce"
+                      style={{ animationDelay: `${delay}ms`, animationDuration: '1s' }}
+                    />
+                  ))}
                 </div>
-                <div className="flex items-center gap-1.5">
-                  <BotanicalRose color="sage" size={15} className="animate-spin text-[#A7B596]" style={{ animationDuration: '8s' }} />
-                  <span className="font-medium text-[#423341]/90 italic">{thinkingStage}</span>
-                </div>
+                <span className="text-xs text-[#423341]/70 italic font-medium">{thinkingStage}</span>
               </div>
             )}
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Quick Response Options Formatted as Message Speech Bubbles */}
-          <div className="px-3 py-2.5 bg-[#EFD4CE]/20 border-t border-[#EFD4CE]/40 shrink-0">
-            <p className="text-[11px] font-semibold text-[#423341]/70 mb-1.5 px-1 flex items-center gap-1">
-              <ChatCircleText size={14} className="text-[#A7B596]" />
-              <span>Tap a message bubble to ask Poppy:</span>
-            </p>
-            <div className="flex gap-2 overflow-x-auto pb-1.5 no-scrollbar">
-              {getDynamicSuggestions().map((q, idx) => (
+          {/* ---- Quick Suggestions ---- */}
+          <div className="px-3 pt-2 pb-1.5 bg-[#FBF6EF] border-t border-[#EFD4CE]/40 shrink-0">
+            <p className="text-[10px] text-[#423341]/50 font-semibold uppercase tracking-wider px-1 mb-1.5">Quick replies</p>
+            <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
+              {getSuggestions().map((s, i) => (
                 <button
-                  key={idx}
+                  key={i}
                   type="button"
                   disabled={loading}
                   onClick={() => {
-                    if ('isAction' in q && q.isAction) {
-                      q.action();
-                    } else if (q.prompt) {
-                      sendMessageText(q.prompt);
-                    }
+                    if (s.isAction && s.action) s.action();
+                    else if (s.prompt) sendMessage(s.prompt);
                   }}
-                  className="bg-white hover:bg-[#A7B596] hover:text-[#423341] text-[#423341] border border-[#EFD4CE] text-xs font-medium px-3.5 py-2 rounded-2xl rounded-bl-xs whitespace-nowrap shadow-2xs transition-all shrink-0 disabled:opacity-50 cursor-pointer active:scale-95 min-h-[36px] flex items-center gap-1.5 group"
+                  className="flex items-center gap-1.5 bg-white hover:bg-[#A7B596] hover:text-white text-[#423341] border border-[#EFD4CE] text-[11px] font-medium px-3 py-2 rounded-2xl whitespace-nowrap shrink-0 transition-all disabled:opacity-40 cursor-pointer active:scale-95 msg-entrance"
+                  style={{ animationDelay: `${i * 50}ms` }}
                 >
-                  <ChatTeardropText size={14} className="text-[#A7B596] group-hover:text-[#423341] shrink-0" />
-                  <span>{q.label}</span>
+                  <span className="text-[#A7B596] group-hover:text-white">{s.icon}</span>
+                  {s.label}
                 </button>
               ))}
             </div>
           </div>
 
-          {/* Input Form */}
-          <form onSubmit={handleSend} className="p-3 bg-white border-t border-[#EFD4CE] flex items-center gap-2 shrink-0">
-            <input
-              type="text"
-              placeholder="Ask Poppy a question or share booking details..."
+          {/* ---- Input ---- */}
+          <form
+            onSubmit={handleSubmit}
+            className="px-3 pb-3 pt-2 bg-white border-t border-[#EFD4CE] flex items-end gap-2 shrink-0"
+          >
+            <textarea
+              ref={textareaRef}
+              rows={1}
               value={input}
-              onChange={e => setInput(e.target.value)}
-              className="flex-1 bg-[#FBF6EF] border border-[#EFD4CE] rounded-2xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#A7B596] min-h-[44px]"
+              onChange={handleTextareaChange}
+              onKeyDown={handleKeyDown}
+              placeholder="Ask a question or share your details..."
+              className="flex-1 bg-[#FBF6EF] border border-[#EFD4CE] rounded-2xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#A7B596] resize-none overflow-hidden leading-relaxed min-h-[44px]"
+              style={{ maxHeight: '96px' }}
             />
             <button
               type="submit"
               disabled={!input.trim() || loading}
-              className="w-11 h-11 rounded-2xl bg-[#A7B596] text-[#423341] flex items-center justify-center disabled:opacity-40 hover:bg-[#96a585] transition-colors shrink-0 cursor-pointer min-h-[44px] min-w-[44px] shadow-2xs"
               aria-label="Send message"
+              className="w-11 h-11 rounded-2xl bg-[#A7B596] text-[#423341] flex items-center justify-center disabled:opacity-40 hover:bg-[#8fa27a] transition-colors shrink-0 cursor-pointer shadow-sm"
             >
               <PaperPlaneRight size={18} weight="fill" />
             </button>
           </form>
+
+          {/* Keyboard hint */}
+          <p className="text-center text-[10px] text-[#423341]/30 pb-2 bg-white shrink-0">
+            Enter to send · Shift+Enter for new line
+          </p>
         </div>
       )}
 
-      {/* Client Notification Preview Modal */}
-      {activeNotificationModal && (
+      {/* ---------------------------------------------------------------- */}
+      {/* Email Preview Modal                                               */}
+      {/* ---------------------------------------------------------------- */}
+      {activeModal && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#423341]/80 backdrop-blur-md animate-fade-in font-body"
-          onClick={() => setActiveNotificationModal(null)}
+          className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-[#423341]/80 backdrop-blur-md"
+          onClick={() => setActiveModal(null)}
         >
           <div
-            className="bg-[#FBF6EF] max-w-xl w-full rounded-3xl p-6 shadow-2xl relative border border-[#EFD4CE] max-h-[85vh] overflow-y-auto space-y-4"
+            className="bg-[#FBF6EF] max-w-xl w-full rounded-3xl shadow-2xl relative border border-[#EFD4CE] max-h-[88vh] overflow-y-auto panel-enter"
             onClick={e => e.stopPropagation()}
           >
             <button
-              onClick={() => setActiveNotificationModal(null)}
+              onClick={() => setActiveModal(null)}
               className="absolute top-4 right-4 w-9 h-9 rounded-full bg-[#EFD4CE] text-[#423341] flex items-center justify-center hover:bg-[#e0beba] transition-colors cursor-pointer"
+              aria-label="Close email preview"
             >
-              <X size={20} />
+              <X size={18} />
             </button>
 
-            <div className="flex items-center gap-3 border-b border-[#EFD4CE] pb-3">
-              <div className="p-2.5 rounded-2xl bg-[#A7B596] text-[#423341]">
-                <EnvelopeSimple size={24} weight="bold" />
-              </div>
-              <div>
-                <h3 className="font-display text-xl font-medium text-[#423341]">
-                  Client Notification Dispatch Log
-                </h3>
-                <p className="text-xs text-[#423341]/70">
-                  Ref #{activeNotificationModal.referenceNumber} • Sent at {activeNotificationModal.timestamp}
-                </p>
-              </div>
-            </div>
-
-            {/* Email Preview Section */}
-            <div className="space-y-2">
-              <div className="flex flex-wrap items-center justify-between gap-1 text-xs font-semibold text-[#423341]/80">
-                <span className="flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse inline-block"></span>
-                  Email Dispatched Directly To Client:
-                </span>
-                <span className="text-[#52796F] font-mono bg-[#A7B596]/20 px-2 py-0.5 rounded-full">{activeNotificationModal.recipientEmail}</span>
+            <div className="p-6 space-y-4">
+              <div className="flex items-center gap-3 border-b border-[#EFD4CE] pb-4">
+                <div className="p-2.5 rounded-2xl bg-[#A7B596] text-[#423341]">
+                  <EnvelopeSimple size={22} weight="bold" />
+                </div>
+                <div>
+                  <h3 className="font-display text-lg font-semibold text-[#423341]">Confirmation Email Preview</h3>
+                  <p className="text-xs text-[#423341]/60">Ref #{activeModal.referenceNumber} · {activeModal.timestamp}</p>
+                </div>
               </div>
 
-              {/* Styled Email Client Frame */}
-              <div className="bg-white rounded-2xl border border-[#EFD4CE] text-xs text-[#423341] shadow-md overflow-hidden">
-                <div className="bg-[#423341] text-[#FBF6EF] px-4 py-3 text-xs space-y-1">
-                  <div className="flex justify-between items-center text-[11px] text-[#EFD4CE]/80">
-                    <span>From: Falguni's Photography &lt;noreply@falgunisphotography.com.au&gt;</span>
-                    <span>Ref #{activeNotificationModal.referenceNumber}</span>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="flex items-center gap-1.5 font-semibold text-[#423341]/80">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block animate-pulse" />
+                    Sent to client:
+                  </span>
+                  <span className="font-mono bg-[#A7B596]/15 text-[#423341] px-2 py-0.5 rounded-full">{activeModal.recipientEmail}</span>
+                </div>
+
+                <div className="bg-white rounded-2xl border border-[#EFD4CE] overflow-hidden shadow-sm">
+                  <div className="bg-[#423341] text-[#FBF6EF] px-4 py-3 space-y-0.5">
+                    <p className="text-[10px] text-[#EFD4CE]/60">From: Falguni's Photography &lt;noreply@falgunisphotography.com.au&gt;</p>
+                    <p className="font-semibold text-sm text-[#FBF6EF]">{activeModal.subject}</p>
                   </div>
-                  <p className="font-semibold text-sm text-[#FBF6EF] pt-0.5">
-                    {activeNotificationModal.subject}
-                  </p>
-                </div>
-                <div className="p-4 max-h-[45vh] overflow-y-auto bg-neutral-50/50">
-                  <div
-                    className="prose prose-sm max-w-none text-xs"
-                    dangerouslySetInnerHTML={{ __html: activeNotificationModal.htmlBody }}
-                  />
+                  <div className="p-4 max-h-[40vh] overflow-y-auto">
+                    <div className="prose prose-sm max-w-none text-xs" dangerouslySetInnerHTML={{ __html: activeModal.htmlBody }} />
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* Email Only Policy Banner (No SMS) */}
-            <div className="p-3 bg-[#A7B596]/15 rounded-2xl border border-[#A7B596]/40 flex items-start gap-2.5 text-[11px] text-[#423341]/80 leading-relaxed">
-              <EnvelopeSimple size={18} className="text-[#52796F] shrink-0 mt-0.5" />
-              <div>
-                <strong className="text-[#423341] block">Email-Only Notification Policy</strong>
-                Falguni's Photography sends booking confirmations, styling preparations, and proofing portals exclusively via email. No marketing SMS or automated text messages are sent to your phone.
+              <div className="flex items-start gap-2.5 p-3 bg-[#A7B596]/10 rounded-2xl border border-[#A7B596]/20 text-[11px] text-[#423341]/70">
+                <EnvelopeSimple size={16} className="text-[#A7B596] shrink-0 mt-0.5" />
+                <p><strong className="text-[#423341]">Email-only policy:</strong> Booking confirmations are sent exclusively via email. No marketing SMS is sent.</p>
               </div>
-            </div>
 
-            <div className="pt-2 text-center">
-              <button
-                onClick={() => setActiveNotificationModal(null)}
-                className="bg-[#A7B596] hover:bg-[#96a585] text-[#423341] font-semibold text-sm px-6 py-2.5 rounded-full transition-colors cursor-pointer min-h-[44px] shadow-sm"
-              >
-                Close Email Preview
-              </button>
+              <div className="pt-1 text-center">
+                <button
+                  onClick={() => setActiveModal(null)}
+                  className="bg-[#A7B596] hover:bg-[#8fa27a] text-[#423341] font-semibold text-sm px-8 py-2.5 rounded-full transition-colors cursor-pointer min-h-[44px]"
+                >
+                  Close Preview
+                </button>
+              </div>
             </div>
           </div>
         </div>

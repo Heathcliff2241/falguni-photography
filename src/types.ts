@@ -52,13 +52,13 @@ export interface BookingLead {
   preferredDate?: string;
   babyDueDateOrBirthDate?: string;
   notes?: string;
-  source: 'ai_poppy' | 'direct_form' | 'contact_page';
+  source: 'ai_poppy' | 'ai_receptionist' | 'direct_form' | 'contact_page';
   transcript?: { sender: string; text: string; time: string }[];
 }
 
 export interface ChatMessage {
   id: string;
-  sender: 'user' | 'poppy';
+  sender: 'user' | 'poppy' | 'aria';
   text: string;
   timestamp: string;
   bookingExtracted?: Partial<BookingLead> & { notification?: any };

@@ -2,7 +2,7 @@ import express from 'express';
 import path from 'path';
 import fs from 'fs';
 import { createServer as createViteServer } from 'vite';
-import { processPoppyChat } from './server/poppyAgent';
+import { processReceptionistChat } from './server/receptionist';
 import { saveLead, getAllLeads } from './server/db';
 import {
   sendLeadNotificationEmail,
@@ -27,7 +27,7 @@ async function startServer() {
       return res.status(400).json({ error: 'Message is required' });
     }
 
-    const result = await processPoppyChat(message, history || []);
+    const result = await processReceptionistChat(message, history || []);
     res.json(result);
   });
 

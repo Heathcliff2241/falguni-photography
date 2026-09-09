@@ -1,29 +1,7 @@
 import { GoogleGenAI } from '@google/genai';
-import nodemailer from 'nodemailer';
-import fs from 'fs';
-import path from 'path';
-import { renderClientBookingEmail, renderStudioLeadEmail } from './_emailTemplates';
-
-// ---------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------
-interface ChatHistoryItem {
-  role: 'user' | 'model';
-  parts: { text: string }[];
-}
-
-interface BookingLead {
-  id: string;
-  timestamp: string;
-  fullName: string;
-  phone: string;
-  email: string;
-  serviceRequested: string;
-  preferredDate?: string;
-  notes?: string;
-  source?: string;
-  transcript?: { sender: string; text: string; time: string }[];
-}
+import { saveLead } from './db';
+import { sendLeadNotificationEmail, sendClientConfirmationNotification, ClientNotificationResult } from './email';
+import { BookingLead } from '../src/types';
 
 // ---------------------------------------------------------------------------
 // Lazy Gemini client
@@ -33,13 +11,17 @@ function getAI(): GoogleGenAI | null {
   const key = process.env.GEMINI_API_KEY;
   if (!key) return null;
   if (!_ai) {
-    try { _ai = new GoogleGenAI({ apiKey: key }); } catch { return null; }
+    try {
+      _ai = new GoogleGenAI({ apiKey: key });
+    } catch {
+      return null;
+    }
   }
   return _ai;
 }
 
 // ---------------------------------------------------------------------------
-// System prompt — fresh, clean, no legacy brain references
+// System prompt — clean, no legacy brain references
 // ---------------------------------------------------------------------------
 const SYSTEM_PROMPT = `
 You are Aria, the warm, professional AI studio receptionist for Falguni's Photography — a premier boutique portrait studio at 26 South Pkwy, Northfield SA 5085, Adelaide, Australia. Studio phone: +61 469 753 238.
@@ -80,7 +62,7 @@ RULES
 `;
 
 // ---------------------------------------------------------------------------
-// Lightweight booking state extraction
+// Lightweight booking state extractor
 // ---------------------------------------------------------------------------
 type Service = 'newborn' | 'maternity' | 'family' | 'cake_smash';
 
@@ -94,23 +76,26 @@ interface BookingState {
 }
 
 function extractBookingState(transcript: string): BookingState {
+  const lower = transcript.toLowerCase();
+
+  // Service
   let service: Service | null = null;
   let serviceLabel: string | null = null;
-
   if (/cake.smash|first birthday|1st birthday|turning one|turning 1/i.test(transcript)) {
     service = 'cake_smash'; serviceLabel = 'Cake Smash & 1st Birthday';
-  } else if (/newborn|infant|due date|5.?14 days/i.test(transcript)) {
+  } else if (/newborn|baby|infant|due date|5.?14 days/i.test(lower)) {
     service = 'newborn'; serviceLabel = 'Newborn Photography';
-  } else if (/maternit|pregnan|gown|28.34 weeks/i.test(transcript)) {
+  } else if (/maternit|pregnan|gown|28.34 weeks/i.test(lower)) {
     service = 'maternity'; serviceLabel = 'Maternity Photography';
-  } else if (/\bfamily\b|toddler|\bkids\b|children/i.test(transcript)) {
+  } else if (/family|toddler|\bkids\b|children/i.test(lower)) {
     service = 'family'; serviceLabel = 'Family Portraits';
   }
 
+  // Date
   const datePatterns = [
     /\b((?:jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)\s+\d{1,2}(?:st|nd|rd|th)?(?:\s*,?\s*\d{4})?)\b/i,
     /\b(\d{1,2}(?:st|nd|rd|th)?\s+(?:of\s+)?(?:jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)(?:\s*,?\s*\d{4})?)\b/i,
-    /\b(\d{1,2}[\/.\-]\d{1,2}[\/.\-]\d{2,4})\b/,
+    /\b(\d{1,2}[\/\.\-]\d{1,2}[\/\.\-]\d{2,4})\b/,
     /\b(next\s+(?:week|month|saturday|sunday)|this\s+(?:weekend|saturday|sunday|friday))\b/i,
     /\b(tomorrow)\b/i,
   ];
@@ -120,12 +105,15 @@ function extractBookingState(transcript: string): BookingState {
     if (m?.[1]) { preferredDate = m[1].charAt(0).toUpperCase() + m[1].slice(1); break; }
   }
 
+  // Email
   const emailMatch = transcript.match(/[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}/);
   const email = emailMatch ? emailMatch[0] : null;
 
+  // Phone (Australian formats)
   const phoneMatch = transcript.match(/(?:\+?61\s?4\d{2}[\s.\-]?\d{3}[\s.\-]?\d{3}|04\d{2}[\s.\-]?\d{3}[\s.\-]?\d{3}|\b0[2-9]\d{8}\b|\b\d{10,11}\b)/);
   const phone = phoneMatch ? phoneMatch[0] : null;
 
+  // Name — look for explicit "my name is X" patterns, or the answer after Aria asked for a name
   let fullName: string | null = null;
   const nameMatch = transcript.match(/(?:my name is|i(?:'m| am)|this is|name:\s*)\s*([A-Z][a-zA-Z'.\-]+(?:\s+[A-Za-z'.\-]+){0,3})/i);
   if (nameMatch?.[1]) fullName = nameMatch[1].trim();
@@ -134,102 +122,40 @@ function extractBookingState(transcript: string): BookingState {
 }
 
 // ---------------------------------------------------------------------------
-// Lead persistence (serverless safe)
+// Types
 // ---------------------------------------------------------------------------
-const _inMemoryLeads: BookingLead[] = [];
+interface ChatHistoryItem {
+  role: 'user' | 'model';
+  parts: { text: string }[];
+}
 
-function saveLeadSafe(lead: Partial<BookingLead>): BookingLead {
-  const full: BookingLead = {
-    id: `lead-${Date.now()}`,
-    timestamp: new Date().toISOString(),
-    fullName: lead.fullName || '',
-    phone: lead.phone || '',
-    email: lead.email || '',
-    serviceRequested: lead.serviceRequested || 'studio session',
-    preferredDate: lead.preferredDate,
-    notes: lead.notes || '',
-    source: lead.source || 'ai_receptionist',
-    transcript: lead.transcript || []
-  };
-  _inMemoryLeads.unshift(full);
-  try {
-    const dbFile = process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME
-      ? path.join('/tmp', 'leads_db.json')
-      : path.join(process.cwd(), 'server', 'leads_db.json');
-    fs.mkdirSync(path.dirname(dbFile), { recursive: true });
-    fs.writeFileSync(dbFile, JSON.stringify(_inMemoryLeads, null, 2));
-  } catch { /* non-fatal */ }
-  return full;
+export interface ReceptionistResult {
+  text: string;
+  extracted: (Partial<BookingLead> & { notification?: ClientNotificationResult | null }) | null;
+  clientNotification: ClientNotificationResult | null;
 }
 
 // ---------------------------------------------------------------------------
-// Email dispatch (serverless safe)
+// Main chat processor
 // ---------------------------------------------------------------------------
-async function dispatchEmails(lead: BookingLead, refNum: string, nowStr: string) {
-  const smtpUser = process.env.SMTP_USER;
-  const smtpPass = process.env.SMTP_PASS;
-  if (!smtpUser || !smtpPass) {
-    console.log('[RECEPTIONIST EMAIL] SMTP not configured — lead logged:', lead.fullName, lead.email);
-    return;
-  }
-  const smtpFrom = process.env.SMTP_FROM || `"Falguni's Photography" <noreply@falgunisphotography.com.au>`;
-  const studioEmail = renderStudioLeadEmail(lead, refNum, nowStr);
-  const clientEmail = renderClientBookingEmail(lead, refNum, nowStr);
-
+export async function processReceptionistChat(
+  message: string,
+  history: ChatHistoryItem[] = []
+): Promise<ReceptionistResult> {
   try {
-    const transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST || 'smtp.gmail.com',
-      port: 587, secure: false,
-      auth: { user: smtpUser, pass: smtpPass },
-      connectionTimeout: 8000, greetingTimeout: 8000
-    });
-    await Promise.allSettled([
-      transporter.sendMail({ from: smtpFrom, to: 'cesaresmero2@gmail.com', subject: studioEmail.subject, html: studioEmail.html, text: studioEmail.text })
-        .then(() => console.log('[EMAIL] Studio notification sent'))
-        .catch(e => console.error('[EMAIL] Studio send failed:', e)),
-      lead.email && lead.email.includes('@')
-        ? transporter.sendMail({ from: smtpFrom, to: lead.email, subject: clientEmail.subject, html: clientEmail.html, text: clientEmail.text })
-            .then(() => console.log(`[EMAIL] Client confirmation sent to ${lead.email}`))
-            .catch(e => console.error(`[EMAIL] Client send failed:`, e))
-        : Promise.resolve()
-    ]);
-  } catch (e) {
-    console.warn('[EMAIL] Dispatch error:', e);
-  }
-}
-
-// ---------------------------------------------------------------------------
-// Main handler
-// ---------------------------------------------------------------------------
-export default async function handler(req: any, res: any) {
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,POST,PUT,PATCH,DELETE');
-  res.setHeader('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version');
-
-  if (req.method === 'OPTIONS') return res.status(200).end();
-  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
-
-  try {
-    let body = req.body;
-    if (typeof body === 'string') { try { body = JSON.parse(body); } catch { body = {}; } }
-    body = body || {};
-
-    const { message, history } = body;
-    if (!message || typeof message !== 'string') return res.status(400).json({ error: 'message is required' });
-
-    // Build clean turn list
-    const rawItems: ChatHistoryItem[] = [];
+    // Build clean alternating turn list
+    const rawItems: { role: 'user' | 'model'; parts: { text: string }[] }[] = [];
     if (Array.isArray(history)) {
       for (const item of history) {
         if (!item) continue;
         const text = item.parts?.[0]?.text?.trim() || '';
-        if (text) rawItems.push({ role: item.role === 'user' ? 'user' : 'model', parts: [{ text }] });
+        if (text.length > 0) rawItems.push({ role: item.role === 'user' ? 'user' : 'model', parts: [{ text }] });
       }
     }
     while (rawItems.length > 0 && rawItems[0].role === 'model') rawItems.shift();
 
-    const contents: ChatHistoryItem[] = [];
+    // Collapse adjacent same-role turns
+    const contents: { role: 'user' | 'model'; parts: { text: string }[] }[] = [];
     for (const item of rawItems) {
       if (contents.length > 0 && contents[contents.length - 1].role === item.role) {
         contents[contents.length - 1].parts[0].text += '\n' + item.parts[0].text;
@@ -248,21 +174,22 @@ export default async function handler(req: any, res: any) {
       for (const modelId of ['gemini-2.0-flash', 'gemini-2.0-flash-lite']) {
         try {
           const resp = await ai.models.generateContent({
-            model: modelId, contents,
+            model: modelId,
+            contents,
             config: { systemInstruction: SYSTEM_PROMPT, temperature: 0.65 }
           });
           if (resp?.text) { replyText = resp.text; break; }
-        } catch (e) {
-          console.warn(`[API/chat] Model ${modelId} failed:`, e);
+        } catch (err) {
+          console.warn(`[Receptionist] Model ${modelId} failed:`, err);
         }
       }
     }
 
     if (!replyText) {
-      replyText = "Welcome to Falguni's Photography! We specialize in newborn, maternity, family, and cake smash sessions. How can I help you today?";
+      replyText = "Thank you for reaching out to Falguni's Photography! We'd love to help you book a newborn, maternity, family, or cake smash session. Which session interests you?";
     }
 
-    // Clean output
+    // Strip thinking blocks and forbidden characters
     replyText = replyText
       .replace(/<thinking>[\s\S]*?<\/thinking>/gi, '')
       .replace(/<thought>[\s\S]*?<\/thought>/gi, '')
@@ -271,52 +198,50 @@ export default async function handler(req: any, res: any) {
       .replace(/[\u{1F300}-\u{1FAFF}]/gu, '')
       .trim();
 
-    // Extract booking state
+    // Extract booking state from full conversation
     const fullTranscript = [
       ...contents.map(c => `${c.role}: ${c.parts[0]?.text}`),
       `model: ${replyText}`
     ].join('\n');
+
     const state = extractBookingState(fullTranscript);
 
+    // Guard: only fire booking once — check if a previous model turn already confirmed it
     const alreadyConfirmed = contents.some(
       c => c.role === 'model' && /i have recorded|your reservation|confirmation.*(sent|dispatched|on its way)/i.test(c.parts[0]?.text || '')
     );
 
-    let bookingExtracted: any = null;
-    let clientNotification: any = null;
+    let bookingExtracted: ReceptionistResult['extracted'] = null;
+    let clientNotification: ClientNotificationResult | null = null;
 
     const hasContact = !!(state.email || state.phone);
     if (!alreadyConfirmed && state.fullName && hasContact && state.service && state.preferredDate) {
       const refNum = `FP-${Math.floor(1000 + Math.random() * 9000)}`;
-      const nowStr = new Date().toLocaleString('en-AU', { timeZone: 'Australia/Adelaide', dateStyle: 'full', timeStyle: 'short' });
-      const transcript = contents.map(c => ({
+      const transcriptFormatted = contents.map(c => ({
         sender: c.role === 'user' ? 'user' : 'aria',
         text: c.parts[0]?.text || '',
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       }));
 
-      const lead = saveLeadSafe({
+      const lead = saveLead({
         fullName: state.fullName,
         phone: state.phone || 'Not provided',
         email: state.email || '',
         serviceRequested: state.serviceLabel || state.service,
         preferredDate: state.preferredDate,
         notes: message,
-        source: 'ai_receptionist',
-        transcript
+        source: 'ai_poppy',
+        transcript: transcriptFormatted
       });
 
-      dispatchEmails(lead, refNum, nowStr).catch(e => console.warn('[API/chat] Email error:', e));
+      sendLeadNotificationEmail(lead, refNum).catch(err =>
+        console.warn('[Receptionist] Studio email error:', err)
+      );
 
-      const clientEmailData = renderClientBookingEmail(lead, refNum, nowStr);
-      clientNotification = {
-        sent: true,
-        recipientEmail: lead.email,
-        subject: clientEmailData.subject,
-        htmlBody: clientEmailData.html,
-        referenceNumber: refNum,
-        timestamp: nowStr
-      };
+      clientNotification = await sendClientConfirmationNotification(lead, refNum).catch(err => {
+        console.warn('[Receptionist] Client email error:', err);
+        return null;
+      });
 
       bookingExtracted = {
         id: lead.id,
@@ -330,13 +255,13 @@ export default async function handler(req: any, res: any) {
       };
     }
 
-    return res.status(200).json({ text: replyText, extracted: bookingExtracted, clientNotification });
+    return { text: replyText, extracted: bookingExtracted, clientNotification };
   } catch (err) {
-    console.error('[API/chat] Unhandled error:', err);
-    return res.status(200).json({
-      text: "Thank you for getting in touch with Falguni's Photography! Please call us at +61 469 753 238 or try again in a moment.",
+    console.error('[Receptionist] Fatal error:', err);
+    return {
+      text: "I'd be happy to help you book a session with Falguni! Please call us at +61 469 753 238 or try again in a moment.",
       extracted: null,
       clientNotification: null
-    });
+    };
   }
 }
